@@ -7,7 +7,6 @@
 {% block navbar %}{% endblock navbar %}
 
 {% block head_extra %}
-    <!-- Lucide Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
     <style>
         /* Your custom CSS from the sample, adapted and integrated */
@@ -177,7 +176,7 @@
             background: hsla(222, 47%, 12%, 0.5);
             border: 1px solid var(--border);
             border-radius: 0.5rem;
-            color: var(--foreground);
+            color: var(--foreground); /* Explicitly set text color */
             font-size: 0.875rem;
             transition: all 0.3s ease;
             outline: none;
@@ -196,6 +195,13 @@
         .input-custom::placeholder {
             color: var(--muted-foreground);
         }
+
+        /* Ensure password field value color is also foreground */
+        input[type="password"].input-custom {
+            color: var(--foreground); 
+            -webkit-text-security: disc; /* For Safari, ensures dots are shown */
+        }
+
 
         .input-with-icon {
             padding-right: 2.5rem;
@@ -408,7 +414,6 @@
 <div class="container-full-height">
     <div class="background-pattern"></div>
     
-    <!-- Floating IoT Icons -->
     <div class="floating-icons">
         <svg class="floating-icon icon" style="color: var(--primary);">
             <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
@@ -425,7 +430,6 @@
         </svg>
     </div>
 
-    <!-- Main Register Card -->
     <div class="card-custom">
         <div class="card-header-custom">
             <div class="logo-container">
@@ -606,7 +610,6 @@
         </div>
     </div>
 
-    <!-- Status Bar -->
     <div class="status-bar">
         <div class="status-indicator">
             <div class="status-dot"></div>
