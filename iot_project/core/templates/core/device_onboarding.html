@@ -3,36 +3,543 @@
 
 {% block title %}Device Setup{% endblock %}
 
+{% block head_extra %}
+    <!-- Lucide Icons (if not already in base.html) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+    <!-- Google Fonts: Rajdhani for headings, Inter for body -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS adapted from login.html for a consistent IoT theme */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* IoT Theme Colors */
+            --background: hsl(222, 47%, 4%);
+            --foreground: hsl(210, 40%, 98%);
+            --card: hsl(222, 47%, 8%);
+            --card-foreground: hsl(210, 40%, 98%);
+            --primary: hsl(195, 100%, 50%); /* Main accent blue */
+            --primary-foreground: hsl(222, 47%, 4%); /* Text on primary */
+            --secondary: hsl(260, 60%, 65%); /* Purple accent */
+            --accent: hsl(180, 100%, 50%); /* Cyan accent */
+            --muted: hsl(222, 47%, 12%); /* Muted background */
+            --muted-foreground: hsl(215, 20%, 65%); /* Muted text */
+            --border: hsl(222, 47%, 20%);
+            --input: hsl(222, 47%, 12%);
+            --destructive: hsl(0, 84%, 60%); /* Red for errors */
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
+            --gradient-cyber: linear-gradient(45deg, var(--primary), var(--accent));
+            --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 8%, 0.8), hsla(222, 47%, 12%, 0.4));
+            
+            /* Effects */
+            --shadow-cyber: 0 0 30px hsla(195, 100%, 50%, 0.3);
+            --shadow-glass: 0 8px 32px hsla(222, 47%, 4%, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif; /* Changed to Inter for body text */
+            background: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, hsla(180, 100%, 50%, 0.05) 0%, transparent 50%);
+        }
+
+        .container-full-height { /* Using a custom class to avoid conflict with Bootstrap's .container */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 1rem;
+        }
+
+        .background-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
+                linear-gradient(-45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, hsl(222, 47%, 8%) 75%),
+                linear-gradient(-45deg, transparent 75%, hsl(222, 47%, 8%) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            opacity: 0.1;
+        }
+
+        .floating-icons {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-icon {
+            position: absolute;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 5rem; left: 5rem; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 10rem; right: 8rem; animation-delay: 1s; }
+        .floating-icon:nth-child(3) { bottom: 8rem; left: 4rem; animation-delay: 2s; }
+
+        .card-custom { /* Using a custom class to avoid conflict with Bootstrap's .card */
+            background: var(--gradient-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid hsla(222, 47%, 20%, 0.5);
+            box-shadow: var(--shadow-glass);
+            border-radius: 0.75rem;
+            width: 100%;
+            max-width: 40rem; /* Made wider */
+            padding: 2.5rem; /* Increased padding */
+            position: relative;
+            z-index: 10;
+        }
+
+        .card-header-custom { /* Custom header for the card */
+            text-align: center;
+            margin-bottom: 2.5rem; /* Increased margin */
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            position: relative;
+            width: 4.5rem; /* Slightly larger logo */
+            height: 4.5rem;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1px solid hsla(195, 100%, 50%, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .title {
+            font-family: 'Rajdhani', sans-serif; /* New font for titles */
+            font-size: 2rem; /* Larger title */
+            font-weight: 700; /* Bolder */
+            background: var(--gradient-cyber);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em; /* Added letter spacing */
+        }
+
+        .subtitle {
+            font-family: 'Inter', sans-serif; /* Consistent body font */
+            color: var(--muted-foreground);
+            font-size: 1rem; /* Slightly larger subtitle */
+        }
+
+        .form-group-custom { /* Custom form group */
+            margin-bottom: 1.5rem; /* Increased margin */
+        }
+
+        .label-custom { /* Custom label */
+            font-family: 'Inter', sans-serif; /* Consistent body font */
+            display: block;
+            font-size: 0.95rem; /* Slightly larger label */
+            font-weight: 500;
+            margin-bottom: 0.6rem; /* Increased margin */
+            color: var(--foreground);
+        }
+
+        .input-container-custom { /* Custom input container */
+            position: relative;
+        }
+
+        .input-custom { /* Custom input field */
+            font-family: 'Inter', sans-serif; /* Consistent body font */
+            width: 100%;
+            padding: 0.85rem; /* Increased padding */
+            background: hsla(222, 47%, 12%, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--foreground);
+            font-size: 0.95rem; /* Slightly larger input text */
+            transition: all 0.3s ease;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .input-custom:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px hsla(195, 100%, 50%, 0.2);
+        }
+
+        .input-custom::placeholder {
+            color: var(--muted-foreground);
+            opacity: 0.7; /* Make placeholder slightly less prominent */
+        }
+
+        .input-with-icon {
+            padding-right: 2.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--muted-foreground);
+            transition: color 0.3s ease;
+        }
+
+        .input-icon:hover {
+            color: var(--primary);
+        }
+
+        .circuit-line {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .circuit-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: circuit-flow 2s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .circuit-line:focus-within::before {
+            opacity: 1;
+        }
+
+        .btn-custom { /* Custom button */
+            font-family: 'Rajdhani', sans-serif; /* New font for buttons */
+            width: 100%;
+            padding: 0.9rem; /* Increased padding */
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem; /* Larger button text */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem; /* Increased gap */
+            text-decoration: none;
+            outline: none;
+            text-transform: uppercase; /* Uppercase for tech feel */
+            letter-spacing: 0.03em;
+        }
+
+        .btn-primary-custom { /* Custom primary button */
+            background: var(--gradient-primary);
+            color: var(--primary-foreground);
+            box-shadow: var(--shadow-cyber);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px hsla(195, 100%, 50%, 0.4);
+        }
+
+        .btn-outline-custom { /* Custom outline button */
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--foreground);
+        }
+
+        .btn-outline-custom:hover {
+            border-color: var(--primary);
+            background: hsla(195, 100%, 50%, 0.1);
+        }
+
+        .divider {
+            position: relative;
+            margin: 2rem 0; /* Increased margin */
+            text-align: center;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider span {
+            font-family: 'Inter', sans-serif; /* Consistent body font */
+            background: var(--card);
+            padding: 0 1rem;
+            font-size: 0.8rem; /* Slightly larger divider text */
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+        }
+
+        .auth-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem; /* Increased margin */
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .link-custom { /* Custom link style */
+            font-family: 'Inter', sans-serif; /* Consistent body font */
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .link-custom:hover {
+            color: var(--accent);
+        }
+
+        .status-bar {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            right: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px hsla(195, 100%, 50%, 0.3); }
+            50% { box-shadow: 0 0 30px hsla(195, 100%, 50%, 0.6); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes circuit-flow {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Lucide Icons (SVG) */
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .icon-lg {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container-full-height {
+                padding: 0.5rem;
+            }
+            
+            .card-custom {
+                padding: 1.5rem;
+            }
+            
+            .auth-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Specific alert styles for feedback messages */
+        .alert-custom {
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            text-align: left;
+        }
+        .alert-custom.alert-info {
+            background-color: hsla(195, 100%, 50%, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        .alert-custom.alert-success {
+            background-color: hsla(120, 100%, 30%, 0.2);
+            color: hsl(120, 100%, 50%);
+            border: 1px solid hsl(120, 100%, 40%);
+        }
+        .alert-custom.alert-danger {
+            background-color: hsla(0, 84%, 60%, 0.2);
+            color: var(--destructive);
+            border: 1px solid var(--destructive);
+        }
+        .alert-custom.alert-warning {
+            background-color: hsla(40, 100%, 60%, 0.2);
+            color: hsl(40, 100%, 70%);
+            border: 1px solid hsl(40, 100%, 60%);
+        }
+
+        /* Adjustments for specific text elements */
+        .text-center.lead { /* For the instruction paragraphs */
+            font-size: 1.05rem; /* Slightly larger for readability */
+            line-height: 1.6;
+        }
+        .text-center code {
+            font-family: 'Space Mono', monospace; /* A distinct monospace font for code snippets */
+            font-size: 0.95rem;
+            background-color: hsla(180, 100%, 50%, 0.1);
+            padding: 0.2em 0.4em;
+            border-radius: 0.25em;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-lg p-4 mt-5">
-            <div class="card-body text-center">
-                <h2 class="card-title text-primary mb-4">Set Up Your New IoT Device</h2>
-                <p class="lead mb-4">
-                    To begin, connect your device to power. It will broadcast a Wi-Fi hotspot like <code class="text-info">IoTSetup-XXXXXX</code>.
-                    Connect your phone/computer to this hotspot, then visit <code class="text-info">192.168.4.1</code> in your browser to configure its Wi-Fi.
-                </p>
-                <p class="mb-4">
-                    Once your device is connected to your home Wi-Fi, enter its unique **Device API Key** below to link it to your account.
-                </p>
+<div class="container-full-height">
+    <div class="background-pattern"></div>
+    
+    <!-- Floating IoT Icons -->
+    <div class="floating-icons">
+        <svg class="floating-icon icon" style="color: var(--primary);">
+            <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
+        </svg>
+        <svg class="floating-icon icon" style="color: var(--accent);">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7z"/>
+            <path d="m9 12 2 2 4-4"/>
+        </svg>
+        <svg class="floating-icon icon" style="color: var(--secondary);">
+            <path d="M6 3v12"/>
+            <path d="M18 9v12"/>
+            <path d="M6 3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
+            <path d="M18 9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/>
+        </svg>
+    </div>
 
-                <div class="mb-3">
-                    <label for="deviceApiKeyInput" class="form-label visually-hidden">Device API Key</label>
-                    <input type="text" class="form-control form-control-lg" id="deviceApiKeyInput" placeholder="Enter Device API Key (e.g., DEV_ABC123DEF456)" required>
-                    <div id="apiKeyFeedback" class="mt-2 text-start"></div>
+    <!-- Main Card for Device Setup -->
+    <div class="card-custom">
+        <div class="card-header-custom">
+            <div class="logo-container">
+                <div class="logo">
+                    <svg class="icon icon-lg" style="color: var(--primary-foreground);">
+                        <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
+                    </svg>
                 </div>
-                <button id="checkDeviceBtn" class="btn btn-primary btn-lg w-100 mb-3">Check Device Status</button>
-
-                <hr class="my-4">
-
-                <p class="text-muted">Already have an account?</p>
-                <a href="{% url 'login' %}" id="loginLink" class="btn btn-outline-secondary btn-sm me-2 disabled" aria-disabled="true">Login and Add Device</a>
-                <p class="text-muted mt-3">New user?</p>
-                <a href="{% url 'register' %}" id="registerLink" class="btn btn-outline-success btn-sm disabled" aria-disabled="true">Register and Add Device</a>
-
             </div>
+            <h1 class="title">Set Up Your New IoT Device</h1>
+            <p class="subtitle">Connect and link your smart hardware</p>
         </div>
+
+        <p class="text-center lead" style="color: var(--foreground); margin-bottom: 1.5rem;">
+            To begin, connect your device to power. It will broadcast a Wi-Fi hotspot like <code style="color: var(--accent);">IoTSetup-XXXXXX</code>.
+            Connect your phone/computer to this hotspot, then visit <code style="color: var(--accent);">192.168.4.1</code> in your browser to configure its Wi-Fi.
+        </p>
+        <p class="text-center lead" style="color: var(--foreground); margin-bottom: 1.5rem;">
+            Once your device is connected to your home Wi-Fi, enter its unique **Device API Key** below to link it to your account.
+        </p>
+
+        <div class="form-group-custom">
+            <label for="deviceApiKeyInput" class="label-custom">Device API Key</label>
+            <div class="input-container-custom circuit-line">
+                <input type="text" class="input-custom" id="deviceApiKeyInput" placeholder="Enter Device API Key (e.g., DEV_ABC123DEF456)" required>
+            </div>
+            <div id="apiKeyFeedback" class="mt-2 text-start alert-custom"></div>
+        </div>
+        
+        <button id="checkDeviceBtn" class="btn-custom btn-primary-custom mt-4">
+            Check Device Status
+            <svg class="icon">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+        </button>
+
+        <div class="divider">
+            <span>Or</span>
+        </div>
+
+        <div class="auth-buttons">
+            <a href="{% url 'login' %}" id="loginLink" class="btn-custom btn-outline-custom disabled" aria-disabled="true">
+                <svg class="icon">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                Login & Add Device
+            </a>
+            <a href="{% url 'register' %}" id="registerLink" class="btn-custom btn-outline-custom disabled" aria-disabled="true">
+                <svg class="icon">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Register & Add Device
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            System Online
+        </div>
+        <span>Encrypted Connection</span>
     </div>
 </div>
 {% endblock %}
@@ -66,11 +573,11 @@ document.addEventListener('DOMContentLoaded', function() {
         updateLinkStates(false); // Disable links initially
 
         if (!deviceApiKey) {
-            apiKeyFeedback.innerHTML = '<div class="alert alert-danger">Please enter a Device API Key.</div>';
+            apiKeyFeedback.innerHTML = '<div class="alert-custom alert-danger">Please enter a Device API Key.</div>';
             return;
         }
 
-        apiKeyFeedback.innerHTML = '<div class="alert alert-info">Checking device status...</div>';
+        apiKeyFeedback.innerHTML = '<div class="alert-custom alert-info">Checking device status...</div>';
         checkDeviceBtn.disabled = true;
 
         try {
@@ -78,17 +585,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (response.ok) {
-                apiKeyFeedback.innerHTML = `<div class="alert alert-success">Device "${data.device_name}" (${data.device_type}) is online and available for registration!</div>`;
+                apiKeyFeedback.innerHTML = `<div class="alert-custom alert-success">Device "${data.device_name}" (${data.device_type}) is online and available for registration!</div>`;
                 updateLinkStates(true, deviceApiKey);
             } else {
-                apiKeyFeedback.innerHTML = `<div class="alert alert-warning">${data.message || 'Unknown error.'}</div>`;
+                apiKeyFeedback.innerHTML = `<div class="alert-custom alert-warning">${data.message || 'Unknown error.'}</div>`;
             }
         } catch (error) {
             console.error('Error checking device:', error);
-            apiKeyFeedback.innerHTML = '<div class="alert alert-danger">Network error or server unreachable. Please try again later.</div>';
+            apiKeyFeedback.innerHTML = '<div class="alert-custom alert-danger">Network error or server unreachable. Please try again later.</div>';
         } finally {
             checkDeviceBtn.disabled = false;
         }
+    });
+
+    // Apply input focus/blur animation from login.html
+    const inputs = document.querySelectorAll('.input-custom');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('.input-container-custom').style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.closest('.input-container-custom').style.transform = 'scale(1)';
+        });
     });
 });
 </script>

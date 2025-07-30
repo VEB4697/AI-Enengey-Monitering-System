@@ -1,42 +1,434 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Welcome to Smart IoT{% endblock %}
+{% block title %}Welcome to Smart IoT - AI Energy Monitoring{% endblock %}
+
+{% block head_extra %}
+    <!-- Lucide Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS from login.html, adapted for homepage */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* IoT Theme Colors */
+            --background: hsl(222, 47%, 4%);
+            --foreground: hsl(210, 40%, 98%);
+            --card: hsl(222, 47%, 8%);
+            --card-foreground: hsl(210, 40%, 98%);
+            --primary: hsl(195, 100%, 50%); /* Main accent blue */
+            --primary-foreground: hsl(222, 47%, 4%); /* Text on primary */
+            --secondary: hsl(260, 60%, 65%); /* Purple accent */
+            --accent: hsl(180, 100%, 50%); /* Cyan accent */
+            --muted: hsl(222, 47%, 12%); /* Muted background */
+            --muted-foreground: hsl(215, 20%, 65%); /* Muted text */
+            --border: hsl(222, 47%, 20%);
+            --input: hsl(222, 47%, 12%);
+            --destructive: hsl(0, 84%, 60%); /* Red for errors */
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
+            --gradient-cyber: linear-gradient(45deg, var(--primary), var(--accent));
+            --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 8%, 0.8), hsla(222, 47%, 12%, 0.4));
+            
+            /* Effects */
+            --shadow-cyber: 0 0 30px hsla(195, 100%, 50%, 0.3);
+            --shadow-glass: 0 8px 32px hsla(222, 47%, 4%, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, hsla(180, 100%, 50%, 0.05) 0%, transparent 50%);
+        }
+
+        .container-full-height {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 1rem;
+            flex-direction: column; /* Allow content to stack vertically */
+        }
+
+        .background-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
+                linear-gradient(-45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, hsl(222, 47%, 8%) 75%),
+                linear-gradient(-45deg, transparent 75%, hsl(222, 47%, 8%) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            opacity: 0.1;
+            z-index: 0; /* Ensure it's behind content */
+        }
+
+        .floating-icons {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1; /* Ensure it's behind content but above pattern */
+        }
+
+        .floating-icon {
+            position: absolute;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 5rem; left: 5rem; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 10rem; right: 8rem; animation-delay: 1s; }
+        .floating-icon:nth-child(3) { bottom: 8rem; left: 4rem; animation-delay: 2s; }
+        .floating-icon:nth-child(4) { top: 20%; left: 40%; animation-delay: 0.5s; opacity: 0.2; transform: scale(0.8); }
+        .floating-icon:nth-child(5) { bottom: 15%; right: 20%; animation-delay: 1.5s; opacity: 0.25; transform: scale(0.9); }
+
+
+        .hero-section {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 5rem 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            background: var(--gradient-cyber);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            animation: fadeInScale 1s ease-out, text-glow 2s ease-in-out infinite alternate; /* Added text-glow */
+        }
+
+        .hero-subtitle {
+            color: var(--muted-foreground);
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .hero-buttons .btn-custom {
+            margin: 0.5rem;
+            animation: slideInUp 0.8s ease-out forwards;
+            opacity: 0; /* Start hidden for animation */
+        }
+        .hero-buttons .btn-custom:nth-child(1) { animation-delay: 0.5s; }
+        .hero-buttons .btn-custom:nth-child(2) { animation-delay: 0.7s; }
+
+
+        .info-section {
+            position: relative;
+            z-index: 10;
+            padding: 4rem 1rem;
+            background: var(--card); /* Use card background for sections */
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-top: 4rem;
+            text-align: center;
+        }
+
+        .info-section h2 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2.5rem;
+            animation: text-glow 2s ease-in-out infinite alternate; /* Added text-glow */
+        }
+
+        .info-section p {
+            max-width: 800px;
+            margin: 0 auto 2rem auto;
+            color: var(--muted-foreground);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+
+        .features-grid {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 4rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--gradient-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid hsla(222, 47%, 20%, 0.5);
+            box-shadow: var(--shadow-glass);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInPop 0.8s ease-out forwards; /* Changed to fadeInPop */
+            opacity: 0; /* Start hidden for animation */
+            transform: translateY(20px) scale(0.95); /* Start slightly below and smaller */
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 40px hsla(222, 47%, 4%, 0.4);
+        }
+
+        .feature-card h5 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: var(--gradient-cyber);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-card p {
+            color: var(--muted-foreground);
+            line-height: 1.5;
+        }
+
+        /* Delay animations for each card */
+        .feature-card:nth-child(1) { animation-delay: 0.2s; }
+        .feature-card:nth-child(2) { animation-delay: 0.4s; }
+        .feature-card:nth-child(3) { animation-delay: 0.6s; }
+        .feature-card:nth-child(4) { animation-delay: 0.8s; }
+        .feature-card:nth-child(5) { animation-delay: 1.0s; }
+        .feature-card:nth-child(6) { animation-delay: 1.2s; }
+
+
+        .btn-custom { /* Custom button */
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex; /* Use inline-flex for buttons in text */
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            outline: none;
+        }
+
+        .btn-primary-custom { /* Custom primary button */
+            background: var(--gradient-primary);
+            color: var(--primary-foreground);
+            box-shadow: var(--shadow-cyber);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px hsla(195, 100%, 50%, 0.4);
+        }
+
+        .btn-outline-custom { /* Custom outline button */
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--foreground);
+        }
+
+        .btn-outline-custom:hover {
+            border-color: var(--primary);
+            background: hsla(195, 100%, 50%, 0.1);
+        }
+
+        /* Lucide Icons (SVG) */
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .icon-lg {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px hsla(195, 100%, 50%, 0.3); }
+            50% { box-shadow: 0 0 30px hsla(195, 100%, 50%, 0.6); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInPop { /* New animation for a 'pop' effect */
+            from { opacity: 0; transform: translateY(30px) scale(0.8); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes text-glow { /* New animation for glowing text */
+            0% { text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary); }
+            50% { text-shadow: 0 0 15px var(--primary), 0 0 25px var(--primary), 0 0 35px var(--accent); }
+            100% { text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary); }
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            .info-section h2 {
+                font-size: 2rem;
+            }
+            .info-section p {
+                font-size: 0.9rem;
+            }
+            .features-grid {
+                grid-template-columns: 1fr; /* Stack cards on small screens */
+            }
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-<div class="text-center py-5">
-    <h1 class="display-4 text-primary">Welcome to Your Smart IoT Home!</h1>
-    <p class="lead mt-4">Monitor and control your devices from anywhere in the world.</p>
-    <div class="mt-5">
-        <a href="{% url 'device_onboarding' %}" class="btn btn-lg btn-info me-3">Setup New Device</a>
-        <a href="{% url 'login' %}" class="btn btn-lg btn-outline-primary">Login to Dashboard</a>
+<div class="container-full-height">
+    <div class="background-pattern"></div>
+    
+    <!-- Floating IoT Icons -->
+    <div class="floating-icons">
+        <svg class="floating-icon icon" style="color: var(--primary);">
+            <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
+        </svg>
+        <svg class="floating-icon icon" style="color: var(--accent);">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7z"/>
+            <path d="m9 12 2 2 4-4"/>
+        </svg>
+        <svg class="floating-icon icon" style="color: var(--secondary);">
+            <path d="M6 3v12"/>
+            <path d="M18 9v12"/>
+            <path d="M6 3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
+            <path d="M18 9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/>
+        </svg>
+        <svg class="floating-icon icon" style="color: var(--primary);">
+            <path d="M12 2v20M17 5H7l5 17 5-17Z"/>
+        </svg>
+        <svg class="floating-icon icon" style="color: var(--accent);">
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/>
+            <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"/>
+        </svg>
     </div>
-</div>
 
-<div class="row mt-5">
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title text-success">Seamless Device Setup</h5>
-                <p class="card-text">Easily connect your new IoT devices to your home Wi-Fi and link them to your account using a unique API key. No complex coding required!</p>
-            </div>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1 class="hero-title">Welcome to Your Smart IoT Home!</h1>
+        <p class="hero-subtitle">Monitor, control, and optimize your devices from anywhere in the world with intelligent energy management.</p>
+        <div class="hero-buttons">
+            <a href="{% url 'device_onboarding' %}" class="btn-custom btn-primary-custom">
+                <svg class="icon"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"/></svg>
+                Setup New Device
+            </a>
+            <a href="{% url 'login' %}" class="btn-custom btn-outline-custom">
+                <svg class="icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Login to Dashboard
+            </a>
         </div>
-    </div>
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title text-warning">Global Control & Monitoring</h5>
-                <p class="card-text">Access real-time sensor data and control your smart switches from anywhere on Earth, securely through your personalized dashboard.</p>
-            </div>
+    </section>
+
+    <!-- What is Smart IoT Section -->
+    <section class="info-section">
+        <h2>What is Smart IoT?</h2>
+        <p>Smart IoT refers to the interconnected network of physical objects embedded with sensors, software, and other technologies for the purpose of connecting and exchanging data with other devices and systems over the internet. Our AI Energy Monitoring System brings this power directly to your home, allowing you to gain unprecedented control and insight into your energy consumption and device behavior.</p>
+        <p>It's about making your home smarter, more efficient, and more responsive to your needs, ultimately leading to significant energy savings and enhanced convenience.</p>
+    </section>
+
+    <!-- Core Features Section -->
+    <section class="features-grid">
+        <div class="feature-card">
+            <h5>Seamless Device Setup</h5>
+            <p class="card-text">Easily connect your new IoT devices to your home Wi-Fi and link them to your account using a unique API key. No complex coding required!</p>
         </div>
-    </div>
-    <div class="col-md-12 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title text-danger">Intelligent Energy Optimization (Future ML Integration)</h5>
-                <p class="card-text">Our system is designed to integrate machine learning models to analyze your power consumption patterns, predict future needs, and automate actions to save energy and reduce your bills. Get insights into your usage and make your home truly smart and efficient!</p>
-            </div>
+        <div class="feature-card">
+            <h5>Global Control & Monitoring</h5>
+            <p class="card-text">Access real-time sensor data and control your smart switches from anywhere on Earth, securely through your personalized dashboard.</p>
         </div>
-    </div>
+        <div class="feature-card">
+            <h5>Intelligent Energy Optimization (Future ML Integration)</h5>
+            <p class="card-text">Our system is designed to integrate machine learning models to analyze your power consumption patterns, predict future needs, and automate actions to save energy and reduce your bills. Get insights into your usage and make your home truly smart and efficient!</p>
+        </div>
+        <div class="feature-card">
+            <h5>Real-time Data Visualization</h5>
+            <p class="card-text">Visualize your energy consumption trends with interactive charts and graphs, helping you understand your usage patterns and identify areas for improvement.</p>
+        </div>
+        <div class="feature-card">
+            <h5>Secure & Private</h5>
+            <p class="card-text">Your data security and privacy are our top priorities. All communications are encrypted, and your personal information is protected.</p>
+        </div>
+        <div class="feature-card">
+            <h5>Scalable & Extendable</h5>
+            <p class="card-text">The modular architecture allows for easy integration of new device types and features, ensuring your smart home grows with your needs.</p>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="info-section" style="margin-bottom: 4rem;">
+        <h2>Ready to Transform Your Home?</h2>
+        <p>Join Vaibhav Bhusare and Rutuja Deshmukh in embracing the future of smart living. Get started today and take control of your energy!</p>
+        <div class="hero-buttons">
+            <a href="{% url 'register' %}" class="btn-custom btn-primary-custom">
+                <svg class="icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Register Now
+            </a>
+            <a href="{% url 'device_onboarding' %}" class="btn-custom btn-outline-custom">
+                <svg class="icon"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"/></svg>
+                Setup Your Device
+            </a>
+        </div>
+    </section>
 </div>
 {% endblock %}
