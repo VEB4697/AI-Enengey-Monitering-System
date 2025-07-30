@@ -7,6 +7,7 @@
 {% block navbar %}{% endblock navbar %}
 
 {% block head_extra %}
+    <!-- Lucide Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
     <style>
         /* Your custom CSS from the sample, adapted and integrated */
@@ -176,15 +177,12 @@
             background: hsla(222, 47%, 12%, 0.5);
             border: 1px solid var(--border);
             border-radius: 0.5rem;
-            color: var(--foreground); /* Explicitly set text color */
+            color: var(--foreground);
             font-size: 0.875rem;
             transition: all 0.3s ease;
             outline: none;
             position: relative;
             overflow: hidden;
-            z-index: 1; /* Ensure input is above other elements if any */
-            cursor: text; /* Explicitly set text cursor */
-            pointer-events: auto; /* Ensure it responds to mouse events */
         }
 
         .input-custom:focus {
@@ -195,13 +193,6 @@
         .input-custom::placeholder {
             color: var(--muted-foreground);
         }
-
-        /* Ensure password field value color is also foreground */
-        input[type="password"].input-custom {
-            color: var(--foreground); 
-            -webkit-text-security: disc; /* For Safari, ensures dots are shown */
-        }
-
 
         .input-with-icon {
             padding-right: 2.5rem;
@@ -215,8 +206,6 @@
             cursor: pointer;
             color: var(--muted-foreground);
             transition: color 0.3s ease;
-            z-index: 2; /* Ensure icon is above input for clickability */
-            pointer-events: auto; /* Ensure it responds to mouse events */
         }
 
         .input-icon:hover {
@@ -414,6 +403,7 @@
 <div class="container-full-height">
     <div class="background-pattern"></div>
     
+    <!-- Floating IoT Icons -->
     <div class="floating-icons">
         <svg class="floating-icon icon" style="color: var(--primary);">
             <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
@@ -430,6 +420,7 @@
         </svg>
     </div>
 
+    <!-- Main Register Card -->
     <div class="card-custom">
         <div class="card-header-custom">
             <div class="logo-container">
@@ -497,7 +488,7 @@
                         <label for="{{ form.password.id_for_label }}" class="label-custom">Password</label>
                         <div class="input-container-custom circuit-line">
                             <input type="password" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}" class="input-custom input-with-icon" placeholder="Enter your password" required>
-                            <svg class="input-icon" id="togglePassword1" onclick="togglePasswordVisibility('{{ form.password.id_for_label }}', 'togglePassword1')" tabindex="0" role="button" aria-label="Toggle password visibility">
+                            <svg class="input-icon" id="togglePassword1" onclick="togglePasswordVisibility('{{ form.password.id_for_label }}', 'togglePassword1')">
                                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                                 <circle cx="12" cy="12" r="3"/>
                             </svg>
@@ -510,7 +501,7 @@
                         <label for="{{ form.password2.id_for_label }}" class="label-custom">Confirm Password</label>
                         <div class="input-container-custom circuit-line">
                             <input type="password" id="{{ form.password2.id_for_label }}" name="{{ form.password2.name }}" class="input-custom input-with-icon" placeholder="Re-enter your password" required>
-                            <svg class="input-icon" id="togglePassword2" onclick="togglePasswordVisibility('{{ form.password2.id_for_label }}', 'togglePassword2')" tabindex="0" role="button" aria-label="Toggle password visibility">
+                            <svg class="input-icon" id="togglePassword2" onclick="togglePasswordVisibility('{{ form.password2.id_for_label }}', 'togglePassword2')">
                                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                                 <circle cx="12" cy="12" r="3"/>
                             </svg>
@@ -610,6 +601,7 @@
         </div>
     </div>
 
+    <!-- Status Bar -->
     <div class="status-bar">
         <div class="status-indicator">
             <div class="status-dot"></div>
@@ -630,14 +622,12 @@
         
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
-            // Eye-off icon (slashed eye)
-            eyeIconPath.setAttribute('d', 'M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20'); 
-            if (eyeCircle) eyeCircle.style.display = 'none'; // Hide the circle for the "eye-off" state
+            eyeIconPath.setAttribute('d', 'M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20'); // Eye-off icon
+            if (eyeCircle) eyeCircle.style.display = 'none';
         } else {
             passwordInput.type = 'password';
-            // Eye-on icon (open eye)
-            eyeIconPath.setAttribute('d', 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'); 
-            if (eyeCircle) eyeCircle.style.display = 'block'; // Show the circle for the "eye-on" state
+            eyeIconPath.setAttribute('d', 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'); // Eye-on icon
+            if (eyeCircle) eyeCircle.style.display = 'block';
         }
     }
 
