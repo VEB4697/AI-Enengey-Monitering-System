@@ -7,6 +7,7 @@
 {% block navbar %}{% endblock navbar %}
 
 {% block head_extra %}
+    <!-- Lucide Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
     <style>
         /* Your custom CSS from the sample, adapted and integrated */
@@ -168,6 +169,7 @@
 
         .input-container-custom { /* Custom input container */
             position: relative;
+            overflow: hidden; /* Re-enabled for the circuit line effect */
         }
 
         .input-custom { /* Custom input field */
@@ -181,10 +183,10 @@
             transition: all 0.3s ease;
             outline: none;
             position: relative;
-            overflow: hidden;
-            z-index: 1; /* Ensure input is above other elements if any */
+            display: inline-block; /* Explicitly set display */
+            z-index: 100; /* Very high z-index to be sure */
             cursor: text; /* Explicitly set text cursor */
-            pointer-events: auto; /* Ensure it responds to mouse events */
+            pointer-events: auto; /* Ensure input receives clicks */
         }
 
         .input-custom:focus {
@@ -198,7 +200,7 @@
 
         /* Ensure password field value color is also foreground */
         input[type="password"].input-custom {
-            color: var(--foreground); 
+            color: var(--foreground);
             -webkit-text-security: disc; /* For Safari, ensures dots are shown */
         }
 
@@ -209,25 +211,22 @@
 
         .input-icon {
             position: absolute;
-            right: 0.75rem;
+            right: 0.75rem; /* Adjusted for better alignment */
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: var(--muted-foreground);
+            color: var(--foreground); /* Changed to foreground for white color */
             transition: color 0.3s ease;
-            z-index: 2; /* Ensure icon is above input for clickability */
+            z-index: 101; /* Higher than input */
             pointer-events: auto; /* Ensure it responds to mouse events */
+            display: block; /* Ensure it's treated as a block element */
         }
 
         .input-icon:hover {
             color: var(--primary);
         }
-
-        .circuit-line {
-            position: relative;
-            overflow: hidden;
-        }
-
+        
+        /* Circuit line effect applied to input-container-custom */
         .circuit-line::before {
             content: '';
             position: absolute;
@@ -239,6 +238,8 @@
             animation: circuit-flow 2s linear infinite;
             opacity: 0;
             transition: opacity 0.3s ease;
+            z-index: -1; /* Place behind the input */
+            pointer-events: none; /* Ensure pseudo-element doesn't block clicks */
         }
 
         .circuit-line:focus-within::before {
@@ -416,7 +417,7 @@
     
     <div class="floating-icons">
         <svg class="floating-icon icon" style="color: var(--primary);">
-            <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
+            <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
         </svg>
         <svg class="floating-icon icon" style="color: var(--accent);">
             <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7z"/>
@@ -435,7 +436,7 @@
             <div class="logo-container">
                 <div class="logo">
                     <svg class="icon icon-lg" style="color: var(--primary-foreground);">
-                        <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
+                        <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
                     </svg>
                 </div>
             </div>
@@ -458,7 +459,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.first_name.id_for_label }}" class="label-custom">First Name</label>
-                        <div class="input-container-custom circuit-line">
+                        <div class="input-container-custom circuit-line" tabindex="-1">
                             <input type="text" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" class="input-custom" placeholder="Your first name" value="{{ form.first_name.value|default_if_none:'' }}">
                         </div>
                         {% if form.first_name.errors %}<div class="text-destructive small mt-1">{% for error in form.first_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -467,7 +468,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.last_name.id_for_label }}" class="label-custom">Last Name</label>
-                        <div class="input-container-custom circuit-line">
+                        <div class="input-container-custom circuit-line" tabindex="-1">
                             <input type="text" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" class="input-custom" placeholder="Your last name" value="{{ form.last_name.value|default_if_none:'' }}">
                         </div>
                         {% if form.last_name.errors %}<div class="text-destructive small mt-1">{% for error in form.last_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -477,7 +478,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.username.id_for_label }}" class="label-custom">Username</label>
-                <div class="input-container-custom circuit-line">
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <input type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" class="input-custom" placeholder="Choose a unique username" value="{{ form.username.value|default_if_none:'' }}" required>
                 </div>
                 {% if form.username.errors %}<div class="text-destructive small mt-1">{% for error in form.username.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -485,7 +486,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.email.id_for_label }}" class="label-custom">Email</label>
-                <div class="input-container-custom circuit-line">
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <input type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" class="input-custom" placeholder="Enter your email address" value="{{ form.email.value|default_if_none:'' }}" required>
                 </div>
                 {% if form.email.errors %}<div class="text-destructive small mt-1">{% for error in form.email.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -495,7 +496,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.password.id_for_label }}" class="label-custom">Password</label>
-                        <div class="input-container-custom circuit-line">
+                        <div class="input-container-custom"> {# Removed tabindex="-1" #}
                             <input type="password" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}" class="input-custom input-with-icon" placeholder="Enter your password" required>
                         </div>
                         {% if form.password.errors %}<div class="text-destructive small mt-1">{% for error in form.password.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -504,7 +505,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.password2.id_for_label }}" class="label-custom">Confirm Password</label>
-                        <div class="input-container-custom circuit-line">
+                        <div class="input-container-custom"> {# Removed tabindex="-1" #}
                             <input type="password" id="{{ form.password2.id_for_label }}" name="{{ form.password2.name }}" class="input-custom input-with-icon" placeholder="Re-enter your password" required>
                         </div>
                         {% if form.password2.errors %}<div class="text-destructive small mt-1">{% for error in form.password2.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -516,7 +517,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.phone_number.id_for_label }}" class="label-custom">Phone Number</label>
-                        <div class="input-container-custom circuit-line">
+                        <div class="input-container-custom circuit-line" tabindex="-1">
                             <input type="tel" id="{{ form.phone_number.id_for_label }}" name="{{ form.phone_number.name }}" class="input-custom" placeholder="e.g., +919876543210" value="{{ form.phone_number.value|default_if_none:'' }}">
                         </div>
                         {% if form.phone_number.errors %}<div class="text-destructive small mt-1">{% for error in form.phone_number.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -525,7 +526,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.date_of_birth.id_for_label }}" class="label-custom">Date of Birth</label>
-                        <div class="input-container-custom circuit-line">
+                        <div class="input-container-custom circuit-line" tabindex="-1">
                             <input type="date" id="{{ form.date_of_birth.id_for_label }}" name="{{ form.date_of_birth.name }}" class="input-custom" value="{{ form.date_of_birth.value|default_if_none:'' }}">
                         </div>
                         {% if form.date_of_birth.errors %}<div class="text-destructive small mt-1">{% for error in form.date_of_birth.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -535,7 +536,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.gender.id_for_label }}" class="label-custom">Gender</label>
-                <div class="input-container-custom circuit-line">
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <select id="{{ form.gender.id_for_label }}" name="{{ form.gender.name }}" class="input-custom">
                         {% for value, label in form.gender.field.choices %}
                             <option value="{{ value }}" {% if form.gender.value == value %}selected{% endif %}>{{ label }}</option>
@@ -547,7 +548,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.address.id_for_label }}" class="label-custom">Address</label>
-                <div class="input-container-custom circuit-line">
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <textarea id="{{ form.address.id_for_label }}" name="{{ form.address.name }}" class="input-custom" placeholder="Your full address" rows="3">{{ form.address.value|default_if_none:'' }}</textarea>
                 </div>
                 {% if form.address.errors %}<div class="text-destructive small mt-1">{% for error in form.address.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -555,7 +556,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.profile_picture.id_for_label }}" class="label-custom">Profile Picture</label>
-                <div class="input-container-custom circuit-line">
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <input type="file" id="{{ form.profile_picture.id_for_label }}" name="{{ form.profile_picture.name }}" class="input-custom">
                 </div>
                 {% if form.profile_picture.errors %}<div class="text-destructive small mt-1">{% for error in form.profile_picture.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -602,6 +603,7 @@
         </div>
     </div>
 
+    <!-- Status Bar -->
     <div class="status-bar">
         <div class="status-indicator">
             <div class="status-dot"></div>
@@ -613,37 +615,92 @@
 
 {% block scripts_extra %}
 <script>
-    // Modified togglePasswordVisibility to accept ID for multiple fields
+    // Define the SVG paths for eye-on and eye-off states
+    const EYE_ON_PATH = 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z';
+    const EYE_OFF_PATH = 'M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20';
+
     function togglePasswordVisibility(inputId, iconId) {
+        console.log(`Toggling visibility for input: ${inputId}`);
         const passwordInput = document.getElementById(inputId);
-        const toggleIcon = document.getElementById(iconId);
-        const eyeIconPath = toggleIcon.querySelector('path:first-child');
-        const eyeCircle = toggleIcon.querySelector('circle');
+        console.log(`passwordInput element:`, passwordInput); // Log the element itself
         
+        // Check if passwordInput is null before proceeding
+        if (!passwordInput) {
+            console.error(`Error: Input element with ID '${inputId}' not found.`);
+            return; // Exit the function if element is not found
+        }
+
+        const toggleIcon = document.getElementById(iconId);
+        const eyeOnPath = toggleIcon.querySelector('.eye-on-path');
+        const eyeOnCircle = toggleIcon.querySelector('.eye-on-circle');
+        const eyeOffPath = toggleIcon.querySelector('.eye-off-path');
+
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
-            // Eye-off icon (slashed eye)
-            eyeIconPath.setAttribute('d', 'M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20'); 
-            if (eyeCircle) eyeCircle.style.display = 'none'; // Hide the circle for the "eye-off" state
+            if (eyeOnPath) eyeOnPath.style.display = 'none';
+            if (eyeOnCircle) eyeOnCircle.style.display = 'none';
+            if (eyeOffPath) eyeOffPath.style.display = 'block';
+            console.log(`Input ${inputId} type changed to: text (visible)`);
         } else {
             passwordInput.type = 'password';
-            // Eye-on icon (open eye)
-            eyeIconPath.setAttribute('d', 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'); 
-            if (eyeCircle) eyeCircle.style.display = 'block'; // Show the circle for the "eye-on" state
+            if (eyeOnPath) eyeOnPath.style.display = 'block';
+            if (eyeOnCircle) eyeOnCircle.style.display = 'block';
+            if (eyeOffPath) eyeOffPath.style.display = 'none';
+            console.log(`Input ${inputId} type changed to: password (hidden)`);
         }
+        // Crucial: Re-focus the input after changing type
+        passwordInput.focus();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM Content Loaded. Initializing event listeners.');
+
         const inputs = document.querySelectorAll('.input-custom');
-        
         inputs.forEach(input => {
+            // Event listeners for focus/blur effects
             input.addEventListener('focus', function() {
-                this.closest('.input-container-custom').style.transform = 'scale(1.02)';
+                // Check if the parent has 'circuit-line' class before applying transform
+                const parentContainer = this.closest('.input-container-custom');
+                if (parentContainer && parentContainer.classList.contains('circuit-line')) {
+                    parentContainer.style.transform = 'scale(1.02)';
+                }
+                console.log(`Input ${this.id} focused.`);
             });
             
             input.addEventListener('blur', function() {
-                this.closest('.input-container-custom').style.transform = 'scale(1)';
+                // Check if the parent has 'circuit-line' class before applying transform
+                const parentContainer = this.closest('.input-container-custom');
+                if (parentContainer && parentContainer.classList.contains('circuit-line')) {
+                    parentContainer.style.transform = 'scale(1)';
+                }
+                console.log(`Input ${this.id} blurred.`);
             });
+
+            // Add a click listener directly to the input to ensure focus
+            input.addEventListener('click', function(event) {
+                console.log(`Input ${this.id} clicked. Attempting to focus.`);
+                this.focus();
+                event.stopPropagation(); // Prevent event from bubbling up and being caught by other elements
+            });
+        });
+
+        // Add click listener for the eye icons
+        const toggleIcons = document.querySelectorAll('.input-icon');
+        toggleIcons.forEach(icon => {
+            // Remove any inline onclick attributes to prevent double-firing
+            icon.removeAttribute('onclick'); 
+            icon.addEventListener('click', function(event) {
+                console.log(`Eye icon ${this.id} clicked.`);
+                // Determine the correct input ID based on the icon ID
+                const inputId = this.id === 'togglePassword1' ? 'id_password' : 'id_password2'; 
+                togglePasswordVisibility(inputId, this.id);
+                event.stopPropagation(); // Prevent event from bubbling up
+            });
+        });
+
+        // Optional: Add a general click listener to the document body for debugging
+        document.body.addEventListener('click', function(event) {
+            // console.log('Body clicked. Target:', event.target); // Uncomment for deep debugging
         });
     });
 </script>
