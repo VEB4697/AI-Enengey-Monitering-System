@@ -497,10 +497,6 @@
                         <label for="{{ form.password.id_for_label }}" class="label-custom">Password</label>
                         <div class="input-container-custom circuit-line">
                             <input type="password" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}" class="input-custom input-with-icon" placeholder="Enter your password" required>
-                            <svg class="input-icon" id="togglePassword1" onclick="togglePasswordVisibility('{{ form.password.id_for_label }}', 'togglePassword1')" tabindex="0" role="button" aria-label="Toggle password visibility">
-                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
                         </div>
                         {% if form.password.errors %}<div class="text-destructive small mt-1">{% for error in form.password.errors %}{{ error }}{% endfor %}</div>{% endif %}
                     </div>
@@ -510,10 +506,6 @@
                         <label for="{{ form.password2.id_for_label }}" class="label-custom">Confirm Password</label>
                         <div class="input-container-custom circuit-line">
                             <input type="password" id="{{ form.password2.id_for_label }}" name="{{ form.password2.name }}" class="input-custom input-with-icon" placeholder="Re-enter your password" required>
-                            <svg class="input-icon" id="togglePassword2" onclick="togglePasswordVisibility('{{ form.password2.id_for_label }}', 'togglePassword2')" tabindex="0" role="button" aria-label="Toggle password visibility">
-                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
                         </div>
                         {% if form.password2.errors %}<div class="text-destructive small mt-1">{% for error in form.password2.errors %}{{ error }}{% endfor %}</div>{% endif %}
                     </div>
