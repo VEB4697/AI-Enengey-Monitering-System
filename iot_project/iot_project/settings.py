@@ -65,8 +65,6 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True # Crucial for timezone-aware datetimes
 
-SECRET_KEY = 'asdftyed^4-hdt$%#'
-
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
@@ -74,12 +72,21 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # For collectstatic in production
 
+# Media files (for user-uploaded content like profile pictures)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # This is where uploaded files will be stored
+
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/dashboard/' # Where to redirect after successful login
 LOGOUT_REDIRECT_URL = '/'          # Where to redirect after logout
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] # Add your computer's local IP here if needed for ESP connection
 
-DEBUG = True
+DEBUG = True # Keep this as True for now
+
+# IMPORTANT: Tell Django to use your custom user model
+AUTH_USER_MODEL = 'core.CustomUser'
+
+SECRET_KEY = 'django-insecure-your-very-long-and-random-secret-key-that-you-just-generated-and-copied-here!'
