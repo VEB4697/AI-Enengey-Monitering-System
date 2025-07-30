@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-light">Your Smart Devices</h2>
+
+{% if devices_with_latest_data %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for item in devices_with_latest_data %}
+    <div class="col">
+        <div class="card h-100 shadow-sm bg-dark text-light border-secondary">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-primary">{{ item.device.name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ item.device.get_device_type_display }}</h6>
+                <p class="card-text">
+                    Status:
+                    {% if item.device.is_online and item.device.last_seen and item.device.last_seen|timesince:"now"|cut:" " < "5 minutes" %}
+                        <span class="badge bg-success">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger">Offline</span>
+                    {% endif %}
+                    <br>
+                    Last Seen: {{ item.device.last_seen|default:"N/A" }}
+                </p>
+
+                <div class="mt-auto">
+                    {% if item.device.device_type == 'power_monitor' %}
+                        <p class="card-text">
+                            <strong>Current Power:</strong> {{ item.latest_data.power|default:"N/A" }} W<br>
+                            <strong>Voltage:</strong> {{ item.latest_data.voltage|default:"N/A" }} V<br>
+                            <strong>Relay State:</strong>
+                            {% if item.latest_data.relay_state == "ON" %}
+                                <span class="badge bg-success">ON</span>
+                            {% elif item.latest_data.relay_state == "OFF" %}
+                                <span class="badge bg-danger">OFF</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Unknown</span>
+                            {% endif %}
+                        </p>
+                    {% elif item.device.device_type == 'water_level' %}
+                        <p class="card-text">
+                            <strong>Water Level:</strong> {{ item.latest_data.water_level|default:"N/A" }}%
+                        </p>
+                    {% else %}
+                        <p class="card-text">No specific data available for this device type.</p>
+                    {% endif %}
+                </div>
+                <a href="{% url 'dashboard:device_detail' item.device.id %}" class="btn btn-outline-primary mt-3">View Details & Control</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info text-center" role="alert">
+    You don't have any devices registered yet. <a href="{% url 'device_onboarding' %}" class="alert-link">Set up a new device</a> to get started!
+</div>
+{% endif %}
+{% endblock %}

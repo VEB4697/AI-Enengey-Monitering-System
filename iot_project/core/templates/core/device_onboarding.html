@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Device Setup{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg p-4 mt-5">
+            <div class="card-body text-center">
+                <h2 class="card-title text-primary mb-4">Set Up Your New IoT Device</h2>
+                <p class="lead mb-4">
+                    To begin, connect your device to power. It will broadcast a Wi-Fi hotspot like <code class="text-info">IoTSetup-XXXXXX</code>.
+                    Connect your phone/computer to this hotspot, then visit <code class="text-info">192.168.4.1</code> in your browser to configure its Wi-Fi.
+                </p>
+                <p class="mb-4">
+                    Once your device is connected to your home Wi-Fi, enter its unique **Device API Key** below to link it to your account.
+                </p>
+
+                <div class="mb-3">
+                    <label for="deviceApiKeyInput" class="form-label visually-hidden">Device API Key</label>
+                    <input type="text" class="form-control form-control-lg" id="deviceApiKeyInput" placeholder="Enter Device API Key (e.g., DEV_ABC123DEF456)" required>
+                    <div id="apiKeyFeedback" class="mt-2 text-start"></div>
+                </div>
+                <button id="checkDeviceBtn" class="btn btn-primary btn-lg w-100 mb-3">Check Device Status</button>
+
+                <hr class="my-4">
+
+                <p class="text-muted">Already have an account?</p>
+                <a href="{% url 'login' %}" id="loginLink" class="btn btn-outline-secondary btn-sm me-2 disabled" aria-disabled="true">Login and Add Device</a>
+                <p class="text-muted mt-3">New user?</p>
+                <a href="{% url 'register' %}" id="registerLink" class="btn btn-outline-success btn-sm disabled" aria-disabled="true">Register and Add Device</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const apiKeyInput = document.getElementById('deviceApiKeyInput');
+    const checkDeviceBtn = document.getElementById('checkDeviceBtn');
+    const apiKeyFeedback = document.getElementById('apiKeyFeedback');
+    const loginLink = document.getElementById('loginLink');
+    const registerLink = document.getElementById('registerLink');
+
+    function updateLinkStates(isValid, deviceApiKey) {
+        if (isValid) {
+            loginLink.classList.remove('disabled');
+            registerLink.classList.remove('disabled');
+            loginLink.setAttribute('href', `{% url 'login' %}?device_api_key=${deviceApiKey}`);
+            registerLink.setAttribute('href', `{% url 'register' %}?device_api_key=${deviceApiKey}`);
+        } else {
+            loginLink.classList.add('disabled');
+            registerLink.classList.add('disabled');
+            loginLink.setAttribute('href', '#');
+            registerLink.setAttribute('href', '#');
+        }
+    }
+
+    checkDeviceBtn.addEventListener('click', async function() {
+        const deviceApiKey = apiKeyInput.value.trim();
+        apiKeyFeedback.innerHTML = ''; // Clear previous messages
+        updateLinkStates(false); // Disable links initially
+
+        if (!deviceApiKey) {
+            apiKeyFeedback.innerHTML = '<div class="alert alert-danger">Please enter a Device API Key.</div>';
+            return;
+        }
+
+        apiKeyFeedback.innerHTML = '<div class="alert alert-info">Checking device status...</div>';
+        checkDeviceBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/v1/device/onboard-check/?device_api_key=${deviceApiKey}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                apiKeyFeedback.innerHTML = `<div class="alert alert-success">Device "${data.device_name}" (${data.device_type}) is online and available for registration!</div>`;
+                updateLinkStates(true, deviceApiKey);
+            } else {
+                apiKeyFeedback.innerHTML = `<div class="alert alert-warning">${data.message || 'Unknown error.'}</div>`;
+            }
+        } catch (error) {
+            console.error('Error checking device:', error);
+            apiKeyFeedback.innerHTML = '<div class="alert alert-danger">Network error or server unreachable. Please try again later.</div>';
+        } finally {
+            checkDeviceBtn.disabled = false;
+        }
+    });
+});
+</script>
+{% endblock %}

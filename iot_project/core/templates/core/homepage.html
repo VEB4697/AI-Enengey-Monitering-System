@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to Smart IoT{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4 text-primary">Welcome to Your Smart IoT Home!</h1>
+    <p class="lead mt-4">Monitor and control your devices from anywhere in the world.</p>
+    <div class="mt-5">
+        <a href="{% url 'device_onboarding' %}" class="btn btn-lg btn-info me-3">Setup New Device</a>
+        <a href="{% url 'login' %}" class="btn btn-lg btn-outline-primary">Login to Dashboard</a>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title text-success">Seamless Device Setup</h5>
+                <p class="card-text">Easily connect your new IoT devices to your home Wi-Fi and link them to your account using a unique API key. No complex coding required!</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title text-warning">Global Control & Monitoring</h5>
+                <p class="card-text">Access real-time sensor data and control your smart switches from anywhere on Earth, securely through your personalized dashboard.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title text-danger">Intelligent Energy Optimization (Future ML Integration)</h5>
+                <p class="card-text">Our system is designed to integrate machine learning models to analyze your power consumption patterns, predict future needs, and automate actions to save energy and reduce your bills. Get insights into your usage and make your home truly smart and efficient!</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
