@@ -17,6 +17,10 @@ def homepage(request):
 
 def register_user(request):
     if request.method == 'POST':
+        # *** ADDED FOR DEBUGGING: Print raw POST and FILES data ***
+        print("Received POST data:", request.POST)
+        print("Received FILES data:", request.FILES)
+
         # Use your CustomUserCreationForm and pass request.FILES for profile picture
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
@@ -41,6 +45,7 @@ def register_user(request):
             return redirect('dashboard:user_dashboard') # Redirect to dashboard
         else:
             # Form is not valid, add error messages for user feedback
+            print("Form errors (from form.errors):", form.errors) # *** ADDED FOR DEBUGGING ***
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"Error in {field}: {error}")
