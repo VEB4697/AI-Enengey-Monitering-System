@@ -4,6 +4,8 @@
 {% block title %}Welcome to Smart IoT - AI Energy Monitoring{% endblock %}
 
 {% block head_extra %}
+    <!-- Google Fonts: Inter for modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
     <style>
@@ -46,20 +48,26 @@
             color: var(--foreground);
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative; /* Needed for pseudo-elements */
+        }
+
+        /* Enhanced Background Effects */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
             background-image: 
                 radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, hsla(180, 100%, 50%, 0.05) 0%, transparent 50%);
-        }
-
-        .container-full-height {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 1rem;
-            flex-direction: column; /* Allow content to stack vertically */
+                radial-gradient(circle at 40% 40%, hsla(180, 100%, 50%, 0.05) 0%, transparent 50%),
+                /* Animated tech grid lines */
+                linear-gradient(0deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px), /* Horizontal lines */
+                linear-gradient(90deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px); /* Vertical lines */
+            background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px, 60px 60px; /* Adjust grid size */
+            background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0;
+            opacity: 0.9;
+            z-index: -2; /* Behind everything */
+            animation: subtle-gradient-shift 20s ease-in-out infinite alternate, tech-grid-move 15s linear infinite; /* Combined animations */
         }
 
         .background-pattern {
@@ -70,10 +78,39 @@
                 linear-gradient(-45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
                 linear-gradient(45deg, transparent 75%, hsl(222, 47%, 8%) 75%),
                 linear-gradient(-45deg, transparent 75%, hsl(222, 47%, 8%) 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            opacity: 0.1;
-            z-index: 0; /* Ensure it's behind content */
+            background-size: 30px 30px; /* Slightly larger pattern */
+            background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
+            opacity: 0.08; /* Slightly less opaque */
+            z-index: -1; /* Behind content, above main background */
+            animation: pattern-pan 90s linear infinite; /* Slower, continuous pan */
+        }
+
+        /* Scanline effect for retro tech feel - adjusted opacity */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 1px,
+                rgba(0,0,0,0.03) 1px, /* More subtle */
+                rgba(0,0,0,0.03) 2px
+            );
+            pointer-events: none;
+            z-index: 9999; /* On top of everything */
+            opacity: 0.05; /* Very subtle */
+        }
+
+
+        .container-full-height {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 1rem;
+            flex-direction: column; /* Allow content to stack vertically */
         }
 
         .floating-icons {
@@ -102,31 +139,33 @@
             z-index: 10;
             text-align: center;
             padding: 5rem 1rem;
-            max-width: 900px;
+            max-width: 1000px; /* Wider */
             margin: 0 auto;
         }
 
         .hero-title {
-            font-size: 3.5rem;
-            font-weight: bold;
+            font-size: 3.8rem; /* Slightly larger */
+            font-weight: 800; /* Bolder */
             background: var(--gradient-cyber);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
-            animation: fadeInScale 1s ease-out, text-glow 2s ease-in-out infinite alternate; /* Added text-glow */
+            animation: fadeIn 1s ease-out, text-glow 2s ease-in-out infinite alternate; /* Changed fadeInScale to fadeIn */
         }
 
         .hero-subtitle {
             color: var(--muted-foreground);
-            font-size: 1.25rem;
+            font-size: 1.35rem; /* Slightly larger */
             margin-bottom: 2.5rem;
-            animation: fadeIn 1.5s ease-out;
+            opacity: 1; /* Default opacity */
+            transform: translateY(0); /* Default transform */
+            line-height: 1.8; /* Better readability */
         }
 
         .hero-buttons .btn-custom {
             margin: 0.5rem;
-            animation: slideInUp 0.8s ease-out forwards;
+            animation: fadeIn 0.8s ease-out forwards; /* Changed slideInUp to fadeIn */
             opacity: 0; /* Start hidden for animation */
         }
         .hero-buttons .btn-custom:nth-child(1) { animation-delay: 0.5s; }
@@ -137,7 +176,7 @@
             position: relative;
             z-index: 10;
             padding: 4rem 1rem;
-            background: var(--card); /* Use card background for sections */
+            background: var(--card);
             border-top: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
             margin-top: 4rem;
@@ -145,22 +184,24 @@
         }
 
         .info-section h2 {
-            font-size: 2.5rem;
-            font-weight: bold;
+            font-size: 2.8rem; /* Slightly larger */
+            font-weight: 700; /* Bolder */
             background: var(--gradient-primary);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 2.5rem;
-            animation: text-glow 2s ease-in-out infinite alternate; /* Added text-glow */
+            animation: text-glow 2s ease-in-out infinite alternate;
         }
 
         .info-section p {
-            max-width: 800px;
+            max-width: 1000px; /* Wider */
             margin: 0 auto 2rem auto;
             color: var(--muted-foreground);
-            font-size: 1.1rem;
-            line-height: 1.6;
+            font-size: 1.15rem; /* Slightly larger */
+            line-height: 1.7; /* Better readability */
+            opacity: 1; /* Default opacity */
+            transform: translateY(0); /* Default transform */
         }
 
 
@@ -168,10 +209,10 @@
             position: relative;
             z-index: 10;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly wider min width */
+            gap: 2.5rem; /* Increased gap */
             padding: 4rem 1rem;
-            max-width: 1200px;
+            max-width: 1100px; /* Wider */
             margin: 0 auto;
         }
 
@@ -181,21 +222,21 @@
             border: 1px solid hsla(222, 47%, 20%, 0.5);
             box-shadow: var(--shadow-glass);
             border-radius: 0.75rem;
-            padding: 2rem;
+            padding: 2.2rem; /* Slightly more padding */
             text-align: left;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeInPop 0.8s ease-out forwards; /* Changed to fadeInPop */
+            animation: fadeIn 0.8s ease-out forwards; /* Changed to simple fadeIn */
             opacity: 0; /* Start hidden for animation */
-            transform: translateY(20px) scale(0.95); /* Start slightly below and smaller */
+            transform: translateY(0); /* Removed initial transform for pop effect */
         }
 
         .feature-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 12px 40px hsla(222, 47%, 4%, 0.4);
+            transform: translateY(-8px) scale(1.03); /* More pronounced hover */
+            box-shadow: 0 15px 45px hsla(222, 47%, 4%, 0.5); /* Stronger shadow on hover */
         }
 
         .feature-card h5 {
-            font-size: 1.5rem;
+            font-size: 1.6rem; /* Slightly larger */
             font-weight: bold;
             margin-bottom: 1rem;
             background: var(--gradient-cyber);
@@ -206,7 +247,10 @@
 
         .feature-card p {
             color: var(--muted-foreground);
-            line-height: 1.5;
+            line-height: 1.6;
+            font-size: 1rem; /* Ensure readability */
+            opacity: 1; /* Default opacity */
+            transform: translateY(0); /* Default transform */
         }
 
         /* Delay animations for each card */
@@ -219,33 +263,33 @@
 
 
         .btn-custom { /* Custom button */
-            padding: 0.75rem 1.5rem;
+            padding: 0.8rem 1.8rem; /* Slightly larger padding */
             border: none;
-            border-radius: 0.5rem;
-            font-size: 1rem;
+            border-radius: 0.6rem; /* Slightly more rounded */
+            font-size: 1.05rem; /* Slightly larger font */
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: inline-flex; /* Use inline-flex for buttons in text */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.6rem; /* Increased gap */
             text-decoration: none;
             outline: none;
         }
 
-        .btn-primary-custom { /* Custom primary button */
+        .btn-primary-custom {
             background: var(--gradient-primary);
             color: var(--primary-foreground);
             box-shadow: var(--shadow-cyber);
         }
 
         .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px hsla(195, 100%, 50%, 0.4);
+            transform: translateY(-3px); /* More pronounced hover */
+            box-shadow: 0 0 45px hsla(195, 100%, 50%, 0.5); /* Stronger glow */
         }
 
-        .btn-outline-custom { /* Custom outline button */
+        .btn-outline-custom {
             background: transparent;
             border: 1px solid var(--border);
             color: var(--foreground);
@@ -253,13 +297,13 @@
 
         .btn-outline-custom:hover {
             border-color: var(--primary);
-            background: hsla(195, 100%, 50%, 0.1);
+            background: hsla(195, 100%, 50%, 0.15); /* Slightly more background on hover */
         }
 
         /* Lucide Icons (SVG) */
         .icon {
-            width: 1.25rem;
-            height: 1.25rem;
+            width: 1.3rem; /* Slightly larger icons */
+            height: 1.3rem;
             fill: none;
             stroke: currentColor;
             stroke-width: 2;
@@ -268,69 +312,88 @@
         }
 
         .icon-lg {
-            width: 2rem;
-            height: 2rem;
+            width: 2.2rem;
+            height: 2.2rem;
         }
 
         /* Animations */
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-15px); } /* More float */
         }
 
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 0 20px hsla(195, 100%, 50%, 0.3); }
-            50% { box-shadow: 0 0 30px hsla(195, 100%, 50%, 0.6); }
+            50% { box-shadow: 0 0 35px hsla(195, 100%, 50%, 0.7); } /* Stronger pulse */
+            100% { box-shadow: 0 0 20px hsla(195, 100%, 50%, 0.3); }
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
+            0%, 100% { opacity: 0.6; }
             50% { opacity: 1; }
         }
 
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); } /* Start smaller */
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); } /* Slide further */
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Removed fadeInPop, replaced with fadeIn for feature cards */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
 
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInPop { /* New animation for a 'pop' effect */
-            from { opacity: 0; transform: translateY(30px) scale(0.8); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        @keyframes text-glow { /* New animation for glowing text */
+        @keyframes text-glow {
             0% { text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary); }
-            50% { text-shadow: 0 0 15px var(--primary), 0 0 25px var(--primary), 0 0 35px var(--accent); }
+            50% { text-shadow: 0 0 20px var(--primary), 0 0 30px var(--primary), 0 0 40px var(--accent); } /* Stronger glow */
             100% { text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary); }
+        }
+
+        @keyframes subtle-gradient-shift { /* Enhanced animation for background gradient */
+            0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0; }
+            25% { background-position: 10% 10%, 90% 90%, 20% 80%, 5px 5px, 5px 5px; }
+            50% { background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0; }
+            75% { background-position: 10% 10%, 90% 90%, 20% 80%, 5px 5px, 5px 5px; }
+            100% { background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0; }
+        }
+
+        @keyframes tech-grid-move { /* Enhanced animation for grid lines */
+            0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+            100% { background-position: 0 -60px, 0 -60px, 0 -60px, 0 -60px, 0 -60px; } /* Move grid upwards */
+        }
+
+        @keyframes pattern-pan { /* Enhanced animation for background pattern */
+            from { background-position: 0 0, 0 15px, 15px -15px, -15px 0px; }
+            to { background-position: 30px 30px, 30px 45px, 45px 15px, 15px 30px; }
         }
 
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .hero-title {
-                font-size: 2.5rem;
+                font-size: 2.8rem;
             }
             .hero-subtitle {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
             .info-section h2 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
             .info-section p {
-                font-size: 0.9rem;
+                font-size: 1rem;
             }
             .features-grid {
                 grid-template-columns: 1fr; /* Stack cards on small screens */
+            }
+            .btn-custom {
+                font-size: 0.95rem;
+                padding: 0.6rem 1.2rem;
             }
         }
     </style>
