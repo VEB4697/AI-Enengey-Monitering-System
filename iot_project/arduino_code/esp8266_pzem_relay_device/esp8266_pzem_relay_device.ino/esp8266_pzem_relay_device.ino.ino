@@ -5,7 +5,7 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>    // For JSON parsing/serialization
 #include <ESP8266HTTPClient.h>     // For making HTTP requests
-#include <PZEM004Tv30.h>    // Library for PZEM-004T v3.0
+#include <PZEM004Tv30.h>    // Library for PZEM-004T v30
 #include <SoftwareSerial.h> // For connecting PZEM to ESP8266 using SoftwareSerial
 
 // --- Configuration Struct (Stored in EEPROM) ---
@@ -66,32 +66,25 @@ const char PROGMEM CONFIG_PORTAL_HTML[] = R"rawliteral(
 )rawliteral";
 
 // --- Sensor Pin Definitions ---
-// PZEM-004T connections
-// PZEM RX (data from PZEM to ESP) -> ESP TX pin for SoftwareSerial
-// PZEM TX (data from ESP to PZEM) -> ESP RX pin for SoftwareSerial
 #define PZEM_RX_PIN D5 // GPIO14 on NodeMCU
 #define PZEM_TX_PIN D6 // GPIO12 on NodeMCU
-
-// Relay Pin
-#define RELAY_PIN D1 // GPIO5 on NodeMCU (adjust based on your relay module)
-// Note: Some relay modules are active LOW, meaning writing LOW turns them ON.
-// Adjust logic in `setRelayState` if yours is active LOW.
+#define RELAY_PIN D1 // GPIO5 on NodeMCU
 
 // --- Global Objects ---
-SoftwareSerial pzemSerial(PZEM_RX_PIN, PZEM_TX_PIN); // RX, TX
-PZEM004Tv30 pzem(pzemSerial); // PZEM object
+SoftwareSerial pzemSerial(PZEM_RX_PIN, PZEM_TX_PIN);
+PZEM004Tv30 pzem(pzemSerial);
 
 // --- Constants ---
 const char* DJANGO_SERVER_DOMAIN = "your_django_server_domain.com"; // CHANGE THIS TO YOUR DJANGO SERVER DOMAIN/IP!
 const char* DEVICE_DATA_ENDPOINT = "/api/v1/device/data/";
 const char* DEVICE_COMMAND_ENDPOINT = "/api/v1/device/commands/";
-const char* DEVICE_ONBOARD_CHECK_ENDPOINT = "/api/v1/device/onboard-check/"; // Not directly used by device, but for context
 
 // --- Function Prototypes ---
 void saveConfig();
 void loadConfig();
 void handleRoot();
 void handleSave();
+void handleNotFound(); // New: for handling non-existent paths
 void setupAPMode();
 void sendSensorData();
 void checkCommands();
@@ -102,19 +95,16 @@ void setup() {
   Serial.begin(115200);
   delay(100);
 
-  // Initialize EEPROM with the size of our Config struct
-  EEPROM.begin(sizeof(Config));
-  loadConfig(); // Load existing configuration from EEPROM
+  EEPROM.begin(sizeof(DeviceConfig)); // Corrected struct name
+  loadConfig();
 
-  // Set device type if not already set (e.g., on first boot)
   if (strlen(deviceConfig.device_type) == 0 || strcmp(deviceConfig.device_type, "UNSET_TYPE") == 0) {
-    strcpy(deviceConfig.device_type, "power_monitor"); // Set the specific type for this device
+    strcpy(deviceConfig.device_type, "power_monitor");
     saveConfig();
   }
   Serial.print("Device Type: ");
   Serial.println(deviceConfig.device_type);
 
-  // --- Generate / Assign device_api_key if not set (for first production run or testing) ---
   if (strlen(deviceConfig.device_api_key) == 0 || strcmp(deviceConfig.device_api_key, "UNSET_KEY") == 0) {
     String macAddr = WiFi.macAddress();
     macAddr.replace(":", "");
@@ -127,21 +117,18 @@ void setup() {
   Serial.print("Using device_api_key: ");
   Serial.println(deviceConfig.device_api_key);
 
-  // Initialize PZEM serial
   pzemSerial.begin(9600);
 
-  // Initialize relay pin
   pinMode(RELAY_PIN, OUTPUT);
-  setRelayState(false); // Ensure relay is off on startup
+  setRelayState(false);
 
-  // --- Attempt to connect to saved WiFi or start AP mode ---
   if (deviceConfig.configured && strlen(deviceConfig.wifi_ssid) > 0) {
-    Serial.print("Connecting to WiFi: ");
+    Serial.print("Attempting to connect to WiFi: ");
     Serial.println(deviceConfig.wifi_ssid);
     WiFi.begin(deviceConfig.wifi_ssid, deviceConfig.wifi_password);
 
     int retries = 0;
-    while (WiFi.status() != WL_CONNECTED && retries < 40) { // Max 20 seconds
+    while (WiFi.status() != WL_CONNECTED && retries < 40) {
       delay(500);
       Serial.print(".");
       retries++;
@@ -153,26 +140,24 @@ void setup() {
       Serial.println(WiFi.localIP());
     } else {
       Serial.println("\nFailed to connect to WiFi. Starting AP mode for reconfiguration.");
-      setupAPMode(); // Fallback to AP if connection fails
+      setupAPMode();
     }
   } else {
     Serial.println("Device not configured. Starting AP mode for initial setup.");
-    setupAPMode(); // Initial setup mode
+    setupAPMode();
   }
 }
 
 // --- Loop Function ---
 void loop() {
   if (WiFi.getMode() == WIFI_AP) {
-    // In AP mode, handle DNS and web server requests for configuration
     dnsServer.processNextRequest();
     webServer.handleClient();
   } else {
-    // In STA (client) mode, perform normal operations
     static unsigned long lastSensorSendTime = 0;
     static unsigned long lastCommandCheckTime = 0;
-    const long SENSOR_SEND_INTERVAL = 10000; // Send data every 10 seconds
-    const long COMMAND_CHECK_INTERVAL = 5000; // Check commands every 5 seconds
+    const long SENSOR_SEND_INTERVAL = 10000;
+    const long COMMAND_CHECK_INTERVAL = 5000;
 
     if (millis() - lastSensorSendTime > SENSOR_SEND_INTERVAL) {
       sendSensorData();
@@ -184,19 +169,18 @@ void loop() {
       lastCommandCheckTime = millis();
     }
   }
-  delay(10); // Small delay to yield to other tasks
+  delay(10);
 }
 
 // --- EEPROM Management Functions ---
 void saveConfig() {
   EEPROM.put(0, deviceConfig);
-  EEPROM.commit(); // Commit changes to flash
+  EEPROM.commit();
   Serial.println("Configuration saved to EEPROM.");
 }
 
 void loadConfig() {
   EEPROM.get(0, deviceConfig);
-  // Basic check if data is valid
   if (strlen(deviceConfig.device_api_key) == 0 || strcmp(deviceConfig.device_api_key, "UNSET_KEY") == 0) {
     Serial.println("EEPROM is empty or invalid. Initializing config.");
     deviceConfig.configured = false;
@@ -218,10 +202,9 @@ void handleSave() {
   String ssid = webServer.arg("ssid");
   String password = webServer.arg("password");
 
-  // Save to EEPROM
   strncpy(deviceConfig.wifi_ssid, ssid.c_str(), sizeof(deviceConfig.wifi_ssid) - 1);
   strncpy(deviceConfig.wifi_password, password.c_str(), sizeof(deviceConfig.wifi_password) - 1);
-  deviceConfig.wifi_ssid[sizeof(deviceConfig.wifi_ssid) - 1] = '\0'; // Ensure null termination
+  deviceConfig.wifi_ssid[sizeof(deviceConfig.wifi_ssid) - 1] = '\0';
   deviceConfig.wifi_password[sizeof(deviceConfig.wifi_password) - 1] = '\0';
   deviceConfig.configured = true;
   saveConfig();
@@ -230,22 +213,41 @@ void handleSave() {
   webServer.send(200, "text/plain", message);
   Serial.println(message);
   delay(2000);
-  ESP.restart(); // Restart the ESP to connect to the new WiFi
+  ESP.restart();
 }
 
+void handleNotFound() {
+  // This is crucial for captive portals: redirect all unknown requests to the root
+  webServer.sendHeader("Location", String("http://") + WiFi.softAPIP().toString()); // FIX: Use .toString()
+  webServer.send(302, "text/plain", ""); // Send a redirect
+}
+
+
 void setupAPMode() {
+  Serial.println("Setting up AP Mode...");
   WiFi.mode(WIFI_AP);
-  String apSSID = "IoTSetup-" + WiFi.macAddress().substring(9); // Unique SSID from MAC
+  IPAddress apIP(192, 168, 4, 1);
+  IPAddress gateway(192, 168, 4, 1);
+  IPAddress subnet(255, 255, 255, 0);
+  WiFi.softAPConfig(apIP, gateway, subnet);
+
+  String apSSID = "IoTSetup-" + WiFi.macAddress().substring(9);
   WiFi.softAP(apSSID.c_str());
   Serial.print("Started SoftAP: ");
   Serial.println(apSSID);
-  Serial.print("Connect to: ");
+  Serial.print("AP IP address: ");
   Serial.println(WiFi.softAPIP());
 
-  dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+  // DNS server setup to redirect all requests to our web server
+  dnsServer.start(DNS_PORT, "*", apIP); // Use apIP as the DNS server address
+
+  // Web server handlers
   webServer.on("/", handleRoot);
   webServer.on("/save", HTTP_POST, handleSave);
+  webServer.onNotFound(handleNotFound); // Catch all other requests and redirect
+
   webServer.begin();
+  Serial.println("Web server started in AP Mode.");
 }
 
 // --- Sensor Reading Function (PZEM-004T Specific) ---
@@ -255,13 +257,12 @@ void sendSensorData() {
     return;
   }
 
-  WiFiClient client;  // ✅ Needed for HTTPClient.begin
+  WiFiClient client;
   HTTPClient http;
   String serverPath = "http://" + String(DJANGO_SERVER_DOMAIN) + String(DEVICE_DATA_ENDPOINT);
-  http.begin(client, serverPath);  // ✅ Use the correct API
+  http.begin(client, serverPath);
   http.addHeader("Content-Type", "application/json");
 
-  // Read PZEM data
   float voltage = pzem.voltage();
   float current = pzem.current();
   float power = pzem.power();
@@ -306,7 +307,6 @@ void sendSensorData() {
   http.end();
 }
 
-
 // --- HTTP Communication Functions ---
 void checkCommands() {
   if (WiFi.status() != WL_CONNECTED) {
@@ -314,11 +314,11 @@ void checkCommands() {
     return;
   }
 
-  WiFiClient client;  //  Add this
+  WiFiClient client;
   HTTPClient http;
   String serverPath = "http://" + String(DJANGO_SERVER_DOMAIN) + String(DEVICE_COMMAND_ENDPOINT);
   serverPath += "?device_api_key=" + String(deviceConfig.device_api_key);
-  http.begin(client, serverPath);  // Use the correct begin()
+  http.begin(client, serverPath);
 
   Serial.print("Checking for commands from: "); Serial.println(serverPath);
 
@@ -337,7 +337,7 @@ void checkCommands() {
         if (doc.containsKey("parameters") && doc["parameters"].containsKey("state")) {
           String state = doc["parameters"]["state"].as<String>();
           if (state == "ON") {
-            setRelaydArduitate(true);
+            setRelayState(true); // Corrected typo here
             Serial.println("Relay turned ON.");
           } else if (state == "OFF") {
             setRelayState(false);
@@ -364,10 +364,7 @@ void checkCommands() {
   http.end();
 }
 
-
 // --- Actuator Control Functions ---
 void setRelayState(bool state) {
-  // Assuming active HIGH relay: HIGH = ON, LOW = OFF
   digitalWrite(RELAY_PIN, state ? HIGH : LOW);
-  // If your relay is active LOW, use: digitalWrite(RELAY_PIN, state ? LOW : HIGH);
 }
