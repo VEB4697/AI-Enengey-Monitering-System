@@ -15,16 +15,26 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        # Include all fields you want to be editable on the registration form
-        fields = UserCreationForm.Meta.fields + (
-            'first_name', 'last_name', 'email', 'phone_number',
-            'date_of_birth', 'gender', 'address', 'profile_picture'
+        # Explicitly list all fields, including those inherited from UserCreationForm.Meta.fields
+        # This ensures Django correctly maps 'password' and 'password2'
+        fields = (
+            'username', # Inherited from UserCreationForm
+            'password', # Inherited from UserCreationForm
+            'password2', # Inherited from UserCreationForm
+            'first_name',
+            'last_name',
+            'email',
+            'phone_number',
+            'date_of_birth',
+            'gender',
+            'address',
+            'profile_picture'
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make email required if it's not by default in AbstractUser
+        # Ensure email is required.
         self.fields['email'].required = True
+        # UserCreationForm already ensures 'password' and 'password2' are required.
+        # No need to explicitly set them here.
 
-    # You might want to override save method if you need custom logic
-    # For basic saving, UserCreationForm.save() handles it if fields are in Meta.fields
