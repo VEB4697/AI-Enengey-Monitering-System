@@ -81,7 +81,7 @@ PZEM004Tv30 pzem(pzemSerial);
 // --- Constants ---
 // !!! IMPORTANT: CHANGE THIS TO YOUR DJANGO SERVER DOMAIN/IP! !!!
 // Example for local development: "192.168.1.105:8000" (replace with your actual PC's IP)
-const char* DJANGO_SERVER_DOMAIN = "your_django_server_domain.com";
+const char* DJANGO_SERVER_DOMAIN = "192.168.0.116:8000";
 const char* DEVICE_DATA_ENDPOINT = "/api/v1/device/data/";
 const char* DEVICE_COMMAND_ENDPOINT = "/api/v1/device/commands/";
 

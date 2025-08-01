@@ -1,116 +1,176 @@
-/* Custom styles for your IoT project */
+/* Base Styles */
 body {
-    background-color: #2c3e50; /* Dark background */
-    color: #ecf0f1; /* Light text */
-    font-family: 'Inter', sans-serif; /* Modern font */
+  font-family: 'Inter', sans-serif;
+  background-color: #0e0e0e;
+  color: #ffffff;
+  transition: background-color 0.4s, color 0.4s;
+}
+
+body.light-mode {
+  background-color: #f9f9f9;
+  color: #1a1a1a;
 }
 
 .navbar {
-    border-bottom: 1px solid #34495e;
+  backdrop-filter: blur(10px);
+  background-color: rgba(0, 0, 0, 0.7);
+  border-bottom: 1px solid #00f0ff;
 }
 
-.card {
-    background-color: #34495e !important; /* Darker card background */
-    border: 1px solid #2c3e50 !important;
-    border-radius: 10px;
+body.light-mode .navbar {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid #007aff;
 }
 
-.card-title {
-    color: #3498db !important; /* Primary color for titles */
+.navbar-brand {
+  color: #00f0ff !important;
 }
 
-.btn-primary {
-    background-color: #3498db;
-    border-color: #3498db;
-}
-.btn-primary:hover {
-    background-color: #2980b9;
-    border-color: #2980b9;
+body.light-mode .navbar-brand {
+  color: #007aff !important;
 }
 
-.btn-outline-primary {
-    color: #3498db;
-    border-color: #3498db;
-}
-.btn-outline-primary:hover {
-    background-color: #3498db;
-    color: white;
+.nav-link, .dropdown-item {
+  color: #ffffff !important;
+  transition: all 0.3s ease;
 }
 
-.btn-success {
-    background-color: #2ecc71;
-    border-color: #2ecc71;
-}
-.btn-success:hover {
-    background-color: #27ae60;
-    border-color: #27ae60;
+body.light-mode .nav-link,
+body.light-mode .dropdown-item {
+  color: #1a1a1a !important;
 }
 
-.btn-danger {
-    background-color: #e74c3c;
-    border-color: #e74c3c;
-}
-.btn-danger:hover {
-    background-color: #c0392b;
-    border-color: #c0392b;
+.dropdown-menu {
+  background-color: #111111;
+  border: 1px solid #00f0ff;
 }
 
-.btn-info {
-    background-color: #3498db; /* Using primary color for info button for consistency */
-    border-color: #3498db;
-}
-.btn-info:hover {
-    background-color: #2980b9;
-    border-color: #2980b9;
+body.light-mode .dropdown-menu {
+  background-color: #ffffff;
+  border-color: #007aff;
 }
 
-.alert-info {
-    background-color: #d9edf7;
-    color: #31708f;
-    border-color: #bce8f1;
+.dropdown-item:hover {
+  background-color: #00f0ff;
+  color: #000 !important;
 }
 
-.alert-success {
-    background-color: #dff0d8;
-    color: #3c763d;
-    border-color: #d6e9c6;
+body.light-mode .dropdown-item:hover {
+  background-color: #007aff;
+  color: #fff !important;
 }
 
-.alert-danger {
-    background-color: #f2dede;
-    color: #a94442;
-    border-color: #ebccd1;
+.btn-outline-primary,
+.btn-outline-success {
+  border: 2px solid #00f0ff;
+  color: #00f0ff;
+  transition: all 0.3s ease;
 }
 
-.alert-warning {
-    background-color: #fcf8e3;
-    color: #8a6d3b;
-    border-color: #faebcc;
+.btn-outline-primary:hover,
+.btn-outline-success:hover {
+  background-color: #00f0ff;
+  color: #000;
 }
 
-/* Specific styles for badges */
-.badge {
-    padding: 0.4em 0.7em;
-    border-radius: 0.5rem;
-    font-size: 0.8em;
-    font-weight: bold;
+body.light-mode .btn-outline-primary,
+body.light-mode .btn-outline-success {
+  border-color: #007aff;
+  color: #007aff;
 }
 
-/* Table styling */
-.table-dark th, .table-dark td {
-    border-color: #4a627a;
+body.light-mode .btn-outline-primary:hover,
+body.light-mode .btn-outline-success:hover {
+  background-color: #007aff;
+  color: #fff;
 }
 
-/* Responsive adjustments */
+.profile-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #00f0ff;
+  object-fit: cover;
+}
+
+body.light-mode .profile-img {
+  border-color: #007aff;
+}
+
+/* Hero Section */
+.hero-section {
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 3rem;
+  text-shadow: 0 0 10px #00f0ff;
+}
+
+.hero-buttons .btn {
+  margin: 10px;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  border: 2px solid #00f0ff;
+  color: #00f0ff;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.hero-buttons .btn:hover {
+  background-color: #00f0ff;
+  color: #000;
+}
+
+body.light-mode .hero-title {
+  text-shadow: none;
+  color: #007aff;
+}
+
+body.light-mode .hero-buttons .btn {
+  border-color: #007aff;
+  color: #007aff;
+}
+
+body.light-mode .hero-buttons .btn:hover {
+  background-color: #007aff;
+  color: #fff;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+}
+
+/* Transitions */
+.fade {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .display-4 {
-        font-size: 2.5rem;
-    }
-    .lead {
-        font-size: 1rem;
-    }
-    .btn-lg {
-        padding: 0.8rem 1.5rem;
-        font-size: 1rem;
-    }
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-buttons .btn {
+    padding: 0.6rem 1.2rem;
+  }
+}
+
+.navbar {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+a.nav-link, a.dropdown-item {
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+button, .btn {
+  touch-action: manipulation;
 }
