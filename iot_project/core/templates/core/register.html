@@ -497,7 +497,7 @@
                     <div class="form-group-custom">
                         <label for="{{ form.password.id_for_label }}" class="label-custom">Password</label>
                         <div class="input-container-custom"> {# Removed tabindex="-1" #}
-                            <input type="password" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}" class="input-custom input-with-icon" placeholder="Enter your password" required>
+                            <input type="password" id="{{ form.password1.id_for_label }}" name="{{ form.password1.name }}" class="input-custom input-with-icon" placeholder="Enter your password" required>
                         </div>
                         {% if form.password.errors %}<div class="text-destructive small mt-1">{% for error in form.password.errors %}{{ error }}{% endfor %}</div>{% endif %}
                     </div>
