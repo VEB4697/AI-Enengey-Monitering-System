@@ -3,6 +3,15 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# SECURITY WARNING: keep the secret key used in production secret!
+# Replace 'your-secret-key-here' with a long, random string you generate.
+SECRET_KEY = 'your-secret-key-here' # PASTE YOUR GENERATED KEY HERE
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True # Keep this as True for now
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] # Add your computer's local IP here if needed for ESP connection
+
 # ... other settings ...
 
 INSTALLED_APPS = [
@@ -82,11 +91,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/dashboard/' # Where to redirect after successful login
 LOGOUT_REDIRECT_URL = '/'          # Where to redirect after logout
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] # Add your computer's local IP here if needed for ESP connection
-
-DEBUG = True # Keep this as True for now
-
 # IMPORTANT: Tell Django to use your custom user model
 AUTH_USER_MODEL = 'core.CustomUser'
-
-SECRET_KEY = 'django-insecure-your-very-long-and-random-secret-key-that-you-just-generated-and-copied-here!'
