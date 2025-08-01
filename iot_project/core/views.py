@@ -1,16 +1,23 @@
 from django.shortcuts import render, redirect
-# Import your custom form instead of the default UserCreationForm
 from .forms import CustomUserCreationForm
-from django.contrib.auth.forms import AuthenticationForm # Keep this for login
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
-from django.views.decorators.csrf import csrf_exempt # Use cautiously, for APIs not standard forms
-from .models import Device # Ensure Device is imported if not already
+from django.views.decorators.csrf import csrf_exempt
+from .models import Device
 from django.utils import timezone
-from django.contrib import messages # Import messages for feedback
+from django.contrib import messages
 
+
+@login_required
+def profile_view(request):
+    return render(request, 'core/profile.html')
+
+@login_required
+def settings_view(request):
+    return render(request, 'core/settings.html')
 
 def homepage(request):
     return render(request, 'core/homepage.html')
