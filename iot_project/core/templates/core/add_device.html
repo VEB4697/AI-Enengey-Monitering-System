@@ -4,7 +4,7 @@
 {% block title %}Smart IoT - Add Device{% endblock %}
 
 {% block head_extra %}
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons (still needed for other icons, but not for password toggle) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
     <style>
         /* Your custom CSS from the sample, adapted and integrated */
@@ -26,294 +26,229 @@
             --accent: hsl(180, 100%, 50%); /* Cyan accent */
             --muted: hsl(222, 47%, 11%);
             --muted-foreground: hsl(215, 20.2%, 65.1%);
-            --border: hsl(217.2, 32.6%, 17.5%);
-            --input: hsl(217.2, 32.6%, 17.5%);
-            --ring: hsl(195, 100%, 50%);
-            --danger: hsl(0, 72%, 51%);
-            --success: hsl(142, 71%, 45%);
+            --border: hsl(222, 47%, 15%);
+            --input: hsl(222, 47%, 15%);
+            --ring: hsl(195, 100%, 50%); /* Primary accent for focus rings */
 
-            /* Typography */
-            --font-family: "Inter", sans-serif;
-            --text-sm: 0.875rem;
-            --text-base: 1rem;
-            --text-lg: 1.125rem;
-            --text-xl: 1.25rem;
-            --text-2xl: 1.5rem;
+            /* Dark theme specifics */
+            color-scheme: dark;
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            font-family: var(--font-family);
-            background-color: var(--background);
-            color: var(--foreground);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            background: var(--background);
+            color: var(--foreground);
         }
 
         .container {
-            width: 100%;
-            max-width: 420px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        .card {
+        .card-custom {
             background-color: var(--card);
-            color: var(--card-foreground);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 450px;
         }
 
-        .card-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .card-title {
-            font-size: var(--text-2xl);
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .card-description {
-            font-size: var(--text-base);
-            color: var(--muted-foreground);
-        }
-        
-        .form-group {
+        .form-group-custom {
             margin-bottom: 1.5rem;
         }
-        
-        .input-label {
+
+        .label-custom {
             display: block;
-            font-size: var(--text-sm);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
             color: var(--muted-foreground);
+            margin-bottom: 0.5rem;
         }
 
         .input-container-custom {
             position: relative;
-            background-color: var(--input);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            transition: all 0.2s ease-in-out;
             display: flex;
             align-items: center;
-            overflow: hidden; /* Hide overflow of the circuit line effect */
+            height: 48px;
+            background: var(--input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
         }
         
-        .input-container-custom:focus-within {
-            box-shadow: 0 0 0 2px var(--ring);
-            transform: scale(1.02);
-        }
-
         .input-custom {
-            flex-grow: 1;
-            background-color: transparent;
-            color: var(--foreground);
-            font-size: var(--text-base);
+            width: 100%;
+            height: 100%;
             padding: 0.75rem 1rem;
+            background: transparent;
             border: none;
             outline: none;
-            width: 100%;
-            -webkit-appearance: none; /* Remove default styling on iOS */
+            color: var(--foreground);
+            font-size: 1rem;
+            border-radius: 8px;
         }
 
         .input-custom::placeholder {
             color: var(--muted-foreground);
         }
-        
-        .button-primary {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+
+        .input-container-custom:focus-within {
+            box-shadow: 0 0 0 2px var(--ring);
+        }
+
+        .button-custom {
             width: 100%;
-            padding: 0.75rem 1rem;
-            background-color: var(--primary);
-            color: var(--primary-foreground);
-            font-size: var(--text-base);
+            padding: 0.75rem;
+            font-size: 1rem;
             font-weight: 600;
+            text-align: center;
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            transition: all 0.2s ease-in-out;
+            background: var(--primary);
+            color: var(--primary-foreground);
         }
 
-        .button-primary:hover {
-            background-color: hsl(195, 100%, 40%);
-            transform: translateY(-2px);
+        .button-custom:hover {
+            background: hsl(195, 100%, 60%);
         }
 
-        .button-primary:active {
-            transform: translateY(0);
+        .text-center {
+            text-align: center;
         }
 
-        /* Message styling */
-        .message-container {
-            margin-top: 1.5rem;
+        .text-muted {
+            color: var(--muted-foreground);
         }
 
-        .message {
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.5rem;
-            font-size: var(--text-sm);
-            font-weight: 500;
-        }
-        
-        .message.success {
-            background-color: hsl(142, 71%, 20%);
-            color: var(--success);
-            border: 1px solid hsl(142, 71%, 35%);
-        }
-
-        .message.error, .message.warning {
-            background-color: hsl(0, 72%, 20%);
-            color: var(--danger);
-            border: 1px solid hsl(0, 72%, 35%);
-        }
-
-        /* Loading Spinner */
         .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid var(--primary-foreground);
-            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.1);
             width: 24px;
             height: 24px;
-            animation: spin 1s linear infinite;
+            border-radius: 50%;
+            border-left-color: var(--foreground);
+            animation: spin 1s ease infinite;
+            display: none; /* Hidden by default */
         }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
+        .message-container {
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .message.error {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="card">
-        <div class="card-header">
-            <h1 class="card-title">Add a New Device</h1>
-            <p class="card-description">Enter the unique API key from your device to link it to your account.</p>
-        </div>
-
-        <!-- This is where Django messages will be displayed -->
-        {% if messages %}
-        <div class="message-container">
-            {% for message in messages %}
-                <div class="message {% if message.tags %} {{ message.tags }} {% endif %}">
-                    {{ message }}
+    <main class="d-flex w-100 h-100 align-items-center justify-content-center py-5">
+        <div class="card-custom">
+            <h2 class="text-center mb-4">Add a New Device</h2>
+            <div id="message-container"></div>
+            <form id="add-device-form" method="post" action="{% url 'add_device_to_user' %}">
+                {% csrf_token %}
+                <div class="form-group-custom">
+                    <label for="id_device_api_key" class="label-custom">Device API Key</label>
+                    <div class="input-container-custom">
+                        <input type="text" id="id_device_api_key" name="device_api_key" class="input-custom" placeholder="Enter the key from your device" required>
+                    </div>
                 </div>
-            {% endfor %}
+                <button type="submit" id="submit-button" class="button-custom">
+                    <span id="button-text">Add Device</span>
+                    <div id="spinner" class="spinner mx-auto"></div>
+                </button>
+            </form>
         </div>
-        {% endif %}
+    </main>
 
-        <form id="add-device-form" method="post" action="{% url 'add_device_to_user' %}">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="device_api_key" class="input-label">Device API Key</label>
-                <div class="input-container-custom">
-                    <input 
-                        type="text" 
-                        name="device_api_key" 
-                        id="device_api_key" 
-                        class="input-custom" 
-                        placeholder="Enter your device's API key" 
-                        required
-                    />
-                </div>
-            </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('add-device-form');
+            const submitButton = document.getElementById('submit-button');
+            const buttonText = document.getElementById('button-text');
+            const spinner = document.getElementById('spinner');
+            const messageContainer = document.getElementById('message-container');
 
-            <button type="submit" class="button-primary" id="submit-button">
-                <span id="button-text">Link Device</span>
-                <span id="spinner" class="spinner" style="display:none;"></span>
-            </button>
-        </form>
-    </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('add-device-form');
-        const submitButton = document.getElementById('submit-button');
-        const buttonText = document.getElementById('button-text');
-        const spinner = document.getElementById('spinner');
-        const messageContainer = document.querySelector('.message-container');
-
-        form.addEventListener('submit', function(event) {
-            // Prevent the default form submission
-            event.preventDefault();
-
-            // Show loading state
-            submitButton.disabled = true;
-            buttonText.style.display = 'none';
-            spinner.style.display = 'block';
-
-            // Clear previous messages
-            if (messageContainer) {
-                messageContainer.innerHTML = '';
+            // Function to display messages dynamically
+            function displayMessage(text, type) {
+                if (!messageContainer) return;
+                messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
             }
 
-            const formData = new FormData(form);
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+                
+                // Show loading state
+                submitButton.disabled = true;
+                buttonText.style.display = 'none';
+                spinner.style.display = 'block';
+                messageContainer.innerHTML = ''; // Clear previous messages
 
-            fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': data['csrfmiddlewaretoken']
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json().then(json => {
-                // Check if the response was successful (status 2xx)
-                if (response.ok) {
-                    return json;
-                } else {
-                    // Throw an error with the JSON response
-                    return Promise.reject(json);
-                }
-            }))
-            .then(data => {
-                // Handle success response
-                displayMessage(data.message, 'success');
-                // Redirect if a redirect URL is provided
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                }
-            })
-            .catch(error => {
-                // Handle error response
-                const errorMessage = error.message || 'An unexpected error occurred.';
-                displayMessage(errorMessage, 'error');
-            })
-            .finally(() => {
-                // Reset button state
-                submitButton.disabled = false;
-                buttonText.style.display = 'block';
-                spinner.style.display = 'none';
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    },
+                    body: formData
+                })
+                .then(response => response.json().then(json => {
+                    if (response.ok) {
+                        return Promise.resolve(json);
+                    } else {
+                        return Promise.reject(json);
+                    }
+                }))
+                .then(data => {
+                    // Handle success response
+                    displayMessage(data.message, 'success');
+                    // Redirect if a redirect URL is provided
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    }
+                })
+                .catch(error => {
+                    // Handle error response
+                    const errorMessage = error.message || 'An unexpected error occurred.';
+                    displayMessage(errorMessage, 'error');
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitButton.disabled = false;
+                    buttonText.style.display = 'block';
+                    spinner.style.display = 'none';
+                });
             });
         });
-
-        // Function to display messages dynamically
-        function displayMessage(text, type) {
-            let container = messageContainer;
-            if (!container) {
-                container = document.createElement('div');
-                container.classList.add('message-container');
-                form.insertAdjacentElement('beforebegin', container);
-            }
-            container.innerHTML = `<div class="message ${type}">${text}</div>`;
-        }
-    });
-</script>
+    </script>
 {% endblock %}
