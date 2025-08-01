@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 {% load static %}
 
@@ -459,7 +460,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.first_name.id_for_label }}" class="label-custom">First Name</label>
-                        <div class="input-container-custom circuit-line"> {# Removed tabindex="-1" #}
+                        <div class="input-container-custom circuit-line" tabindex="-1">
                             <input type="text" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" class="input-custom" placeholder="Your first name" value="{{ form.first_name.value|default_if_none:'' }}">
                         </div>
                         {% if form.first_name.errors %}<div class="text-destructive small mt-1">{% for error in form.first_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -468,7 +469,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.last_name.id_for_label }}" class="label-custom">Last Name</label>
-                        <div class="input-container-custom circuit-line"> {# Removed tabindex="-1" #}
+                        <div class="input-container-custom circuit-line" tabindex="-1">
                             <input type="text" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" class="input-custom" placeholder="Your last name" value="{{ form.last_name.value|default_if_none:'' }}">
                         </div>
                         {% if form.last_name.errors %}<div class="text-destructive small mt-1">{% for error in form.last_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -478,7 +479,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.username.id_for_label }}" class="label-custom">Username</label>
-                <div class="input-container-custom circuit-line"> {# Removed tabindex="-1" #}
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <input type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" class="input-custom" placeholder="Choose a unique username" value="{{ form.username.value|default_if_none:'' }}" required>
                 </div>
                 {% if form.username.errors %}<div class="text-destructive small mt-1">{% for error in form.username.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -486,7 +487,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.email.id_for_label }}" class="label-custom">Email</label>
-                <div class="input-container-custom circuit-line"> {# Removed tabindex="-1" #}
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <input type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" class="input-custom" placeholder="Enter your email address" value="{{ form.email.value|default_if_none:'' }}" required>
                 </div>
                 {% if form.email.errors %}<div class="text-destructive small mt-1">{% for error in form.email.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -495,28 +496,18 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group-custom">
-                        <label for="id_password" class="label-custom">Password</label> {# Explicit ID for consistency with Django's default #}
-                        <div class="input-container-custom">
-                            <input type="password" id="id_password" name="password" class="input-custom input-with-icon" placeholder="Enter your password" required> {# Explicit Name for Django's UserCreationForm #}
-                            <svg class="input-icon" id="togglePassword1" tabindex="0" role="button" aria-label="Toggle password visibility"> 
-                                <path class="eye-on-path" d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                                <circle class="eye-on-circle" cx="12" cy="12" r="3"/>
-                                <path class="eye-off-path" d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20" style="display: none;"/>
-                            </svg>
+                        <label for="{{ form.password.id_for_label }}" class="label-custom">Password</label>
+                        <div class="input-container-custom"> {# Removed tabindex="-1" #}
+                            <input type="password" id="{{ form.password1.id_for_label }}" name="{{ form.password1.name }}" class="input-custom input-with-icon" placeholder="Enter your password" required>
                         </div>
                         {% if form.password.errors %}<div class="text-destructive small mt-1">{% for error in form.password.errors %}{{ error }}{% endfor %}</div>{% endif %}
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group-custom">
-                        <label for="id_password2" class="label-custom">Confirm Password</label> {# Explicit ID for consistency with Django's default #}
-                        <div class="input-container-custom">
-                            <input type="password" id="id_password2" name="password2" class="input-custom input-with-icon" placeholder="Re-enter your password" required> {# Explicit Name for Django's UserCreationForm #}
-                            <svg class="input-icon" id="togglePassword2" tabindex="0" role="button" aria-label="Toggle password visibility"> 
-                                <path class="eye-on-path" d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                                <circle class="eye-on-circle" cx="12" cy="12" r="3"/>
-                                <path class="eye-off-path" d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20" style="display: none;"/>
-                            </svg>
+                        <label for="{{ form.password2.id_for_label }}" class="label-custom">Confirm Password</label>
+                        <div class="input-container-custom"> {# Removed tabindex="-1" #}
+                            <input type="password" id="{{ form.password2.id_for_label }}" name="{{ form.password2.name }}" class="input-custom input-with-icon" placeholder="Re-enter your password" required>
                         </div>
                         {% if form.password2.errors %}<div class="text-destructive small mt-1">{% for error in form.password2.errors %}{{ error }}{% endfor %}</div>{% endif %}
                     </div>
@@ -527,7 +518,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.phone_number.id_for_label }}" class="label-custom">Phone Number</label>
-                        <div class="input-container-custom circuit-line"> {# Removed tabindex="-1" #}
+                        <div class="input-container-custom circuit-line" tabindex="-1">
                             <input type="tel" id="{{ form.phone_number.id_for_label }}" name="{{ form.phone_number.name }}" class="input-custom" placeholder="e.g., +919876543210" value="{{ form.phone_number.value|default_if_none:'' }}">
                         </div>
                         {% if form.phone_number.errors %}<div class="text-destructive small mt-1">{% for error in form.phone_number.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -536,7 +527,7 @@
                 <div class="col-md-6">
                     <div class="form-group-custom">
                         <label for="{{ form.date_of_birth.id_for_label }}" class="label-custom">Date of Birth</label>
-                        <div class="input-container-custom circuit-line"> {# Removed tabindex="-1" #}
+                        <div class="input-container-custom circuit-line" tabindex="-1">
                             <input type="date" id="{{ form.date_of_birth.id_for_label }}" name="{{ form.date_of_birth.name }}" class="input-custom" value="{{ form.date_of_birth.value|default_if_none:'' }}">
                         </div>
                         {% if form.date_of_birth.errors %}<div class="text-destructive small mt-1">{% for error in form.date_of_birth.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -546,7 +537,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.gender.id_for_label }}" class="label-custom">Gender</label>
-                <div class="input-container-custom circuit-line"> {# Removed tabindex="-1" #}
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <select id="{{ form.gender.id_for_label }}" name="{{ form.gender.name }}" class="input-custom">
                         {% for value, label in form.gender.field.choices %}
                             <option value="{{ value }}" {% if form.gender.value == value %}selected{% endif %}>{{ label }}</option>
@@ -558,7 +549,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.address.id_for_label }}" class="label-custom">Address</label>
-                <div class="input-container-custom circuit-line"> {# Removed tabindex="-1" #}
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <textarea id="{{ form.address.id_for_label }}" name="{{ form.address.name }}" class="input-custom" placeholder="Your full address" rows="3">{{ form.address.value|default_if_none:'' }}</textarea>
                 </div>
                 {% if form.address.errors %}<div class="text-destructive small mt-1">{% for error in form.address.errors %}{{ error }}{% endfor %}</div>{% endif %}
@@ -566,7 +557,7 @@
 
             <div class="form-group-custom">
                 <label for="{{ form.profile_picture.id_for_label }}" class="label-custom">Profile Picture</label>
-                <div class="input-container-custom circuit-line"> {# Removed tabindex="-1" #}
+                <div class="input-container-custom circuit-line" tabindex="-1">
                     <input type="file" id="{{ form.profile_picture.id_for_label }}" name="{{ form.profile_picture.name }}" class="input-custom">
                 </div>
                 {% if form.profile_picture.errors %}<div class="text-destructive small mt-1">{% for error in form.profile_picture.errors %}{{ error }}{% endfor %}</div>{% endif %}
