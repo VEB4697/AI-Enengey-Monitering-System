@@ -59,17 +59,23 @@
         <div class="card shadow-lg bg-dark text-light border-secondary">
             <div class="card-body">
                 <h5 class="card-title text-primary">Sensor Data History</h5>
-                {% if device.device_type == 'power_monitor' %}
-                    <canvas id="powerChart"></canvas>
-                {% elif device.device_type == 'water_level' %}
-                    <canvas id="waterLevelChart"></canvas>
+                
+                {% if device.device_type == 'power_monitor' and chart_labels and chart_data %}
+                    <div style="position: relative; height: 400px; width: 100%;">
+                        <canvas id="powerChart"></canvas>
+                    </div>
+                {% elif device.device_type == 'water_level' and chart_labels and chart_data %}
+                    <div style="position: relative; height: 400px; width: 100%;">
+                        <canvas id="waterLevelChart"></canvas>
+                    </div>
                 {% else %}
-                    <p class="text-muted">No charts defined for this device type.</p>
+                    <p class="text-muted">No charts defined or data missing for this device type.</p>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="row mt-4">
     <div class="col-12">

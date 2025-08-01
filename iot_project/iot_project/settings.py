@@ -8,9 +8,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'your-secret-key-here' # PASTE YOUR GENERATED KEY HERE
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True # Keep this as True for now
+DEBUG = False # Keep this as True for now
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] # Add your computer's local IP here if needed for ESP connection
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.116'] # Add your computer's local IP here if needed for ESP connection
 
 # ... other settings ...
 

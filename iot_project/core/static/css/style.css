@@ -153,24 +153,14 @@ body.light-mode .hero-buttons .btn:hover {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 2rem;
-  }
-
-  .hero-buttons .btn {
-    padding: 0.6rem 1.2rem;
-  }
-}
-
-.navbar {
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-
-a.nav-link, a.dropdown-item {
-  transition: color 0.3s ease, background-color 0.3s ease;
-}
-
-button, .btn {
-  touch-action: manipulation;
+    .display-4 {
+        font-size: 2.5rem;
+    }
+    .lead {
+        font-size: 1rem;
+    }
+    .btn-lg {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
 }
