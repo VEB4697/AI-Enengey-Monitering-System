@@ -508,7 +508,7 @@
                 <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
         </button>
-
+        {% if  not user.is_authenticated %}    
         <div class="divider">
             <span>Or</span>
         </div>
@@ -532,7 +532,8 @@
             </a>
         </div>
     </div>
-
+    {% endif %}
+    <br>
     <!-- Status Bar -->
     <div class="status-bar">
         <div class="status-indicator">
