@@ -13,7 +13,7 @@ body.light-mode {
 
 .navbar {
   backdrop-filter: blur(10px);
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(8, 4, 45, 0.777);
   border-bottom: 1px solid #00f0ff;
 }
 
@@ -164,3 +164,4 @@ body.light-mode .hero-buttons .btn:hover {
         font-size: 1rem;
     }
 }
+

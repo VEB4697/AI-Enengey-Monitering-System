@@ -1,0 +1,607 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Smart IoT - Settings{% endblock %}
+
+{% block head_extra %}
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- AOS Library for Animate on Scroll -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        /* Custom CSS Variables for Theme */
+        :root {
+            /* Dark Theme (Default) */
+            --background-start: hsl(210, 50%, 5%);
+            --background-end: hsl(240, 50%, 5%);
+            --primary: hsl(195, 100%, 50%); /* Bright Cyan */
+            --secondary: hsl(240, 100%, 70%); /* Bright Blue */
+            --accent: hsl(180, 100%, 50%); /* Aqua */
+            --opposite-glow: hsl(85, 100%, 50%); /* Vibrant neon yellow/green for contrast */
+            --text-light: hsl(210, 40%, 98%);
+            --text-muted: hsl(215, 20%, 65%);
+            --border-color: hsla(240, 100%, 70%, 0.3);
+            --card-bg: hsla(220, 30%, 15%, 0.8);
+            --input-bg: hsla(220, 30%, 25%, 0.7);
+            --glow-color: var(--primary);
+        }
+
+        /* Light Theme */
+        [data-theme="light"] {
+            --background-start: hsl(0, 0%, 95%);
+            --background-end: hsl(20, 20%, 95%);
+            --primary: hsl(210, 90%, 40%); /* Darker Blue */
+            --secondary: hsl(240, 90%, 50%); /* Darker Purple */
+            --accent: hsl(180, 90%, 40%); /* Darker Aqua */
+            --opposite-glow: hsl(45, 90%, 50%); /* Amber */
+            --text-light: hsl(210, 40%, 15%);
+            --text-muted: hsl(215, 20%, 45%);
+            --border-color: hsla(240, 50%, 70%, 0.5);
+            --card-bg: hsla(0, 0%, 98%, 0.9);
+            --input-bg: hsla(0, 0%, 90%, 0.9);
+            --glow-color: var(--primary);
+        }
+
+        /* Global body styling to match the profile page */
+        body {
+            background: linear-gradient(to bottom, var(--background-start), var(--background-end));
+            color: var(--text-light);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Page container */
+        .settings-container {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 1rem;
+        }
+        
+        /* Profile photo section styling */
+        .profile-photo-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.2);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.5s ease-in-out;
+            position: relative;
+        }
+        .profile-photo-card:hover {
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.4);
+        }
+        .profile-pic-large {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            box-shadow: 0 0 20px var(--primary);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .profile-pic-large:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px var(--primary), 0 0 10px var(--opposite-glow);
+        }
+        .profile-photo-card h4 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--secondary);
+            text-shadow: 0 0 8px var(--secondary);
+        }
+        .profile-photo-card p {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Centered and animated main title */
+        .main-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: pulse-glow 2s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            from {
+                text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.4);
+            }
+        }
+        
+        /* Collapsible card styling */
+        .settings-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.2);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+        }
+        .settings-card:hover {
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.4);
+        }
+
+        .card-header-glow {
+            background: transparent;
+            padding: 1.5rem;
+            cursor: pointer;
+            color: var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .card-header-glow:hover {
+            color: var(--accent);
+            background: hsla(220, 30%, 25%, 0.5);
+        }
+        .card-header-glow::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--border-color);
+            transition: all 0.3s ease;
+        }
+        /* CSS for hover-based dropdowns */
+        .card-header-glow.is-open::after {
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .card-header-glow h5 {
+            font-size: 1.25rem;
+            margin: 0;
+            text-shadow: 0 0 5px var(--primary);
+        }
+        .card-header-glow .icon-arrow {
+            transition: transform 0.3s ease;
+        }
+        .card-header-glow.is-open .icon-arrow {
+            transform: rotate(180deg);
+        }
+        
+        /* The card body that will be shown/hidden */
+        .card-body-glow {
+            background: hsla(220, 30%, 18%, 0.8);
+            padding: 0; /* Set initial padding to 0 */
+            max-height: 0; /* Start with height 0 for collapse effect */
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .card-body-glow.is-open {
+            max-height: 500px; /* Adjust to a value larger than the content */
+            padding: 2rem;
+        }
+
+        /* Form inputs with floating labels */
+        .form-floating > .form-control,
+        .form-floating > .form-select {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+        .form-floating > .form-control:focus,
+        .form-floating > .form-select:focus {
+            background-color: var(--input-bg);
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            color: var(--text-light);
+        }
+        .form-floating > label {
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            color: var(--primary);
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+        .form-check-input:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+        .form-check-input:focus {
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* Glowing buttons */
+        .btn-glow {
+            color: var(--text-light);
+            background: var(--primary);
+            border: none;
+            border-radius: 0.75rem;
+            padding: 0.75rem 2rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        .btn-glow:hover {
+            color: var(--text-light);
+            background: var(--opposite-glow);
+            box-shadow: 0 0 25px var(--opposite-glow);
+            transform: translateY(-3px);
+        }
+
+        .btn-outline-glow {
+            color: var(--primary);
+            background: transparent;
+            border: 1px solid var(--primary);
+            border-radius: 0.75rem;
+            padding: 0.75rem 2rem;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5) inset, 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        .btn-outline-glow:hover {
+            color: var(--background-start);
+            background: var(--primary);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.8) inset, 0 0 25px rgba(0, 255, 255, 0.8);
+            transform: translateY(-3px);
+        }
+
+        /* Connected devices list */
+        .device-list-item {
+            background: hsla(220, 30%, 25%, 0.7);
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .device-list-item:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+        .device-list-item .device-name {
+            flex-grow: 1;
+            font-weight: 600;
+        }
+        .device-list-item .btn-remove {
+            color: var(--opposite-glow);
+            font-size: 1.2rem;
+        }
+        
+        /* Toggle switch styling */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: hsla(215, 20%, 65%, 0.5);
+            transition: .4s;
+            border-radius: 34px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--text-light);
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Star background animation */
+        .sparkles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .sparkle {
+            position: absolute;
+            background-color: var(--glow-color);
+            border-radius: 50%;
+            opacity: 0;
+            animation: sparkle-fade-in-out 5s ease-in-out infinite;
+        }
+        @keyframes sparkle-fade-in-out {
+            0% { transform: scale(0); opacity: 0; }
+            20% { transform: scale(1); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="sparkles-container"></div>
+    <div class="settings-container">
+        
+        <!-- Profile Photo Section - Big and Visible -->
+        <div class="profile-photo-card mb-5" data-aos="zoom-in" data-aos-duration="1000">
+            <div style="position: relative;">
+                <!-- Image source fetches dynamically from Django user object -->
+                <img src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}" 
+                     alt="{% if request.user.profile_picture %}User Profile Picture{% else %}Default Profile Picture{% endif %}" 
+                     class="profile-pic-large">
+            </div>
+            <h4>{{ user.get_full_name|default:user.username }}</h4> 
+            <p>@{{ user.username }}</p>
+            <a href="{% url 'profile' %}" class="btn btn-outline-glow mt-3" title="Edit Full Profile">
+                <i class="fas fa-edit me-2"></i> Edit Profile
+            </a>
+        </div>
+        
+        <!-- Main Animated Title for Settings -->
+        <h1 class="main-title" data-aos="fade-down">Account Settings</h1>
+
+        <!-- All settings wrapped in a single form -->
+        <form method="POST">
+            {% csrf_token %}
+
+            <div id="settingsAccordion">
+                <!-- Privacy Settings Card -->
+                <div class="settings-card" data-aos="fade-right" data-aos-delay="200">
+                    <div class="card-header-glow d-flex justify-content-between align-items-center" id="headingPrivacy">
+                        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i> Privacy Settings</h5>
+                        <i class="fas fa-chevron-down icon-arrow"></i>
+                    </div>
+                    <div id="collapsePrivacy" class="card-body-glow" aria-labelledby="headingPrivacy">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>Enable Two-Factor Authentication</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Allow Data Sharing with Third-Parties</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Preferences Card -->
+                <div class="settings-card" data-aos="fade-left" data-aos-delay="300">
+                    <div class="card-header-glow d-flex justify-content-between align-items-center" id="headingNotifications">
+                        <h5 class="mb-0"><i class="fas fa-bell me-2"></i> Notification Preferences</h5>
+                        <i class="fas fa-chevron-down icon-arrow"></i>
+                    </div>
+                    <div id="collapseNotifications" class="card-body-glow" aria-labelledby="headingNotifications">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>Email Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>SMS Alerts</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>In-App Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme Mode Card -->
+                <div class="settings-card" data-aos="fade-right" data-aos-delay="400">
+                    <div class="card-header-glow d-flex justify-content-between align-items-center" id="headingTheme">
+                        <h5 class="mb-0"><i class="fas fa-moon me-2"></i> Theme Mode</h5>
+                        <i class="fas fa-chevron-down icon-arrow"></i>
+                    </div>
+                    <div id="collapseTheme" class="card-body-glow" aria-labelledby="headingTheme">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Current Theme: <span id="current-theme-label">Dark</span></span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="theme-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connected Devices Card -->
+                <div class="settings-card" data-aos="fade-left" data-aos-delay="500">
+                    <div class="card-header-glow d-flex justify-content-between align-items-center" id="headingDevices">
+                        <h5 class="mb-0"><i class="fas fa-wifi me-2"></i> Connected Devices</h5>
+                        <i class="fas fa-chevron-down icon-arrow"></i>
+                    </div>
+                    <div id="collapseDevices" class="card-body-glow" aria-labelledby="headingDevices">
+                        <p class="text-muted mb-3">Your registered IoT devices. Click 'Remove' to unpair a device.</p>
+                        <div class="device-list">
+                            {% for device in connected_devices %}
+                            <div class="device-list-item">
+                                <span class="device-name">{{ device.name }}</span>
+                                <a href="{% url 'remove_device' device.id %}" class="btn-remove text-danger"><i class="fas fa-trash-alt"></i></a>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted text-center">No devices are currently connected to your account.</p>
+                            {% endfor %}
+                        </div>
+                        <div class="d-flex justify-content-center mt-4">
+                            <a href="{% url 'add_device_to_user' %}" class="btn btn-outline-glow"><i class="fas fa-plus-circle me-2"></i> Add New Device</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single Save Changes Button at the end, now centered -->
+            <div class="d-flex justify-content-center mt-4">
+                <button type="submit" class="btn btn-glow" data-aos="zoom-in" data-aos-delay="600">Save Changes</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- AOS Library for Animate on Scroll -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to set a cookie
+            function setCookie(name, value, days) {
+                let expires = "";
+                if (days) {
+                    let date = new Date();
+                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+            }
+
+            // Function to get a cookie
+            function getCookie(name) {
+                let nameEQ = name + "=";
+                let ca = document.cookie.split(';');
+                for(let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+                }
+                return null;
+            }
+
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const currentThemeLabel = document.getElementById('current-theme-label');
+            const body = document.body;
+
+            function applyTheme(theme) {
+                if (theme === 'light') {
+                    body.setAttribute('data-theme', 'light');
+                    themeToggle.checked = true;
+                    currentThemeLabel.textContent = 'Light';
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    themeToggle.checked = false;
+                    currentThemeLabel.textContent = 'Dark';
+                }
+            }
+
+            // On page load, apply the saved theme or default to dark
+            const savedTheme = getCookie('theme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else {
+                applyTheme('dark'); // Default theme
+            }
+
+            // Event listener for the theme toggle switch
+            themeToggle.addEventListener('change', () => {
+                if (themeToggle.checked) {
+                    applyTheme('light');
+                    setCookie('theme', 'light', 365);
+                } else {
+                    applyTheme('dark');
+                    setCookie('theme', 'dark', 365);
+                }
+            });
+
+            // Logic for hover-based dropdowns
+            const cardHeaders = document.querySelectorAll('.card-header-glow');
+            cardHeaders.forEach(header => {
+                const cardBody = header.nextElementSibling;
+                
+                // On mouse enter, add the 'is-open' class to the header and body
+                header.addEventListener('mouseenter', () => {
+                    header.classList.add('is-open');
+                    cardBody.classList.add('is-open');
+                });
+                
+                // On mouse leave, remove the 'is-open' class
+                header.addEventListener('mouseleave', () => {
+                    header.classList.remove('is-open');
+                    cardBody.classList.remove('is-open');
+                });
+
+                // The card body should also be sensitive to mouseout to prevent accidental closing
+                cardBody.addEventListener('mouseenter', () => {
+                    header.classList.add('is-open');
+                    cardBody.classList.add('is-open');
+                });
+                
+                cardBody.addEventListener('mouseleave', () => {
+                    header.classList.remove('is-open');
+                    cardBody.classList.remove('is-open');
+                });
+            });
+
+            // Initialize AOS library for "Animate on Scroll" effects
+            AOS.init({
+                duration: 800,
+                once: true // Animate only once
+            });
+
+            // Add a "sparkle" animation to the background for a dynamic effect
+            const sparklesContainer = document.querySelector('.sparkles-container');
+            if (sparklesContainer) {
+                const createSparkle = () => {
+                    const sparkle = document.createElement('div');
+                    sparkle.classList.add('sparkle');
+                    const size = Math.random() * 3 + 1; // Size between 1px and 4px
+                    sparkle.style.width = `${size}px`;
+                    sparkle.style.height = `${size}px`;
+                    sparkle.style.left = `${Math.random() * 100}%`;
+                    sparkle.style.top = `${Math.random() * 100}%`;
+                    sparkle.style.animationDelay = `${Math.random() * 5}s`;
+                    sparklesContainer.appendChild(sparkle);
+                    setTimeout(() => sparkle.remove(), 5000);
+                };
+                setInterval(createSparkle, 200);
+            }
+        });
+    </script>
+{% endblock %}

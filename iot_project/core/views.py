@@ -9,11 +9,35 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Device
 from django.utils import timezone
 from django.contrib import messages
-
+from .forms import CustomUserChangeForm
 
 @login_required
 def profile_view(request):
-    return render(request, 'core/profile.html')
+    """
+    Handles displaying and processing the user profile update form.
+    
+    On a GET request, it initializes a CustomUserChangeForm with the current
+    user's data and renders the profile page.
+    
+    On a POST request, it validates the form submission, saves the changes
+    to the user's profile, and provides feedback using Django messages.
+    """
+    # The view correctly handles both GET and POST requests.
+    if request.method == 'POST':
+        # Pass the current user instance and request.FILES to the form
+        form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile') # Redirect back to the profile page
+        else:
+            # THIS IS THE DEBUGGING LINE I HAVE ADDED
+            print(form.errors)
+            messages.error(request, 'There was an error updating your profile. Please check the form.')
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+
+    return render(request, 'core/profile.html', {'form': form})
 
 @login_required
 def settings_view(request):
@@ -147,3 +171,14 @@ def add_device_to_user(request):
             return JsonResponse({'status': 'error', 'message': f'An unexpected error occurred: {str(e)}'}, status=500)
     return render(request, 'core/add_device.html') # A simple form to input API key
 
+@login_required
+def remove_device(request, device_id):
+    """
+    Handles removing a device from the user's account.
+    """
+    device = get_object_or_404(Device, id=device_id, owner=request.user)
+    device.owner = None
+    device.is_registered = False
+    device.save()
+    messages.success(request, f'Device "{device.name}" has been removed from your account.')
+    return redirect('settings') # Assuming 'settings' is the name of your settings page URL

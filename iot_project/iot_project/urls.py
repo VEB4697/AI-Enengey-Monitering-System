@@ -7,8 +7,10 @@ from core.views import (
     logout_user,
     device_onboarding_view,
     add_device_to_user,
-    profile_view,        # ✅ make sure these are here
-    settings_view        # ✅
+    profile_view,
+    settings_view,
+    # ⚠️ FIX: You must import the view function before you can use it in a path().
+    remove_device,
 )
 
 from django.conf import settings
@@ -24,13 +26,16 @@ urlpatterns = [
     path('device-setup/', device_onboarding_view, name='device_onboarding'),
     path('add-device/', add_device_to_user, name='add_device_to_user'),
 
-    path('profile/', profile_view, name='profile'),         # 👤 Profile
+    # This is the line that was causing the error.
+    # It now correctly uses the imported `remove_device` function.
+    path('remove-device/<int:device_id>/', remove_device, name='remove_device'),
+
+    path('profile/', profile_view, name='profile'),
     path('settings/', settings_view, name='settings'),
 
     path('api/v1/device/', include('device_api.urls')),
     path('dashboard/', include('dashboard.urls')),
 ]
 
-# ONLY add this for development to serve media files
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
