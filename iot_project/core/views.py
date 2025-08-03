@@ -22,7 +22,6 @@ def profile_view(request):
     On a POST request, it validates the form submission, saves the changes
     to the user's profile, and provides feedback using Django messages.
     """
-    # The view correctly handles both GET and POST requests.
     if request.method == 'POST':
         # Pass the current user instance and request.FILES to the form
         form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
@@ -31,12 +30,20 @@ def profile_view(request):
             messages.success(request, 'Your profile has been updated successfully!')
             return redirect('profile') # Redirect back to the profile page
         else:
-            # THIS IS THE DEBUGGING LINE I HAVE ADDED
-            print(form.errors)
-            messages.error(request, 'There was an error updating your profile. Please check the form.')
+            # THIS IS THE CORRECTED PART:
+            # Instead of a generic error, we'll display specific form errors.
+            for field, error_list in form.errors.items():
+                for error in error_list:
+                    # We can log the error for debugging on the server-side as well
+                    print(f"Form error on field '{field}': {error}")
+                    messages.error(request, f"Error in {field}: {error}")
+            
+            # Keep the form instance for rendering on the page with errors
+            return render(request, 'core/profile.html', {'form': form})
     else:
+        # For a GET request, pre-populate the form with existing user data
         form = CustomUserChangeForm(instance=request.user)
-
+    
     return render(request, 'core/profile.html', {'form': form})
 
 @login_required

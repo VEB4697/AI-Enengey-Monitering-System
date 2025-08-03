@@ -504,40 +504,41 @@
 
     <!-- Section 1: User Identity Block -->
     <div class="identity-block" data-aos="fade-up">
-    <div class="profile-pic-container">
-        <img id="preview-profile-pic"
-            src="{{ user.profile_picture.url|default:'https://placehold.co/200x200/1c1f24/e0e0e0?text=User' }}"
-            alt="Profile Picture" class="profile-pic">
-        <!-- Camera button on the border -->
-        <div class="profile-pic-edit" id="profile-pic-edit-icon">
-            <i class="fas fa-camera"></i>
+        <div class="profile-pic-container">
+            <img id="preview-profile-pic"
+                src="{{ user.profile_picture.url|default:'https://placehold.co/200x200/1c1f24/e0e0e0?text=User' }}"
+                alt="Profile Picture" class="profile-pic">
+            <!-- Camera button on the border -->
+            <div class="profile-pic-edit" id="profile-pic-edit-icon" value="{{ user.profile_picture.url|default:'' }}">
+                <i class="fas fa-camera"></i>
+            </div>
+        </div>
+
+        <!-- Updated information hierarchy -->
+        <h2 class="profile-username" id="username-display">{{ user.username }}</h2>
+        <div class="profile-details">
+            <!-- Conditional check for full name -->
+            {% if user.first_name and user.last_name %}
+            <h3 class="full-name" id="full-name-display">{{ user.first_name }} {{ user.last_name }}</h3>
+            {% else %}
+            <h3 class="full-name" id="full-name-display">Please update your name</h3>
+            {% endif %}
+            <p class="email" id="email-display">{{ user.email }}</p>
         </div>
     </div>
-
-    <!-- Updated information hierarchy -->
-    <h2 class="profile-username" id="username-display">{{ user.username }}</h2>
-    <div class="profile-details">
-        <!-- Conditional check for full name -->
-        {% if user.first_name and user.last_name %}
-            <h3 class="full-name" id="full-name-display">{{ user.first_name }} {{ user.last_name }}</h3>
-        {% else %}
-            <h3 class="full-name" id="full-name-display">Please update your name</h3>
-        {% endif %}
-        <p class="email" id="email-display">{{ user.email }}</p>
-    </div>
-</div>
 
     <!-- Animated Glowing Divider -->
     <div class="glowing-divider"></div>
 
     <!-- Section 2: User Information Block -->
-     <div class="info-block" data-aos="fade-up" data-aos-delay="500">
+    <div class="info-block" data-aos="fade-up" data-aos-delay="500">
         <div class="info-block-header">
             <h3>User Information</h3>
         </div>
         <form method="post" enctype="multipart/form-data" id="profile-form">
             {% csrf_token %}
             <div class="info-grid">
+
                 <!-- First Name -->
                 <div class="info-field" data-field="first_name">
                     <label class="info-label">First Name</label>
@@ -547,7 +548,8 @@
                             <i class="fas fa-pencil-alt edit-icon"></i>
                             <i class="fas fa-check save-icon d-none"></i>
                         </div>
-                        <input type="text" name="first_name" value="{{ user.first_name|default:'' }}" class="edit-input d-none">
+                        <input type="text" name="first_name" value="{{ user.first_name|default:'' }}"
+                            class="edit-input d-none">
                     </div>
                 </div>
                 <!-- Last Name -->
@@ -559,13 +561,33 @@
                             <i class="fas fa-pencil-alt edit-icon"></i>
                             <i class="fas fa-check save-icon d-none"></i>
                         </div>
-                        <input type="text" name="last_name" value="{{ user.last_name|default:'' }}" class="edit-input d-none">
+                        <input type="text" name="last_name" value="{{ user.last_name|default:'' }}"
+                            class="edit-input d-none">
+                    </div>
+                </div>
+                <!-- Username  -->
+                <div class="info-field" data-field="username">
+                    <label class="info-label">Username</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="info-value">{{ user.username|default:'Not set' }}</span>
+                        <div class="field-actions">
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                            <i class="fas fa-check save-icon d-none"></i>
+                        </div>
+                        <input type="text" name="username" value="{{ user.username|default:'' }}"
+                            class="edit-input d-none">
                     </div>
                 </div>
                 <!-- Email (non-editable in this context, just for display) -->
                 <div class="info-field">
                     <label class="info-label">Email</label>
                     <span class="info-value">{{ user.email }}</span>
+                    <div class="field-actions">
+                        <i class="fas fa-pencil-alt edit-icon"></i>
+                        <i class="fas fa-check save-icon d-none"></i>
+                    </div>
+                    <input type="text" name="email" value="{{ user.email|default:'' }}"
+                        class="edit-input d-none">
                 </div>
                 <!-- Phone Number -->
                 <div class="info-field" data-field="phone_number">
@@ -576,7 +598,8 @@
                             <i class="fas fa-pencil-alt edit-icon"></i>
                             <i class="fas fa-check save-icon d-none"></i>
                         </div>
-                        <input type="text" name="phone_number" value="{{ user.phone_number|default:'' }}" class="edit-input d-none">
+                        <input type="text" name="phone_number" value="{{ user.phone_number|default:'' }}"
+                            class="edit-input d-none">
                     </div>
                 </div>
                 <!-- Date of Birth -->
@@ -588,7 +611,8 @@
                             <i class="fas fa-pencil-alt edit-icon"></i>
                             <i class="fas fa-check save-icon d-none"></i>
                         </div>
-                        <input type="date" name="date_of_birth" value="{{ user.date_of_birth|date:'Y-m-d'|default:'' }}" class="edit-input d-none">
+                        <input type="date" name="date_of_birth" value="{{ user.date_of_birth|date:'Y-m-d'|default:'' }}"
+                            class="edit-input d-none">
                     </div>
                 </div>
                 <!-- Gender -->
@@ -603,7 +627,7 @@
                         <select name="gender" class="edit-input d-none">
                             <option value="" {% if not user.gender %}selected{% endif %}>Not set</option>
                             {% for key, value in user.GENDER_CHOICES %}
-                                <option value="{{ key }}" {% if user.gender == key %}selected{% endif %}>{{ value }}</option>
+                            <option value="{{ key }}" {% if user.gender == key %}selected{% endif %}>{{ value }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -618,15 +642,15 @@
                         <i class="fas fa-pencil-alt edit-icon"></i>
                         <i class="fas fa-check save-icon d-none"></i>
                     </div>
-                    <textarea name="address" rows="3" class="edit-input d-none">{{ user.address|default:'' }}</textarea>
+                    <input name="address"  class="edit-input d-none" value="{{ user.address|default:'' }}" >
                 </div>
             </div>
-            
+
             <!-- Hidden file input for profile picture -->
             <input type="file" id="profile-pic-input" name="profile_picture" class="d-none">
-        
+
             <div class="text-center">
-                <button type="submit" class="save-changes-btn">Save Changes</button>
+                <button type="submit" class="save-changes-btn d-none">Save Changes</button>
             </div>
         </form>
     </div>
@@ -636,11 +660,11 @@
 {% block extra_js %}
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         AOS.init();
-        
+
         // Sparkle effect
-        const sparklesContainer = document.querySelector('.sparkles');
+        const sparklesContainer = document.querySelector('.sparkles-container');
         function createSparkle() {
             const sparkle = document.createElement('div');
             sparkle.classList.add('sparkle');
@@ -650,8 +674,10 @@
             sparkle.style.left = `${Math.random() * 100}%`;
             sparkle.style.top = `${Math.random() * 100}%`;
             sparkle.style.animationDelay = `${Math.random() * 5}s`;
-            sparklesContainer.appendChild(sparkle);
-            setTimeout(() => sparkle.remove(), 5000);
+            if (sparklesContainer) {
+                sparklesContainer.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 5000);
+            }
         }
         setInterval(createSparkle, 200);
 
@@ -659,14 +685,15 @@
         const profilePicEditIcon = document.getElementById('profile-pic-edit-icon');
         const profilePicInput = document.getElementById('profile-pic-input');
         const previewProfilePic = document.getElementById('preview-profile-pic');
-        
+        const saveChangesButton = document.querySelector('.save-changes-btn'); // Get the save button
+
         if (profilePicEditIcon && profilePicInput && previewProfilePic) {
             // Click the hidden input when the camera icon is clicked
             profilePicEditIcon.addEventListener('click', () => {
                 profilePicInput.click();
             });
-            
-            // Display the new image when a file is selected
+
+            // Display the new image when a file is selected and show the save button
             profilePicInput.addEventListener('change', (event) => {
                 const file = event.target.files[0];
                 if (file) {
@@ -675,9 +702,75 @@
                         previewProfilePic.src = e.target.result;
                     };
                     reader.readAsDataURL(file);
+                    // Check if the button exists before trying to modify its class
+                    if (saveChangesButton) {
+                        saveChangesButton.classList.remove('d-none');
+                    }
                 }
             });
         }
+
+        // --- CODE FOR INLINE EDITING STARTS HERE ---
+        const editIcons = document.querySelectorAll('.edit-icon');
+
+        // Add event listeners to all edit icons
+        editIcons.forEach(icon => {
+            icon.addEventListener('click', () => {
+                const fieldElement = icon.closest('.info-field');
+                const infoValue = fieldElement.querySelector('.info-value');
+                const editInput = fieldElement.querySelector('.edit-input');
+                const saveIcon = fieldElement.querySelector('.save-icon');
+
+                // Toggle visibility
+                infoValue.classList.add('d-none');
+                editInput.classList.remove('d-none');
+                icon.classList.add('d-none');
+                saveIcon.classList.remove('d-none');
+
+                // Set focus on the input field
+                editInput.focus();
+
+                // Check if the button exists before trying to modify its class
+                if (saveChangesButton) {
+                    saveChangesButton.classList.remove('d-none');
+                }
+            });
+        });
+
+        const saveIcons = document.querySelectorAll('.save-icon');
+        // Add event listeners to all save icons (to submit the form)
+        saveIcons.forEach(icon => {
+            icon.addEventListener('click', () => {
+                document.getElementById('profile-form').submit();
+            });
+        });
+
+        // Add a mouseleave listener to hide the save button if editing is abandoned
+        document.querySelectorAll('.info-field').forEach(field => {
+            const editInput = field.querySelector('.edit-input');
+            const infoValue = field.querySelector('.info-value');
+            const editIcon = field.querySelector('.edit-icon');
+            const saveIcon = field.querySelector('.save-icon');
+
+            if (editInput) {
+                editInput.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        // Check if the user is still in edit mode or has moved to another element
+                        // We use a small delay to allow for clicking on the save button
+                        const focusedElement = document.activeElement;
+                        if (!field.contains(focusedElement)) {
+                            // Revert back to display mode
+                            infoValue.classList.remove('d-none');
+                            editInput.classList.add('d-none');
+                            editIcon.classList.remove('d-none');
+                            saveIcon.classList.add('d-none');
+                        }
+                    }, 100);
+                });
+            }
+        });
+        // --- CODE FOR INLINE EDITING ENDS HERE ---
     });
 </script>
+
 {% endblock %}
