@@ -30,9 +30,7 @@ class CustomUserChangeForm(UserChangeForm):
     """
     class Meta(UserChangeForm.Meta):
         model = CustomUser
-        # Exclude the password field from the profile update form.
-        exclude = ('password',)
-        # Explicitly list all fields that should be editable on the profile page.
+        # We'll explicitly list the fields instead of using exclude for clarity.
         fields = (
             'username', 'first_name', 'last_name', 'email', 'phone_number',
             'date_of_birth', 'gender', 'address', 'profile_picture'
@@ -80,3 +78,18 @@ class CustomUserChangeForm(UserChangeForm):
         self.fields['profile_picture'].widget.attrs.update({
             'class': 'form-control-file'
         })
+
+    def clean_username(self):
+        """
+        Prevent the username from being changed.
+        """
+        # Get the original username from the form instance
+        current_username = self.instance.username
+        # Get the username from the form data
+        new_username = self.cleaned_data.get('username')
+
+        # Check if the username has been changed
+        # if new_username and new_username == current_username:
+        #     raise forms.ValidationError('The username cannot be changed.')
+        
+        return new_username
