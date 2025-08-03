@@ -1,0 +1,683 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Smart IoT - User Profile{% endblock %}
+
+{% block head_extra %}
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- AOS Library for Animate on Scroll -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    /* Updated CSS for the new futuristic layout with contrasting neon glows */
+    :root {
+        /* Refined Technological Gradient Theme */
+        --background-start: hsl(210, 50%, 5%);
+        --background-end: hsl(240, 50%, 5%);
+        --primary: hsl(195, 100%, 50%);
+        /* Bright Cyan */
+        --secondary: hsl(240, 100%, 70%);
+        /* Bright Blue */
+        --accent: hsl(180, 100%, 50%);
+        /* Aqua */
+        --opposite-glow: hsl(85, 100%, 50%);
+        /* Vibrant neon yellow/green for contrast */
+        --text-light: hsl(210, 40%, 98%);
+        --text-muted: hsl(215, 20%, 65%);
+        --border-color: hsla(240, 100%, 70%, 0.3);
+        --card-bg: hsla(220, 30%, 10%, 0.8);
+        --input-bg: hsla(220, 30%, 15%, 0.6);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        /* Lighter for glass effect */
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+        --gradient-animated: linear-gradient(135deg,
+                var(--secondary),
+                var(--primary),
+                var(--accent));
+        --box-shadow-glow: 0 0 15px var(--primary), 0 0 30px var(--secondary);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        color: var(--text-light);
+        background: var(--background-start);
+        min-height: 100vh;
+        overflow-x: hidden;
+        animation: background-gradient-anim 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes background-gradient-anim {
+        0% {
+            background-color: var(--background-start);
+            background-image: radial-gradient(circle at 10% 90%, var(--primary) 0%, transparent 50%),
+                radial-gradient(circle at 90% 10%, var(--secondary) 0%, transparent 50%);
+        }
+
+        100% {
+            background-color: var(--background-end);
+            background-image: radial-gradient(circle at 90% 10%, var(--primary) 0%, transparent 50%),
+                radial-gradient(circle at 10% 90%, var(--secondary) 0%, transparent 50%);
+        }
+    }
+
+    /* Sparkle effect on the background */
+    .sparkles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .sparkle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        animation: sparkle-anim 5s linear infinite;
+    }
+
+    @keyframes sparkle-anim {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        50% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(0);
+            opacity: 0;
+        }
+    }
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Section 1: User Identity Block - Updated */
+    .identity-block {
+        position: relative;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.5rem;
+        padding: 3rem 2rem;
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.2);
+        margin-bottom: 2rem;
+        animation: fadeInScale 1s ease-out;
+    }
+
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Larger Profile Picture */
+    .profile-pic-container {
+        position: relative;
+        width: 250px;
+        /* Increased size from 200px */
+        height: 250px;
+        /* Increased size from 200px */
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        overflow: visible;
+        /* Important to allow the camera button to be outside the border */
+        border: 3px solid var(--accent);
+        box-shadow: 0 0 15px var(--accent);
+        transition: all 0.3s ease;
+        animation: pulse-border 2s infinite, fadeInScale 1s ease-out 0.5s both;
+    }
+
+    .profile-pic-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px var(--primary);
+    }
+
+    @keyframes pulse-border {
+        0% {
+            box-shadow: 0 0 0 0 var(--accent);
+        }
+
+        50% {
+            box-shadow: 0 0 10px 5px var(--accent);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 var(--accent);
+        }
+    }
+
+    .profile-pic {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        /* Make sure the image itself is rounded */
+    }
+
+    /* Camera button on the border, but outside */
+    .profile-pic-edit {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        /* Adjusted position for the larger photo */
+        background: var(--primary);
+        color: var(--primary-foreground);
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px var(--primary);
+        animation: floating 3s ease-in-out infinite;
+    }
+
+    .profile-pic-edit:hover {
+        transform: scale(1.1) rotate(15deg);
+        box-shadow: 0 0 15px var(--accent);
+    }
+
+    @keyframes floating {
+        0% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-5px);
+        }
+
+        100% {
+            transform: translateY(0px);
+        }
+    }
+
+    /* Typography hierarchy */
+    .profile-username {
+        font-size: 2.5rem;
+        /* Largest */
+        font-weight: 700;
+        font-family: 'Orbitron', sans-serif;
+        background: var(--gradient-animated);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: text-glow 5s ease-in-out infinite alternate;
+        margin-bottom: 0.5rem;
+    }
+
+    .full-name {
+        font-size: 1.5rem;
+        /* Medium size */
+        font-weight: 600;
+        color: var(--text-light);
+        margin-bottom: 0.25rem;
+        animation: fadeInSlideUp 0.8s ease-out forwards;
+        animation-delay: 0.2s;
+    }
+
+    .email {
+        font-size: 1.2rem;
+        /* Smallest size */
+        color: var(--text-muted);
+        margin-bottom: 0;
+        animation: fadeInSlideUp 0.8s ease-out forwards;
+        animation-delay: 0.4s;
+    }
+
+    @keyframes text-glow {
+        0% {
+            filter: hue-rotate(0deg);
+            text-shadow: 0 0 5px var(--primary);
+        }
+
+        100% {
+            filter: hue-rotate(360deg);
+            text-shadow: 0 0 10px var(--accent);
+        }
+    }
+
+    @keyframes fadeInSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Glowing Divider */
+    .glowing-divider {
+        width: 80%;
+        height: 2px;
+        background: var(--gradient-animated);
+        margin: 4rem auto;
+        border-radius: 1px;
+        box-shadow: 0 0 10px var(--primary), 0 0 20px var(--secondary);
+        animation: glow-wave 6s ease-in-out infinite;
+    }
+
+    @keyframes glow-wave {
+        0% {
+            box-shadow: 0 0 10px var(--primary), 0 0 20px var(--secondary);
+        }
+
+        50% {
+            box-shadow: 0 0 20px var(--accent), 0 0 30px var(--primary);
+        }
+
+        100% {
+            box-shadow: 0 0 10px var(--primary), 0 0 20px var(--secondary);
+        }
+    }
+
+    /* Section 2: User Information Block */
+    .info-block {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--opposite-glow);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        width: 100%;
+        max-width: 900px;
+        box-shadow: var(--glass-shadow), 0 0 15px var(--opposite-glow);
+        animation: fadeInScale 1s ease-out 1s both;
+    }
+
+    .info-block-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .info-block-header h3 {
+        font-size: 2rem;
+        background: linear-gradient(90deg, var(--opposite-glow), var(--accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .info-field {
+        position: relative;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.1);
+    }
+
+    .info-field:hover {
+        box-shadow: 0 0 15px var(--opposite-glow);
+        transform: translateY(-5px);
+        border-color: var(--opposite-glow);
+    }
+
+    .info-label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-light);
+        transition: color 0.3s ease;
+    }
+
+    .edit-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: var(--text-light);
+        font-size: 1rem;
+        border-bottom: 1px solid var(--opposite-glow);
+        padding: 0.25rem 0;
+        outline: none;
+    }
+
+    .field-actions {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .edit-icon,
+    .save-icon,
+    .tick-icon {
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+    }
+
+    .edit-icon:hover {
+        color: var(--opposite-glow);
+        transform: scale(1.1);
+    }
+
+    .save-icon {
+        color: var(--opposite-glow);
+    }
+
+    .save-icon:hover {
+        color: var(--accent);
+        transform: scale(1.1);
+    }
+
+    .tick-icon {
+        color: #2ecc71;
+        animation: bounce 0.5s ease-in-out;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-5px);
+        }
+
+        100% {
+            transform: translateY(0);
+        }
+    }
+
+    .save-changes-btn {
+        background: linear-gradient(90deg, var(--opposite-glow), var(--accent));
+        border: none;
+        color: var(--text-light);
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 0 10px var(--opposite-glow);
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+        animation: bounce-btn 2s infinite;
+    }
+
+    .save-changes-btn:hover {
+        box-shadow: 0 0 20px var(--opposite-glow), 0 0 30px var(--accent);
+        transform: scale(1.05);
+        animation: none;
+    }
+
+    @keyframes bounce-btn {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-5px);
+        }
+
+        100% {
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive adjustments for mobile */
+    @media (max-width: 768px) {
+
+        .identity-block,
+        .info-block {
+            padding: 1.5rem;
+            border-radius: 1rem;
+        }
+
+        .profile-pic-container {
+            width: 150px;
+            height: 150px;
+        }
+
+        .profile-username {
+            font-size: 2rem;
+        }
+
+        .full-name {
+            font-size: 1.2rem;
+        }
+
+        .email {
+            font-size: 1rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+
+    <!-- Sparkles on background -->
+    <div class="sparkles"></div>
+
+    <!-- Section 1: User Identity Block -->
+    <div class="identity-block" data-aos="fade-up">
+    <div class="profile-pic-container">
+        <img id="preview-profile-pic"
+            src="{{ user.profile_picture.url|default:'https://placehold.co/200x200/1c1f24/e0e0e0?text=User' }}"
+            alt="Profile Picture" class="profile-pic">
+        <!-- Camera button on the border -->
+        <div class="profile-pic-edit" id="profile-pic-edit-icon">
+            <i class="fas fa-camera"></i>
+        </div>
+    </div>
+
+    <!-- Updated information hierarchy -->
+    <h2 class="profile-username" id="username-display">{{ user.username }}</h2>
+    <div class="profile-details">
+        <!-- Conditional check for full name -->
+        {% if user.first_name and user.last_name %}
+            <h3 class="full-name" id="full-name-display">{{ user.first_name }} {{ user.last_name }}</h3>
+        {% else %}
+            <h3 class="full-name" id="full-name-display">Please update your name</h3>
+        {% endif %}
+        <p class="email" id="email-display">{{ user.email }}</p>
+    </div>
+</div>
+
+    <!-- Animated Glowing Divider -->
+    <div class="glowing-divider"></div>
+
+    <!-- Section 2: User Information Block -->
+     <div class="info-block" data-aos="fade-up" data-aos-delay="500">
+        <div class="info-block-header">
+            <h3>User Information</h3>
+        </div>
+        <form method="post" enctype="multipart/form-data" id="profile-form">
+            {% csrf_token %}
+            <div class="info-grid">
+                <!-- First Name -->
+                <div class="info-field" data-field="first_name">
+                    <label class="info-label">First Name</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="info-value">{{ user.first_name|default:'Not set' }}</span>
+                        <div class="field-actions">
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                            <i class="fas fa-check save-icon d-none"></i>
+                        </div>
+                        <input type="text" name="first_name" value="{{ user.first_name|default:'' }}" class="edit-input d-none">
+                    </div>
+                </div>
+                <!-- Last Name -->
+                <div class="info-field" data-field="last_name">
+                    <label class="info-label">Last Name</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="info-value">{{ user.last_name|default:'Not set' }}</span>
+                        <div class="field-actions">
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                            <i class="fas fa-check save-icon d-none"></i>
+                        </div>
+                        <input type="text" name="last_name" value="{{ user.last_name|default:'' }}" class="edit-input d-none">
+                    </div>
+                </div>
+                <!-- Email (non-editable in this context, just for display) -->
+                <div class="info-field">
+                    <label class="info-label">Email</label>
+                    <span class="info-value">{{ user.email }}</span>
+                </div>
+                <!-- Phone Number -->
+                <div class="info-field" data-field="phone_number">
+                    <label class="info-label">Phone Number</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="info-value">{{ user.phone_number|default:'Not set' }}</span>
+                        <div class="field-actions">
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                            <i class="fas fa-check save-icon d-none"></i>
+                        </div>
+                        <input type="text" name="phone_number" value="{{ user.phone_number|default:'' }}" class="edit-input d-none">
+                    </div>
+                </div>
+                <!-- Date of Birth -->
+                <div class="info-field" data-field="date_of_birth">
+                    <label class="info-label">Date of Birth</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="info-value">{{ user.date_of_birth|date:"Y-m-d"|default:'Not set' }}</span>
+                        <div class="field-actions">
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                            <i class="fas fa-check save-icon d-none"></i>
+                        </div>
+                        <input type="date" name="date_of_birth" value="{{ user.date_of_birth|date:'Y-m-d'|default:'' }}" class="edit-input d-none">
+                    </div>
+                </div>
+                <!-- Gender -->
+                <div class="info-field" data-field="gender">
+                    <label class="info-label">Gender</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="info-value">{{ user.get_gender_display|default:'Not set' }}</span>
+                        <div class="field-actions">
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                            <i class="fas fa-check save-icon d-none"></i>
+                        </div>
+                        <select name="gender" class="edit-input d-none">
+                            <option value="" {% if not user.gender %}selected{% endif %}>Not set</option>
+                            {% for key, value in user.GENDER_CHOICES %}
+                                <option value="{{ key }}" {% if user.gender == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Address -->
+            <div class="info-field mt-4" data-field="address">
+                <label class="info-label">Address</label>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="info-value">{{ user.address|default:'Not set' }}</span>
+                    <div class="field-actions">
+                        <i class="fas fa-pencil-alt edit-icon"></i>
+                        <i class="fas fa-check save-icon d-none"></i>
+                    </div>
+                    <textarea name="address" rows="3" class="edit-input d-none">{{ user.address|default:'' }}</textarea>
+                </div>
+            </div>
+            
+            <!-- Hidden file input for profile picture -->
+            <input type="file" id="profile-pic-input" name="profile_picture" class="d-none">
+        
+            <div class="text-center">
+                <button type="submit" class="save-changes-btn">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init();
+        
+        // Sparkle effect
+        const sparklesContainer = document.querySelector('.sparkles');
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle');
+            const size = Math.random() * 3 + 1; // 1-4px
+            sparkle.style.width = `${size}px`;
+            sparkle.style.height = `${size}px`;
+            sparkle.style.left = `${Math.random() * 100}%`;
+            sparkle.style.top = `${Math.random() * 100}%`;
+            sparkle.style.animationDelay = `${Math.random() * 5}s`;
+            sparklesContainer.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 5000);
+        }
+        setInterval(createSparkle, 200);
+
+        // Logic for profile picture upload preview
+        const profilePicEditIcon = document.getElementById('profile-pic-edit-icon');
+        const profilePicInput = document.getElementById('profile-pic-input');
+        const previewProfilePic = document.getElementById('preview-profile-pic');
+        
+        if (profilePicEditIcon && profilePicInput && previewProfilePic) {
+            // Click the hidden input when the camera icon is clicked
+            profilePicEditIcon.addEventListener('click', () => {
+                profilePicInput.click();
+            });
+            
+            // Display the new image when a file is selected
+            profilePicInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewProfilePic.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

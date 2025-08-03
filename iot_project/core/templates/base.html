@@ -145,7 +145,8 @@
                     {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#">
-                            <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="profile-img" alt="Profile">
+                            <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}"
+                                class="profile-img" alt="Profile">
 
                             {{ user.username }}
                         </a>
