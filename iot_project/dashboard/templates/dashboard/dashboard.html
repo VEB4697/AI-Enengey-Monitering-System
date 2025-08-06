@@ -3,177 +3,61 @@
 
 {% block title %}My Dashboard{% endblock %}
 
-{% block head_extra %}
-<style>
-    /* Custom CSS Variables for a more vibrant, futuristic theme */
-    :root {
-        --background-start: hsl(260, 50%, 5%); /* Deep violet start */
-        --background-end: hsl(280, 50%, 5%); /* Deep magenta end */
-        --primary: hsl(150, 100%, 50%); /* Neon Green */
-        --secondary: hsl(260, 100%, 70%); /* Bright Purple */
-        --accent: hsl(180, 100%, 50%); /* Aqua */
-        --opposite-glow: hsl(40, 100%, 60%); /* Vibrant orange/yellow for contrast */
-        --text-light: hsl(210, 40%, 98%);
-        --text-muted: hsl(215, 20%, 65%);
-        --card-bg: hsla(260, 50%, 10%, 0.6); /* Semi-transparent card background with a purple tint */
-        --card-border: 1px solid hsla(150, 100%, 50%, 0.5); /* Neon green border */
-        --input-bg: hsla(260, 50%, 10%, 0.8);
-        --input-border: hsla(150, 100%, 50%, 0.5);
-    }
-
-    /* Override the base body and add a dynamic background animation */
-    body {
-        background: radial-gradient(circle, var(--background-start) 0%, var(--background-end) 100%);
-        overflow-x: hidden;
-        position: relative;
-    }
-    body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M 50 0 L 100 50 L 50 100 L 0 50 Z" stroke="%23303030" stroke-width="1" fill="none"%3E%3C/path%3E%3C/svg%3E');
-        background-size: 20px 20px;
-        opacity: 0.1;
-        animation: bg-scroll 60s linear infinite;
-        z-index: -1;
-    }
-
-    @keyframes bg-scroll {
-        0% { background-position: 0 0; }
-        100% { background-position: 100% 100%; }
-    }
-
-    /* Reworked Card and Text Styling */
-    .dashboard-card {
-        background: var(--card-bg);
-        border: var(--card-border);
-        border-radius: 16px;
-        backdrop-filter: blur(15px);
-        box-shadow: 0 0 20px rgba(100, 0, 200, 0.5); /* Deep purple glow */
-        transition: transform 0.4s ease-out, box-shadow 0.4s ease-out, border-color 0.4s ease-out;
-    }
-    .dashboard-card:hover {
-        transform: translateY(-8px) scale(1.03);
-        box-shadow: 0 0 40px var(--secondary), 0 0 20px var(--primary);
-        border-color: var(--primary);
-    }
-
-    /* Neon Text Glow */
-    .card-title, h2.text-light {
-        font-weight: 700;
-        color: var(--text-light) !important;
-        text-shadow: 0 0 10px var(--primary), 0 0 5px var(--secondary);
-    }
-    .card-subtitle {
-        color: var(--text-muted) !important;
-        text-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
-    }
-    .card-text strong {
-        color: var(--primary);
-    }
-
-    /* Status Badges with more intense glow */
-    .badge.bg-success {
-        background-color: transparent !important;
-        color: var(--primary);
-        border: 1px solid var(--primary);
-        text-shadow: 0 0 8px var(--primary);
-        box-shadow: 0 0 12px var(--primary);
-        animation: pulse-online-v2 2s ease-in-out infinite;
-    }
-    .badge.bg-danger {
-        background-color: transparent !important;
-        color: var(--danger-glow);
-        border: 1px solid var(--danger-glow);
-        text-shadow: 0 0 8px var(--danger-glow);
-        box-shadow: 0 0 12px var(--danger-glow);
-    }
-    @keyframes pulse-online-v2 {
-        0% { transform: scale(1); box-shadow: 0 0 12px var(--primary); }
-        50% { transform: scale(1.1); box-shadow: 0 0 20px var(--primary); }
-        100% { transform: scale(1); box-shadow: 0 0 12px var(--primary); }
-    }
-
-    /* Call-to-action button */
-    .btn-outline-primary {
-        color: var(--primary);
-        border-color: var(--primary);
-        transition: all 0.3s ease;
-        text-shadow: 0 0 5px var(--primary);
-    }
-    .btn-outline-primary:hover {
-        background-color: var(--primary);
-        color: var(--primary-foreground);
-        box-shadow: 0 0 20px var(--primary);
-    }
-
-    /* Alert for no devices */
-    .alert-info {
-        background-color: var(--card-bg);
-        color: var(--text-light);
-        border: 1px solid var(--primary);
-        text-shadow: 0 0 5px var(--primary);
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<h2 class="mb-4 text-light">Your Smart Devices</h2>
+<div class="animated-grid"></div>
+<div class="container-fluid-custom">
+    <h2 class="mb-4 text-light">My Smart Devices</h2>
 
 {% if devices_with_latest_data %}
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for item in devices_with_latest_data %}
-    <div class="col" data-aos="zoom-in">
-        <div class="card h-100 dashboard-card text-light">
+    <div class="col">
+        <div class="card h-100 shadow-sm bg-dark text-light border-secondary">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title text-primary">{{ item.device.name }}</h5>
                 <h6 class="card-subtitle mb-2 text-muted">{{ item.device.get_device_type_display }}</h6>
                 <p class="card-text">
                     Status:
-                    {% if item.time_since_last_seen_seconds and item.time_since_last_seen_seconds < 3 %}
+                    {% if item.device.is_online and item.device.last_seen and item.device.last_seen|timesince:"now"|cut:" " < "5 minutes" %}
                         <span class="badge bg-success">Online</span>
                     {% else %}
                         <span class="badge bg-danger">Offline</span>
                     {% endif %}
                     <br>
                     Last Seen: {{ item.device.last_seen|default:"N/A" }}
-                    <br>
-                    Total Readings (Today): {{ item.readings_count|default:"N/A" }}
                 </p>
 
-                <div class="mt-auto">
-                    {% if item.device.device_type == 'power_monitor' %}
-                        <p class="card-text">
-                            <strong>Current Power:</strong> {{ item.latest_data.power|default:"N/A" }} W<br>
-                            <strong>Voltage:</strong> {{ item.latest_data.voltage|default:"N/A" }} V<br>
-                            <strong>Relay State:</strong>
-                            {% if item.latest_data.relay_state == "ON" %}
-                                <span class="badge bg-success">ON</span>
-                            {% elif item.latest_data.relay_state == "OFF" %}
-                                <span class="badge bg-danger">OFF</span>
-                            {% else %}
-                                <span class="badge bg-secondary">Unknown</span>
-                            {% endif %}
-                        </p>
-                    {% elif item.device.device_type == 'water_level' %}
-                        <p class="card-text">
-                            <strong>Water Level:</strong> {{ item.latest_data.water_level|default:"N/A" }}%
-                        </p>
-                    {% else %}
-                        <p class="card-text">No specific data available for this device type.</p>
-                    {% endif %}
+                    <div class="mt-auto">
+                        {% if item.device.device_type == 'power_monitor' %}
+                            <p class="card-text">
+                                <strong class="text-white">Current Power:</strong> <span style="color: var(--primary);">{{ item.latest_data.power|default:"N/A" }}</span> W<br>
+                                <strong class="text-white">Voltage:</strong> <span style="color: var(--primary);">{{ item.latest_data.voltage|default:"N/A" }}</span> V<br>
+                                <strong class="text-white">Relay State:</strong>
+                                {% if item.latest_data.relay_state == "ON" %}
+                                    <span class="badge badge-on">ON</span>
+                                {% elif item.latest_data.relay_state == "OFF" %}
+                                    <span class="badge badge-off">OFF</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Unknown</span>
+                                {% endif %}
+                            </p>
+                        {% elif item.device.device_type == 'water_level' %}
+                            <p class="card-text">
+                                <strong class="text-white">Water Level:</strong> <span style="color: var(--primary);">{{ item.latest_data.water_level|default:"N/A" }}</span>%
+                            </p>
+                        {% else %}
+                            <p class="card-text text-muted">No specific data available for this device type.</p>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'dashboard:device_detail' item.device.id %}" class="btn-custom btn-outline-primary-custom mt-3">View Details & Control</a>
                 </div>
-                <a href="{% url 'dashboard:device_detail' item.device.id %}" class="btn btn-outline-primary mt-3">View Details & Control</a>
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
 {% else %}
-<div class="alert alert-info text-center" role="alert" data-aos="fade-up">
+<div class="alert alert-info text-center" role="alert">
     You don't have any devices registered yet. <a href="{% url 'add_device_to_user' %}" class="alert-link">Set up a new device</a> to get started!
 </div>
 {% endif %}
