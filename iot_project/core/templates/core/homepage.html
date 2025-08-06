@@ -4,495 +4,599 @@
 {% block title %}Welcome to Smart IoT - AI Energy Monitoring{% endblock %}
 
 {% block head_extra %}
-    <!-- Google Fonts: Inter for modern look -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
-    <style>
-        /* Custom CSS from login.html, adapted for homepage */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    /* Custom CSS from login.html, adapted for homepage */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        :root {
-            /* IoT Theme Colors */
-            --background: hsl(222, 47%, 4%);
-            --foreground: hsl(210, 40%, 98%);
-            --card: hsl(222, 47%, 8%);
-            --card-foreground: hsl(210, 40%, 98%);
-            --primary: hsl(195, 100%, 50%); /* Main accent blue */
-            --primary-foreground: hsl(222, 47%, 4%); /* Text on primary */
-            --secondary: hsl(260, 60%, 65%); /* Purple accent */
-            --accent: hsl(180, 100%, 50%); /* Cyan accent */
-            --muted: hsl(222, 47%, 12%); /* Muted background */
-            --muted-foreground: hsl(215, 20%, 65%); /* Muted text */
-            --border: hsl(222, 47%, 20%);
-            --input: hsl(222, 47%, 12%);
-            --destructive: hsl(0, 84%, 60%); /* Red for errors */
-            
-            /* Gradients */
-            --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
-            --gradient-cyber: linear-gradient(45deg, var(--primary), var(--accent));
-            --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 8%, 0.8), hsla(222, 47%, 12%, 0.4));
-            
-            /* Effects */
-            --shadow-cyber: 0 0 30px hsla(195, 100%, 50%, 0.3);
-            --shadow-glass: 0 8px 32px hsla(222, 47%, 4%, 0.3);
-        }
+    :root {
+        /* IoT Theme Colors */
+        --background: hsl(222, 47%, 4%);
+        --foreground: hsl(210, 40%, 98%);
+        --card: hsl(222, 47%, 8%);
+        --card-foreground: hsl(210, 40%, 98%);
+        --primary: hsl(195, 100%, 50%);
+        /* Main accent blue */
+        --primary-foreground: hsl(222, 47%, 4%);
+        /* Text on primary */
+        --secondary: hsl(260, 60%, 65%);
+        /* Purple accent */
+        --accent: hsl(180, 100%, 50%);
+        /* Cyan accent */
+        --muted: hsl(222, 47%, 12%);
+        /* Muted background */
+        --muted-foreground: hsl(215, 20%, 65%);
+        /* Muted text */
+        --border: hsl(222, 47%, 20%);
+        --input: hsl(222, 47%, 12%);
+        --destructive: hsl(0, 84%, 60%);
+        /* Red for errors */
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--background);
-            color: var(--foreground);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative; /* Needed for pseudo-elements */
-        }
+        /* Gradients */
+        --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
+        --gradient-cyber: linear-gradient(45deg, var(--primary), var(--accent));
+        --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 8%, 0.8), hsla(222, 47%, 12%, 0.4));
+        --gradient-opposite: linear-gradient(135deg, hsl(85, 100%, 50%), var(--accent));
 
-        /* Enhanced Background Effects */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: 
-                radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, hsla(180, 100%, 50%, 0.05) 0%, transparent 50%),
-                /* Animated tech grid lines */
-                linear-gradient(0deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px), /* Horizontal lines */
-                linear-gradient(90deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px); /* Vertical lines */
-            background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px, 60px 60px; /* Adjust grid size */
-            background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0;
-            opacity: 0.9;
-            z-index: -2; /* Behind everything */
-            animation: subtle-gradient-shift 20s ease-in-out infinite alternate, tech-grid-move 15s linear infinite; /* Combined animations */
-        }
+        /* Effects */
+        --shadow-cyber: 0 0 30px hsla(195, 100%, 50%, 0.3);
+        --shadow-glass: 0 8px 32px hsla(222, 47%, 4%, 0.3);
+    }
 
-        .background-pattern {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
-                linear-gradient(-45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, hsl(222, 47%, 8%) 75%),
-                linear-gradient(-45deg, transparent 75%, hsl(222, 47%, 8%) 75%);
-            background-size: 30px 30px; /* Slightly larger pattern */
-            background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
-            opacity: 0.08; /* Slightly less opaque */
-            z-index: -1; /* Behind content, above main background */
-            animation: pattern-pan 90s linear infinite; /* Slower, continuous pan */
-        }
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--background);
+        color: var(--foreground);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
 
-        /* Scanline effect for retro tech feel - adjusted opacity */
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                to bottom,
+    /* Enhanced Background Effects */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
+            linear-gradient(0deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+        background-position: 0% 0%, 0% 0%, 0 0, 0 0;
+        opacity: 0.9;
+        z-index: -2;
+        animation: subtle-gradient-shift 20s ease-in-out infinite alternate;
+    }
+
+    /* Animated background grid effect - more pronounced */
+    .animated-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px;
+        z-index: -1;
+        animation: pan-grid 60s linear infinite;
+        opacity: 0.5;
+    }
+    
+    @keyframes pan-grid {
+        0% { background-position: 0 0; }
+        100% { background-position: -50px -50px; }
+    }
+
+    /* Scanline effect for retro tech feel */
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(to bottom,
                 transparent 0px,
                 transparent 1px,
-                rgba(0,0,0,0.03) 1px, /* More subtle */
-                rgba(0,0,0,0.03) 2px
-            );
-            pointer-events: none;
-            z-index: 9999; /* On top of everything */
-            opacity: 0.05; /* Very subtle */
+                rgba(0, 0, 0, 0.03) 1px,
+                rgba(0, 0, 0, 0.03) 2px);
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.05;
+    }
+
+    .container-full-height {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 1rem;
+        flex-direction: column;
+    }
+
+    .floating-icons {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .floating-icon {
+        position: absolute;
+        opacity: 0.3;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .floating-icon:nth-child(1) { top: 5rem; left: 5rem; animation-delay: 0s; }
+    .floating-icon:nth-child(2) { top: 10rem; right: 8rem; animation-delay: 1s; }
+    .floating-icon:nth-child(3) { bottom: 8rem; left: 4rem; animation-delay: 2s; }
+    .floating-icon:nth-child(4) { top: 20%; left: 40%; animation-delay: 0.5s; opacity: 0.2; transform: scale(0.8); }
+    .floating-icon:nth-child(5) { bottom: 15%; right: 20%; animation-delay: 1.5s; opacity: 0.25; transform: scale(0.9); }
+
+
+    .hero-section {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        padding: 5rem 1rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .hero-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3.8rem;
+        font-weight: 800;
+        background: var(--gradient-cyber);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+        animation: fadeIn 1s ease-out;
+    }
+
+    .hero-subtitle {
+        color: var(--muted-foreground);
+        font-size: 1.35rem;
+        margin-bottom: 2.5rem;
+        line-height: 1.8;
+    }
+
+    .hero-buttons .btn-custom {
+        margin: 0.5rem;
+        animation: fadeIn 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    .hero-buttons .btn-custom:nth-child(1) { animation-delay: 0.5s; }
+    .hero-buttons .btn-custom:nth-child(2) { animation-delay: 0.7s; }
+
+
+    .info-section {
+        position: relative;
+        z-index: 10;
+        padding: 4rem 1rem;
+        background: var(--card);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        margin-top: 4rem;
+        text-align: center;
+    }
+
+    .info-section h2 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.8rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 2.5rem;
+    }
+
+    .info-section p {
+        max-width: 1000px;
+        margin: 0 auto 2rem auto;
+        color: var(--muted-foreground);
+        font-size: 1.15rem;
+        line-height: 1.7;
+    }
+
+    /* New styles for the Pop-up container */
+    .popup-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: none; /* Hidden by default */
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .popup-content {
+        background: var(--gradient-glass);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 0 40px rgba(var(--primary-rgb), 0.5);
+        animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        position: relative;
+    }
+
+    .popup-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.5rem;
+        color: var(--muted-foreground);
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+    
+    .popup-close:hover {
+        color: var(--destructive);
+    }
+    
+    .popup-content h3 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        background: var(--gradient-opposite);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+    
+    .popup-content p {
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Core Features Section */
+    .features-grid {
+        position: relative;
+        z-index: 10;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2.5rem;
+        padding: 4rem 1rem;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        background: var(--gradient-glass);
+        backdrop-filter: blur(20px);
+        border: 1px solid hsla(222, 47%, 20%, 0.5);
+        box-shadow: var(--shadow-glass);
+        border-radius: 0.75rem;
+        padding: 2.2rem;
+        text-align: left;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: fadeIn 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px) scale(1.03);
+        box-shadow: 0 15px 45px hsla(222, 47%, 4%, 0.5);
+    }
+
+    .feature-card h5 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        background: var(--gradient-cyber);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .feature-card p {
+        color: var(--muted-foreground);
+        line-height: 1.6;
+        font-size: 1rem;
+    }
+
+    /* Delay animations for each card */
+    .feature-card:nth-child(1) { animation-delay: 0.2s; }
+    .feature-card:nth-child(2) { animation-delay: 0.4s; }
+    .feature-card:nth-child(3) { animation-delay: 0.6s; }
+    .feature-card:nth-child(4) { animation-delay: 0.8s; }
+    .feature-card:nth-child(5) { animation-delay: 1.0s; }
+    .feature-card:nth-child(6) { animation-delay: 1.2s; }
+
+
+    .btn-custom {
+        padding: 0.8rem 1.8rem;
+        border: none;
+        border-radius: 0.6rem;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        text-decoration: none;
+        outline: none;
+    }
+
+    .btn-primary-custom {
+        background: var(--gradient-primary);
+        color: var(--primary-foreground);
+        box-shadow: var(--shadow-cyber);
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 45px hsla(195, 100%, 50%, 0.5);
+    }
+
+    .btn-outline-custom {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--foreground);
+    }
+
+    .btn-outline-custom:hover {
+        border-color: var(--primary);
+        background: hsla(195, 100%, 50%, 0.15);
+    }
+
+    .icon {
+        width: 1.3rem;
+        height: 1.3rem;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .icon-lg {
+        width: 2.2rem;
+        height: 2.2rem;
+    }
+
+    /* Animations */
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes subtle-gradient-shift {
+        0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0; }
+        100% { background-position: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%; }
+    }
+
+    @keyframes text-pop {
+        0% {
+            transform: scale(0.9);
+            opacity: 0;
         }
-
-
-        .container-full-height {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 1rem;
-            flex-direction: column; /* Allow content to stack vertically */
+        80% {
+            transform: scale(1.1);
+            opacity: 1;
         }
-
-        .floating-icons {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 1; /* Ensure it's behind content but above pattern */
+        100% {
+            transform: scale(1);
         }
-
-        .floating-icon {
-            position: absolute;
-            opacity: 0.3;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .floating-icon:nth-child(1) { top: 5rem; left: 5rem; animation-delay: 0s; }
-        .floating-icon:nth-child(2) { top: 10rem; right: 8rem; animation-delay: 1s; }
-        .floating-icon:nth-child(3) { bottom: 8rem; left: 4rem; animation-delay: 2s; }
-        .floating-icon:nth-child(4) { top: 20%; left: 40%; animation-delay: 0.5s; opacity: 0.2; transform: scale(0.8); }
-        .floating-icon:nth-child(5) { bottom: 15%; right: 20%; animation-delay: 1.5s; opacity: 0.25; transform: scale(0.9); }
+    }
 
 
-        .hero-section {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            padding: 5rem 1rem;
-            max-width: 1000px; /* Wider */
-            margin: 0 auto;
-        }
-
-        .hero-title {
-            font-size: 3.8rem; /* Slightly larger */
-            font-weight: 800; /* Bolder */
-            background: var(--gradient-cyber);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
-            animation: fadeIn 1s ease-out, text-glow 2s ease-in-out infinite alternate; /* Changed fadeInScale to fadeIn */
-        }
-
-        .hero-subtitle {
-            color: var(--muted-foreground);
-            font-size: 1.35rem; /* Slightly larger */
-            margin-bottom: 2.5rem;
-            opacity: 1; /* Default opacity */
-            transform: translateY(0); /* Default transform */
-            line-height: 1.8; /* Better readability */
-        }
-
-        .hero-buttons .btn-custom {
-            margin: 0.5rem;
-            animation: fadeIn 0.8s ease-out forwards; /* Changed slideInUp to fadeIn */
-            opacity: 0; /* Start hidden for animation */
-        }
-        .hero-buttons .btn-custom:nth-child(1) { animation-delay: 0.5s; }
-        .hero-buttons .btn-custom:nth-child(2) { animation-delay: 0.7s; }
-
-
-        .info-section {
-            position: relative;
-            z-index: 10;
-            padding: 4rem 1rem;
-            background: var(--card);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            margin-top: 4rem;
-            text-align: center;
-        }
-
-        .info-section h2 {
-            font-size: 2.8rem; /* Slightly larger */
-            font-weight: 700; /* Bolder */
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 2.5rem;
-            animation: text-glow 2s ease-in-out infinite alternate;
-        }
-
-        .info-section p {
-            max-width: 1000px; /* Wider */
-            margin: 0 auto 2rem auto;
-            color: var(--muted-foreground);
-            font-size: 1.15rem; /* Slightly larger */
-            line-height: 1.7; /* Better readability */
-            opacity: 1; /* Default opacity */
-            transform: translateY(0); /* Default transform */
-        }
-
-
-        .features-grid {
-            position: relative;
-            z-index: 10;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly wider min width */
-            gap: 2.5rem; /* Increased gap */
-            padding: 4rem 1rem;
-            max-width: 1100px; /* Wider */
-            margin: 0 auto;
-        }
-
-        .feature-card {
-            background: var(--gradient-glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid hsla(222, 47%, 20%, 0.5);
-            box-shadow: var(--shadow-glass);
-            border-radius: 0.75rem;
-            padding: 2.2rem; /* Slightly more padding */
-            text-align: left;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeIn 0.8s ease-out forwards; /* Changed to simple fadeIn */
-            opacity: 0; /* Start hidden for animation */
-            transform: translateY(0); /* Removed initial transform for pop effect */
-        }
-
-        .feature-card:hover {
-            transform: translateY(-8px) scale(1.03); /* More pronounced hover */
-            box-shadow: 0 15px 45px hsla(222, 47%, 4%, 0.5); /* Stronger shadow on hover */
-        }
-
-        .feature-card h5 {
-            font-size: 1.6rem; /* Slightly larger */
-            font-weight: bold;
-            margin-bottom: 1rem;
-            background: var(--gradient-cyber);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .feature-card p {
-            color: var(--muted-foreground);
-            line-height: 1.6;
-            font-size: 1rem; /* Ensure readability */
-            opacity: 1; /* Default opacity */
-            transform: translateY(0); /* Default transform */
-        }
-
-        /* Delay animations for each card */
-        .feature-card:nth-child(1) { animation-delay: 0.2s; }
-        .feature-card:nth-child(2) { animation-delay: 0.4s; }
-        .feature-card:nth-child(3) { animation-delay: 0.6s; }
-        .feature-card:nth-child(4) { animation-delay: 0.8s; }
-        .feature-card:nth-child(5) { animation-delay: 1.0s; }
-        .feature-card:nth-child(6) { animation-delay: 1.2s; }
-
-
-        .btn-custom { /* Custom button */
-            padding: 0.8rem 1.8rem; /* Slightly larger padding */
-            border: none;
-            border-radius: 0.6rem; /* Slightly more rounded */
-            font-size: 1.05rem; /* Slightly larger font */
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.6rem; /* Increased gap */
-            text-decoration: none;
-            outline: none;
-        }
-
-        .btn-primary-custom {
-            background: var(--gradient-primary);
-            color: var(--primary-foreground);
-            box-shadow: var(--shadow-cyber);
-        }
-
-        .btn-primary-custom:hover {
-            transform: translateY(-3px); /* More pronounced hover */
-            box-shadow: 0 0 45px hsla(195, 100%, 50%, 0.5); /* Stronger glow */
-        }
-
-        .btn-outline-custom {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--foreground);
-        }
-
-        .btn-outline-custom:hover {
-            border-color: var(--primary);
-            background: hsla(195, 100%, 50%, 0.15); /* Slightly more background on hover */
-        }
-
-        /* Lucide Icons (SVG) */
-        .icon {
-            width: 1.3rem; /* Slightly larger icons */
-            height: 1.3rem;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .icon-lg {
-            width: 2.2rem;
-            height: 2.2rem;
-        }
-
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); } /* More float */
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px hsla(195, 100%, 50%, 0.3); }
-            50% { box-shadow: 0 0 35px hsla(195, 100%, 50%, 0.7); } /* Stronger pulse */
-            100% { box-shadow: 0 0 20px hsla(195, 100%, 50%, 0.3); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.8); } /* Start smaller */
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(30px); } /* Slide further */
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Removed fadeInPop, replaced with fadeIn for feature cards */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes text-glow {
-            0% { text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary); }
-            50% { text-shadow: 0 0 20px var(--primary), 0 0 30px var(--primary), 0 0 40px var(--accent); } /* Stronger glow */
-            100% { text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary); }
-        }
-
-        @keyframes subtle-gradient-shift { /* Enhanced animation for background gradient */
-            0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0; }
-            25% { background-position: 10% 10%, 90% 90%, 20% 80%, 5px 5px, 5px 5px; }
-            50% { background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0; }
-            75% { background-position: 10% 10%, 90% 90%, 20% 80%, 5px 5px, 5px 5px; }
-            100% { background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0; }
-        }
-
-        @keyframes tech-grid-move { /* Enhanced animation for grid lines */
-            0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
-            100% { background-position: 0 -60px, 0 -60px, 0 -60px, 0 -60px, 0 -60px; } /* Move grid upwards */
-        }
-
-        @keyframes pattern-pan { /* Enhanced animation for background pattern */
-            from { background-position: 0 0, 0 15px, 15px -15px, -15px 0px; }
-            to { background-position: 30px 30px, 30px 45px, 45px 15px, 15px 30px; }
-        }
-
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.8rem;
-            }
-            .hero-subtitle {
-                font-size: 1.1rem;
-            }
-            .info-section h2 {
-                font-size: 2.2rem;
-            }
-            .info-section p {
-                font-size: 1rem;
-            }
-            .features-grid {
-                grid-template-columns: 1fr; /* Stack cards on small screens */
-            }
-            .btn-custom {
-                font-size: 0.95rem;
-                padding: 0.6rem 1.2rem;
-            }
-        }
-    </style>
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .hero-title { font-size: 2.8rem; }
+        .hero-subtitle { font-size: 1.1rem; }
+        .info-section h2 { font-size: 2.2rem; }
+        .info-section p { font-size: 1rem; }
+        .features-grid { grid-template-columns: 1fr; }
+        .btn-custom { font-size: 0.95rem; padding: 0.6rem 1.2rem; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="container-full-height">
-    <div class="background-pattern"></div>
-    
-    <!-- Floating IoT Icons -->
+    <div class="animated-grid"></div>
+
     <div class="floating-icons">
         <svg class="floating-icon icon" style="color: var(--primary);">
-            <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
+            <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10" />
         </svg>
         <svg class="floating-icon icon" style="color: var(--accent);">
-            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7z"/>
-            <path d="m9 12 2 2 4-4"/>
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7z" />
+            <path d="m9 12 2 2 4-4" />
         </svg>
         <svg class="floating-icon icon" style="color: var(--secondary);">
-            <path d="M6 3v12"/>
-            <path d="M18 9v12"/>
-            <path d="M6 3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
-            <path d="M18 9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/>
+            <path d="M6 3v12" />
+            <path d="M18 9v12" />
+            <path d="M6 3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+            <path d="M18 9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />
         </svg>
         <svg class="floating-icon icon" style="color: var(--primary);">
-            <path d="M12 2v20M17 5H7l5 17 5-17Z"/>
+            <path d="M12 2v20M17 5H7l5 17 5-17Z" />
         </svg>
         <svg class="floating-icon icon" style="color: var(--accent);">
-            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/>
-            <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"/>
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" />
+            <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" />
         </svg>
     </div>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
+    <section class="hero-section" data-aos="fade-up">
         <h1 class="hero-title">Welcome to Your Smart IoT Home!</h1>
         <p class="hero-subtitle">Monitor, control, and optimize your devices from anywhere in the world with intelligent energy management.</p>
-        <div class="hero-buttons">
-            <a href="{% url 'device_onboarding' %}" class="btn-custom btn-primary-custom">
-                <svg class="icon"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"/></svg>
+        <div class="hero-buttons" data-aos="fade-up" data-aos-delay="200">
+            <a href="{% url 'device_onboarding' %}" class="btn-custom btn-primary-custom" id="setup-device-btn">
+                <svg class="icon"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" /><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" /></svg>
                 Setup New Device
             </a>
             <a href="{% url 'login' %}" class="btn-custom btn-outline-custom">
-                <svg class="icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <svg class="icon"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                 Login to Dashboard
             </a>
         </div>
     </section>
 
-    <!-- What is Smart IoT Section -->
-    <section class="info-section">
+    <section class="info-section" data-aos="fade-up">
         <h2>What is Smart IoT?</h2>
         <p>Smart IoT refers to the interconnected network of physical objects embedded with sensors, software, and other technologies for the purpose of connecting and exchanging data with other devices and systems over the internet. Our AI Energy Monitoring System brings this power directly to your home, allowing you to gain unprecedented control and insight into your energy consumption and device behavior.</p>
         <p>It's about making your home smarter, more efficient, and more responsive to your needs, ultimately leading to significant energy savings and enhanced convenience.</p>
     </section>
+    
+    <section class="info-section" data-aos="fade-up">
+    <h2>How It Works: The Smart IoT Ecosystem</h2>
+    <div class="features-grid">
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="100">
+            <h5>1. The Sensor Network</h5>
+            <p>Our intelligent sensors are embedded in your smart devices, constantly collecting real-time data on power usage, temperature, and other environmental factors. This raw data is the foundation of our system's intelligence.</p>
+        </div>
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="200">
+            <h5>2. Secure Cloud Integration</h5>
+            <p>The collected data is securely transmitted to our cloud-based platform. We use state-of-the-art encryption to ensure your data remains private and protected at every step of the process.</p>
+        </div>
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="300">
+            <h5>3. AI-Powered Analysis</h5>
+            <p>Our advanced machine learning models, running in the cloud, analyze your usage patterns. They identify inefficiencies, predict future consumption, and provide actionable insights to help you optimize your energy usage.</p>
+        </div>
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="400">
+            <h5>4. User-Friendly Dashboard</h5>
+            <p>Visualize everything in a simple, intuitive dashboard. Monitor your energy usage, control your devices, and receive personalized recommendations, all from a single, accessible interface on your phone or computer.</p>
+        </div>
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="500">
+            <h5>5. Automated Control & Action</h5>
+            <p>Based on the AI analysis and your pre-set preferences, the system can automatically adjust device settings or trigger actions. For example, it can turn off lights when no one is in a room or optimize thermostat settings to save energy.</p>
+        </div>
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="600">
+            <h5>6. Proactive Alerts & Reporting</h5>
+            <p>Receive instant notifications about unusual power consumption, device malfunctions, or security events. The system also generates detailed reports to give you a comprehensive overview of your energy usage and savings over time.</p>
+        </div>
+    </div>
+</section>
 
-    <!-- Core Features Section -->
     <section class="features-grid">
-        <div class="feature-card">
+        <div class="feature-card" data-aos="zoom-in">
             <h5>Seamless Device Setup</h5>
             <p class="card-text">Easily connect your new IoT devices to your home Wi-Fi and link them to your account using a unique API key. No complex coding required!</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="100">
             <h5>Global Control & Monitoring</h5>
             <p class="card-text">Access real-time sensor data and control your smart switches from anywhere on Earth, securely through your personalized dashboard.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="200">
             <h5>Intelligent Energy Optimization (Future ML Integration)</h5>
             <p class="card-text">Our system is designed to integrate machine learning models to analyze your power consumption patterns, predict future needs, and automate actions to save energy and reduce your bills. Get insights into your usage and make your home truly smart and efficient!</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="300">
             <h5>Real-time Data Visualization</h5>
             <p class="card-text">Visualize your energy consumption trends with interactive charts and graphs, helping you understand your usage patterns and identify areas for improvement.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="400">
             <h5>Secure & Private</h5>
             <p class="card-text">Your data security and privacy are our top priorities. All communications are encrypted, and your personal information is protected.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="500">
             <h5>Scalable & Extendable</h5>
             <p class="card-text">The modular architecture allows for easy integration of new device types and features, ensuring your smart home grows with your needs.</p>
         </div>
     </section>
+    
+    <section class="info-section" data-aos="fade-up">
+        <h2>What Our Users Say</h2>
+        <div class="features-grid">
+            <div class="feature-card" data-aos="fade-right" data-aos-delay="100">
+                <p>"I was skeptical at first, but the insights I've gained into my energy usage have been incredible. My electricity bills have dropped significantly!"</p>
+                <p class="text-end mt-3" style="font-weight: 700; color: var(--primary);">- Vaibhav Bhusare</p>
+            </div>
+            <div class="feature-card" data-aos="fade-left" data-aos-delay="200">
+                <p>"The dashboard is so intuitive and easy to use. I love being able to control my devices from my phone, no matter where I am."</p>
+                <p class="text-end mt-3" style="font-weight: 700; color: var(--accent);">- Rutuja Deshmukh</p>
+            </div>
+        </div>
+    </section>
 
-    <!-- Call to Action Section -->
-    <section class="info-section" style="margin-bottom: 4rem;">
+    <section class="info-section" style="margin-bottom: 4rem;" data-aos="fade-up">
         <h2>Ready to Transform Your Home?</h2>
         <p>Join Vaibhav Bhusare and Rutuja Deshmukh in embracing the future of smart living. Get started today and take control of your energy!</p>
         <div class="hero-buttons">
-            <a href="{% url 'register' %}" class="btn-custom btn-primary-custom">
-                <svg class="icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <a href="{% url 'register' %}" class="btn-custom btn-primary-custom" data-aos="zoom-in" data-aos-delay="200">
+                <svg class="icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
                 Register Now
             </a>
-            <a href="{% url 'device_onboarding' %}" class="btn-custom btn-outline-custom">
-                <svg class="icon"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"/></svg>
+            <a href="{% url 'device_onboarding' %}" class="btn-custom btn-outline-custom" data-aos="zoom-in" data-aos-delay="400">
+                <svg class="icon"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" /><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" /></svg>
                 Setup Your Device
             </a>
         </div>
     </section>
+    
+    <div id="welcome-popup" class="popup-container">
+        <div class="popup-content">
+            <span class="popup-close" id="close-popup">&times;</span>
+            <h3>Welcome to Smart IoT!</h3>
+            <p>We're thrilled to have you here. Discover how our system can help you manage your home's energy consumption and make your life easier.</p>
+            <a href="{% url 'register' %}" class="btn-custom btn-primary-custom">Get Started Now</a>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+
+        const setupDeviceBtn = document.getElementById('setup-device-btn');
+        const welcomePopup = document.getElementById('welcome-popup');
+        const closePopupBtn = document.getElementById('close-popup');
+
+        // Show the pop-up after a delay on page load
+        setTimeout(() => {
+            welcomePopup.style.display = 'flex';
+        }, 3000); // 3-second delay
+
+        closePopupBtn.addEventListener('click', () => {
+            welcomePopup.style.display = 'none';
+        });
+
+        // Close the popup if the user clicks outside of the content
+        window.addEventListener('click', (event) => {
+            if (event.target === welcomePopup) {
+                welcomePopup.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

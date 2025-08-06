@@ -364,6 +364,42 @@
         transition: color 0.3s ease;
     }
 
+    /* Style only the <select> with class edit-input */
+    select.edit-input {
+        background-color: #1e1e2f;
+        /* Match neon theme background */
+        color: #ffffff;
+        /* White text */
+        border: 1px solid #00ffcc;
+        /* Neon border */
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 1rem;
+        font-family: 'Segoe UI', sans-serif;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
+        /* Custom dropdown arrow */
+        background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    select.edit-input:hover {
+        border-color: #00ffff;
+        box-shadow: 0 0 10px #00ffff;
+    }
+
+    select.edit-input:focus {
+        outline: none;
+        border-color: #39ff14;
+        box-shadow: 0 0 12px #39ff14, 0 0 24px #00ffcc;
+    }
+
+
     .edit-input {
         width: 100%;
         background: transparent;
@@ -382,6 +418,8 @@
         display: flex;
         gap: 0.5rem;
     }
+
+
 
     .edit-icon,
     .save-icon,
@@ -586,8 +624,7 @@
                         <i class="fas fa-pencil-alt edit-icon"></i>
                         <i class="fas fa-check save-icon d-none"></i>
                     </div>
-                    <input type="text" name="email" value="{{ user.email|default:'' }}"
-                        class="edit-input d-none">
+                    <input type="text" name="email" value="{{ user.email|default:'' }}" class="edit-input d-none">
                 </div>
                 <!-- Phone Number -->
                 <div class="info-field" data-field="phone_number">
@@ -632,19 +669,22 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            <!-- Address -->
-            <div class="info-field mt-4" data-field="address">
-                <label class="info-label">Address</label>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="info-value">{{ user.address|default:'Not set' }}</span>
-                    <div class="field-actions">
-                        <i class="fas fa-pencil-alt edit-icon"></i>
-                        <i class="fas fa-check save-icon d-none"></i>
+                <!-- Address -->
+                <div class="info-field" data-field="address">
+                    <label class="info-label">Address</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="info-value">{{ user.address|default:'Not set' }}</span>
+                        <div class="field-actions">
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                            <i class="fas fa-check save-icon d-none"></i>
+                        </div>
+                        <input name="address" class="edit-input d-none" value="{{user.address|default:'' }}">
                     </div>
-                    <input name="address"  class="edit-input d-none" value="{{ user.address|default:'' }}" >
                 </div>
+
+
             </div>
+
 
             <!-- Hidden file input for profile picture -->
             <input type="file" id="profile-pic-input" name="profile_picture" class="d-none">

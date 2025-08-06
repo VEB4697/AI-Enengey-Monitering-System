@@ -4,10 +4,8 @@
 {% block title %}Device Setup{% endblock %}
 
 {% block head_extra %}
-    <!-- Lucide Icons (if not already in base.html) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
-    <!-- Google Fonts: Rajdhani for headings, Inter for body -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Custom CSS adapted from login.html for a consistent IoT theme */
         * {
@@ -17,7 +15,7 @@
         }
 
         :root {
-            /* IoT Theme Colors */
+            /* IoT Theme Colors from homepage.html */
             --background: hsl(222, 47%, 4%);
             --foreground: hsl(210, 40%, 98%);
             --card: hsl(222, 47%, 8%);
@@ -36,6 +34,7 @@
             --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
             --gradient-cyber: linear-gradient(45deg, var(--primary), var(--accent));
             --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 8%, 0.8), hsla(222, 47%, 12%, 0.4));
+            --gradient-opposite: linear-gradient(135deg, hsl(85, 100%, 50%), var(--accent));
             
             /* Effects */
             --shadow-cyber: 0 0 30px hsla(195, 100%, 50%, 0.3);
@@ -43,15 +42,55 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif; /* Changed to Inter for body text */
+            font-family: 'Inter', sans-serif;
             background: var(--background);
             color: var(--foreground);
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: 
+            position: relative;
+        }
+
+        /* Merged and enhanced background effects from homepage.html */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
                 radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, hsla(180, 100%, 50%, 0.05) 0%, transparent 50%);
+                linear-gradient(0deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+            background-position: 0% 0%, 0% 0%, 0 0, 0 0;
+            opacity: 0.9;
+            z-index: -2;
+            animation: subtle-gradient-shift 20s ease-in-out infinite alternate;
+        }
+        
+        .animated-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: pan-grid 60s linear infinite;
+            opacity: 0.5;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(to bottom,
+                    transparent 0px,
+                    transparent 1px,
+                    rgba(0, 0, 0, 0.03) 1px,
+                    rgba(0, 0, 0, 0.03) 2px);
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.05;
         }
 
         .container-full-height { /* Using a custom class to avoid conflict with Bootstrap's .container */
@@ -61,19 +100,7 @@
             justify-content: center;
             position: relative;
             padding: 1rem;
-        }
-
-        .background-pattern {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
-                linear-gradient(-45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, hsl(222, 47%, 8%) 75%),
-                linear-gradient(-45deg, transparent 75%, hsl(222, 47%, 8%) 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            opacity: 0.1;
+            z-index: 10;
         }
 
         .floating-icons {
@@ -81,6 +108,7 @@
             inset: 0;
             pointer-events: none;
             overflow: hidden;
+            z-index: 1; /* Adjust z-index to be between background and card */
         }
 
         .floating-icon {
@@ -376,6 +404,16 @@
             100% { left: 100%; }
         }
 
+        @keyframes subtle-gradient-shift {
+            0% { background-position: 0% 0%, 0% 0%, 0 0, 0 0; }
+            100% { background-position: 100% 100%, 100% 100%, 60px 60px, 60px 60px; }
+        }
+
+        @keyframes pan-grid {
+            0% { background-position: 0 0; }
+            100% { background-position: -50px -50px; }
+        }
+
         /* Lucide Icons (SVG) */
         .icon {
             width: 1.25rem;
@@ -452,10 +490,8 @@
 {% endblock %}
 
 {% block content %}
+<div class="animated-grid"></div>
 <div class="container-full-height">
-    <div class="background-pattern"></div>
-    
-    <!-- Floating IoT Icons -->
     <div class="floating-icons">
         <svg class="floating-icon icon" style="color: var(--primary);">
             <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
@@ -472,7 +508,6 @@
         </svg>
     </div>
 
-    <!-- Main Card for Device Setup -->
     <div class="card-custom">
         <div class="card-header-custom">
             <div class="logo-container">
@@ -534,7 +569,6 @@
     </div>
     {% endif %}
     <br>
-    <!-- Status Bar -->
     <div class="status-bar">
         <div class="status-indicator">
             <div class="status-dot"></div>

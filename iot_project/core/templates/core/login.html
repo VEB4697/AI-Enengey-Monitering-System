@@ -1,552 +1,537 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Smart IoT - Login{% endblock %}
-
-{# Override the navbar block from base.html to make it empty #}
-{% block navbar %}{% endblock navbar %}
+{% block title %}Smart IoT - Secure Login{% endblock %}
 
 {% block head_extra %}
-    <!-- Lucide Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
-    <style>
-        /* Your custom CSS from the sample, adapted and integrated */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+<!-- Google Fonts: Inter for modern look, Orbitron for tech titles -->
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap"
+    rel="stylesheet">
+<!-- Lucide Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+<!-- AOS Library for Animate on Scroll -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    /* ------------------- Global Styles from Homepage ------------------- */
+    :root {
+        /* IoT Theme Colors */
+        --background: hsl(222, 47%, 4%);
+        --foreground: hsl(210, 40%, 98%);
+        --card: hsl(222, 47%, 8%);
+        --card-foreground: hsl(210, 40%, 98%);
+        --primary: hsl(195, 100%, 50%);
+        /* Main accent blue */
+        --primary-foreground: hsl(222, 47%, 4%);
+        /* Text on primary */
+        --secondary: hsl(260, 60%, 65%);
+        /* Purple accent */
+        --accent: hsl(180, 100%, 50%);
+        /* Cyan accent */
+        --muted: hsl(222, 47%, 12%);
+        /* Muted background */
+        --muted-foreground: hsl(215, 20%, 65%);
+        /* Muted text */
+        --border: hsl(222, 47%, 20%);
+        --input: hsl(222, 47%, 12%);
+        --destructive: hsl(0, 84%, 60%);
+        /* Red for errors */
+
+        /* Gradients */
+        --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
+        --gradient-cyber: linear-gradient(45deg, var(--primary), var(--accent));
+        --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 8%, 0.8), hsla(222, 47%, 12%, 0.4));
+        --gradient-opposite: linear-gradient(135deg, hsl(85, 100%, 50%), var(--accent));
+
+        /* Effects */
+        --shadow-cyber: 0 0 30px hsla(195, 100%, 50%, 0.3);
+        --shadow-glass: 0 8px 32px hsla(222, 47%, 4%, 0.3);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--background);
+        color: var(--foreground);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* Enhanced Background Effects */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
+            linear-gradient(0deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+        background-position: 0% 0%, 0% 0%, 0 0, 0 0;
+        opacity: 0.9;
+        z-index: -2;
+        animation: subtle-gradient-shift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes subtle-gradient-shift {
+        0% {
+            background-position: 0% 0%, 0% 0%, 0 0, 0 0;
         }
 
-        :root {
-            /* IoT Theme Colors */
-            --background: hsl(222, 47%, 4%);
-            --foreground: hsl(210, 40%, 98%);
-            --card: hsl(222, 47%, 8%);
-            --card-foreground: hsl(210, 40%, 98%);
-            --primary: hsl(195, 100%, 50%); /* Main accent blue */
-            --primary-foreground: hsl(222, 47%, 4%); /* Text on primary */
-            --secondary: hsl(260, 60%, 65%); /* Purple accent */
-            --accent: hsl(180, 100%, 50%); /* Cyan accent */
-            --muted: hsl(222, 47%, 12%); /* Muted background */
-            --muted-foreground: hsl(215, 20%, 65%); /* Muted text */
-            --border: hsl(222, 47%, 20%);
-            --input: hsl(222, 47%, 12%);
-            --destructive: hsl(0, 84%, 60%); /* Red for errors */
-            
-            /* Gradients */
-            --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
-            --gradient-cyber: linear-gradient(45deg, var(--primary), var(--accent));
-            --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 8%, 0.8), hsla(222, 47%, 12%, 0.4));
-            
-            /* Effects */
-            --shadow-cyber: 0 0 30px hsla(195, 100%, 50%, 0.3);
-            --shadow-glass: 0 8px 32px hsla(222, 47%, 4%, 0.3);
+        100% {
+            background-position: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+        }
+    }
+
+    /* Animated background grid effect - more pronounced */
+    .animated-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px;
+        z-index: -1;
+        animation: pan-grid 60s linear infinite;
+        opacity: 0.5;
+    }
+
+    @keyframes pan-grid {
+        0% {
+            background-position: 0 0;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--background);
-            color: var(--foreground);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, hsla(180, 100%, 50%, 0.05) 0%, transparent 50%);
+        100% {
+            background-position: -50px -50px;
+        }
+    }
+
+    /* Scanline effect for retro tech feel */
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(to bottom,
+                transparent 0px,
+                transparent 1px,
+                rgba(0, 0, 0, 0.03) 1px,
+                rgba(0, 0, 0, 0.03) 2px);
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.05;
+    }
+
+    .container-full-height {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 1rem;
+        flex-direction: column;
+    }
+
+    /* ------------------- Login Page Specific Styles ------------------- */
+    .login-container {
+        max-width: 450px;
+        width: 100%;
+        background: var(--gradient-glass);
+        backdrop-filter: blur(10px);
+        border-radius: 1.5rem;
+        border: 1px solid var(--border);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-glass);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        animation: fade-in-up 0.8s ease-out;
+    }
+
+    /* Animated border glow */
+    .login-container::before {
+        content: '';
+        position: absolute;
+        inset: -5px;
+        background: var(--gradient-cyber);
+        z-index: -1;
+        opacity: 0.2;
+        filter: blur(15px);
+        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        animation: rotate-glow 4s linear infinite;
+    }
+
+    /* Hover effect for the login block */
+    .login-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 40px hsla(222, 47%, 4%, 0.4);
+    }
+
+    .login-container:hover::before {
+        opacity: 0.4;
+        filter: blur(20px);
+        transform: rotate(360deg);
+    }
+
+    @keyframes rotate-glow {
+        from {
+            transform: rotate(0deg);
         }
 
-        .container-full-height { /* Using a custom class to avoid conflict with Bootstrap's .container */
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 1rem;
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .login-header {
+        font-family: 'Orbitron', sans-serif;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+        color: var(--primary);
+        text-shadow: 0 0 10px var(--primary);
+        animation: text-glow 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes text-glow {
+        from {
+            text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary);
         }
 
-        .background-pattern {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
-                linear-gradient(-45deg, hsl(222, 47%, 8%) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, hsl(222, 47%, 8%) 75%),
-                linear-gradient(-45deg, transparent 75%, hsl(222, 47%, 8%) 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            opacity: 0.1;
+        to {
+            text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 30px var(--primary);
         }
+    }
 
-        .floating-icons {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
+    .login-subtext {
+        text-align: center;
+        color: var(--muted-foreground);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
 
-        .floating-icon {
-            position: absolute;
-            opacity: 0.3;
-            animation: float 3s ease-in-out infinite;
-        }
+    .login-info-text {
+        color: var(--muted-foreground);
+        font-size: 0.875rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+    }
 
-        .floating-icon:nth-child(1) { top: 5rem; left: 5rem; animation-delay: 0s; }
-        .floating-icon:nth-child(2) { top: 10rem; right: 8rem; animation-delay: 1s; }
-        .floating-icon:nth-child(3) { bottom: 8rem; left: 4rem; animation-delay: 2s; }
+    .login-info-text p {
+        margin-bottom: 0.75rem;
+        color: var(--foreground);
+    }
 
-        .card-custom { /* Using a custom class to avoid conflict with Bootstrap's .card */
-            background: var(--gradient-glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid hsla(222, 47%, 20%, 0.5);
-            box-shadow: var(--shadow-glass);
-            border-radius: 0.75rem;
-            width: 100%;
-            max-width: 28rem;
-            padding: 2rem;
-            position: relative;
-            z-index: 10;
-        }
+    .login-info-text ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-        .card-header-custom { /* Custom header for the card */
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+    .login-info-text li {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.5rem;
+        text-align: left;
+    }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
+    .login-info-text li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: var(--accent);
+        font-weight: bold;
+    }
 
-        .logo {
-            position: relative;
-            width: 4rem;
-            height: 4rem;
-            border-radius: 50%;
-            background: var(--gradient-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
+    .form-group-custom {
+        margin-bottom: 1.5rem;
+    }
 
-        .logo::after {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            border: 1px solid hsla(195, 100%, 50%, 0.3);
-            animation: pulse 2s ease-in-out infinite;
-        }
+    .label-custom {
+        display: block;
+        color: var(--muted-foreground);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
 
-        .title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: var(--gradient-cyber);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-        }
+    .input-container-custom {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
 
-        .subtitle {
-            color: var(--muted-foreground);
-            font-size: 0.875rem;
-        }
+    .input-custom {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: var(--input);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        color: var(--foreground);
+        font-size: 1rem;
+        transition: all 0.3s ease-in-out;
+    }
 
-        .form-group-custom { /* Custom form group */
-            margin-bottom: 1rem;
-        }
+    .input-custom::placeholder {
+        color: var(--muted-foreground);
+        opacity: 0.6;
+    }
 
-        .label-custom { /* Custom label */
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--foreground);
-        }
+    .input-custom:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px hsla(195, 100%, 50%, 0.2);
+    }
 
-        .input-container-custom { /* Custom input container */
-            position: relative;
-        }
+    .input-with-icon {
+        padding-right: 3rem;
+    }
 
-        .input-custom { /* Custom input field */
-            width: 100%;
-            padding: 0.75rem;
-            background: hsla(222, 47%, 12%, 0.5);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: var(--foreground);
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-            outline: none;
-            position: relative;
-            overflow: hidden;
-        }
+    .input-icon {
+        position: absolute;
+        right: 1rem;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        color: var(--muted-foreground);
+        transition: color 0.2s ease-in-out;
+    }
 
-        .input-custom:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px hsla(195, 100%, 50%, 0.2);
-        }
+    .input-icon:hover {
+        color: var(--primary);
+    }
 
-        .input-custom::placeholder {
-            color: var(--muted-foreground);
-        }
+    .text-destructive {
+        color: var(--destructive);
+    }
 
-        .input-with-icon {
-            padding-right: 2.5rem;
-        }
+    .mt-1 {
+        margin-top: 0.25rem;
+    }
 
-        .input-icon {
-            position: absolute;
-            right: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--muted-foreground);
-            transition: color 0.3s ease;
-        }
+    .small {
+        font-size: 0.75rem;
+    }
 
-        .input-icon:hover {
-            color: var(--primary);
-        }
+    .btn-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        text-decoration: none;
+        font-family: 'Inter', sans-serif;
+        width: 100%;
+        /* Make button full width */
+        margin-top: 2rem;
+        /* Add some space above the button */
+    }
 
-        .circuit-line {
-            position: relative;
-            overflow: hidden;
-        }
+    .btn-primary-custom {
+        background: var(--gradient-primary);
+        color: var(--primary-foreground);
+        border: none;
+    }
 
-        .circuit-line::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            animation: circuit-flow 2s linear infinite;
+    .btn-primary-custom:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px hsla(195, 100%, 50%, 0.4);
+    }
+
+    .auth-links {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+    }
+
+    .auth-links .btn-outline-custom,
+    .auth-links span {
+        color: var(--muted-foreground);
+        font-size: 0.875rem;
+        text-decoration: none;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .auth-links .btn-outline-custom:hover {
+        color: var(--primary);
+    }
+
+    /* Make the inactive "Forgot Password?" text look disabled */
+    .auth-links span {
+        cursor: default;
+        opacity: 0.6;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .alert-danger {
+        background-color: hsla(0, 84%, 60%, 0.2);
+        color: var(--destructive);
+        border: 1px solid var(--destructive);
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transform: translateY(-10px);
         }
 
-        .circuit-line:focus-within::before {
+        to {
             opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
         }
 
-        .btn-custom { /* Custom button */
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            outline: none;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
-
-        .btn-primary-custom { /* Custom primary button */
-            background: var(--gradient-primary);
-            color: var(--primary-foreground);
-            box-shadow: var(--shadow-cyber);
-        }
-
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px hsla(195, 100%, 50%, 0.4);
-        }
-
-        .btn-outline-custom { /* Custom outline button */
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--foreground);
-        }
-
-        .btn-outline-custom:hover {
-            border-color: var(--primary);
-            background: hsla(195, 100%, 50%, 0.1);
-        }
-
-        .divider {
-            position: relative;
-            margin: 1.5rem 0;
-            text-align: center;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--border);
-        }
-
-        .divider span {
-            background: var(--card);
-            padding: 0 1rem;
-            font-size: 0.75rem;
-            color: var(--muted-foreground);
-            text-transform: uppercase;
-        }
-
-        .auth-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .link-custom { /* Custom link style */
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .link-custom:hover {
-            color: var(--accent);
-        }
-
-        .status-bar {
-            position: absolute;
-            bottom: 1rem;
-            left: 1rem;
-            right: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            color: var(--muted-foreground);
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .status-dot {
-            width: 0.5rem;
-            height: 0.5rem;
-            border-radius: 50%;
-            background: var(--primary);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px hsla(195, 100%, 50%, 0.3); }
-            50% { box-shadow: 0 0 30px hsla(195, 100%, 50%, 0.6); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
-
-        @keyframes circuit-flow {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        /* Lucide Icons (SVG) */
-        .icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .icon-lg {
-            width: 2rem;
-            height: 2rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 640px) {
-            .container-full-height {
-                padding: 0.5rem;
-            }
-            
-            .card-custom {
-                padding: 1.5rem;
-            }
-            
-            .auth-buttons {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    }
+</style>
 {% endblock %}
 
-{% block content %}
-<div class="container-full-height">
-    <div class="background-pattern"></div>
-    
-    <!-- Floating IoT Icons -->
-    <div class="floating-icons">
-        <svg class="floating-icon icon" style="color: var(--primary);">
-            <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
-        </svg>
-        <svg class="floating-icon icon" style="color: var(--accent);">
-            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7z"/>
-            <path d="m9 12 2 2 4-4"/>
-        </svg>
-        <svg class="floating-icon icon" style="color: var(--secondary);">
-            <path d="M6 3v12"/>
-            <path d="M18 9v12"/>
-            <path d="M6 3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
-            <path d="M18 9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/>
-        </svg>
-    </div>
+{% block navbar %}{% endblock navbar %}
 
-    <!-- Main Login Card -->
-    <div class="card-custom">
-        <div class="card-header-custom">
-            <div class="logo-container">
-                <div class="logo">
-                    <svg class="icon icon-lg" style="color: var(--primary-foreground);">
-                        <path d="M5 13a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM13 13a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM21 13a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2zM5 3a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM13 3a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM21 3a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V3zM7 8h10M7 16h10"/>
-                    </svg>
-                </div>
-            </div>
-            <h1 class="title">Smart IoT</h1>
-            <p class="subtitle">Access your connected ecosystem</p>
+{% block content %}
+<div class="animated-grid"></div>
+<div class="container-full-height">
+    <div class="login-container" data-aos="zoom-in">
+        <h2 class="login-header">Access Your Smart IoT Dashboard</h2>
+        <p class="login-subtext">Securely sign in to manage your devices and energy consumption.</p>
+
+        <div class="login-info-text">
+            <p>Welcome back! Your personalized dashboard awaits. With Smart IoT, you can:</p>
+            <ul>
+                <li>Monitor energy usage in real-time</li>
+                <li>Automate your smart home devices</li>
+                <li>Receive smart recommendations to save energy</li>
+            </ul>
         </div>
 
         <form method="post">
             {% csrf_token %}
-
             {% if form.non_field_errors %}
-                <div class="alert alert-danger animate-fade-in" role="alert">
-                    {% for error in form.non_field_errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
+            <div class="alert alert-danger animate-fade-in" role="alert">
+                {% for error in form.non_field_errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
             {% endif %}
 
             <div class="form-group-custom">
                 <label for="{{ form.username.id_for_label }}" class="label-custom">Username</label>
-                <div class="input-container-custom circuit-line">
-                    <input type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" class="input-custom" placeholder="Enter your username" value="{{ form.username.value|default_if_none:'' }}" required autofocus>
+                <div class="input-container-custom">
+                    <input type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}"
+                        class="input-custom" placeholder="Enter your username"
+                        value="{{ form.username.value|default_if_none:'' }}" required autofocus>
                 </div>
-                {% if form.username.errors %}<div class="text-destructive small mt-1">{% for error in form.username.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                {% if form.username.errors %}
+                <div class="text-destructive small mt-1">
+                    {% for error in form.username.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
 
             <div class="form-group-custom">
                 <label for="{{ form.password.id_for_label }}" class="label-custom">Password</label>
-                <div class="input-container-custom circuit-line">
-                    <input type="password" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}" class="input-custom input-with-icon" placeholder="Enter your password" required>
-                    <svg class="input-icon" id="togglePassword" onclick="togglePasswordVisibility('{{ form.password.id_for_label }}', 'togglePassword')">
-                        <path id="eyeIcon" d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                        <circle id="eyeCircle" cx="12" cy="12" r="3"/>
+                <div class="input-container-custom">
+                    <input type="password" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}"
+                        class="input-custom" placeholder="Enter your password" required>
+                    <svg class="input-icon" id="togglePassword1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        onclick="togglePasswordVisibility('id_password1', 'togglePassword1')">
+                        <path id="eyeIconPath1" d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path>
+                        <circle id="eyeIconCircle1" cx="12" cy="12" r="3"></circle>
                     </svg>
                 </div>
-                {% if form.password.errors %}<div class="text-destructive small mt-1">{% for error in form.password.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                {% if form.password.errors %}
+                <div class="text-destructive small mt-1">
+                    {% for error in form.password.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
 
-            <button type="submit" class="btn-custom btn-primary-custom mt-4">
-                Connect to Hub
-                <svg class="icon">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
+            <button type="submit" class="btn-custom btn-primary-custom" data-aos="zoom-in" data-aos-delay="500">
+                <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
                 </svg>
+                Sign In
             </button>
         </form>
 
-        <div class="divider">
-            <span>Or continue with</span>
-        </div>
-
-        <div class="auth-buttons">
-            <button class="btn-custom btn-outline-custom">
-                <svg class="icon">
-                    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7z"/>
-                    <path d="m9 12 2 2 4-4"/>
-                </svg>
-                Secure ID
-            </button>
-            <button class="btn-custom btn-outline-custom">
-                <svg class="icon">
-                    <path d="M6 3v12"/>
-                    <path d="M18 9v12"/>
-                    <path d="M6 3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
-                    <path d="M18 9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/>
-                </svg>
-                Quick Auth
-            </button>
-        </div>
-
-        <div class="text-center" style="margin-bottom: 1rem;">
-            <span style="color: var(--muted-foreground);">New to Smart IoT? </span>
-            <a href="{% url 'register' %}{% if request.GET.device_api_key %}?device_api_key={{ request.GET.device_api_key }}{% endif %}" class="link-custom">Create Account</a>
-        </div>
-
-        <div class="text-center">
-            <a href="#" class="link-custom" style="font-size: 0.875rem;">Forgot your credentials?</a>
+        <div class="auth-links">
+            <a href="{% url 'register' %}" class="btn-outline-custom">Register Now</a>
+            <span class="btn-outline-custom">Forgot Password?</span>
         </div>
     </div>
-
-    <!-- Status Bar -->
-    <div class="status-bar">
-        <div class="status-indicator">
-            <div class="status-dot"></div>
-            System Online
-        </div>
-        <span>Encrypted Connection</span>
-    </div>
+</div>
 {% endblock %}
 
-{% block scripts_extra %}
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
-    function togglePasswordVisibility(inputId, iconId) {
-        const passwordInput = document.getElementById(inputId);
-        const toggleIcon = document.getElementById(iconId);
-        const eyeIconPath = toggleIcon.querySelector('path:first-child');
-        const eyeCircle = toggleIcon.querySelector('circle');
-        
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            eyeIconPath.setAttribute('d', 'M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20'); // Eye-off icon
-            if (eyeCircle) eyeCircle.style.display = 'none';
-        } else {
-            passwordInput.type = 'password';
-            eyeIconPath.setAttribute('d', 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'); // Eye-on icon
-            if (eyeCircle) eyeCircle.style.display = 'block';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const inputs = document.querySelectorAll('.input-custom');
-        
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.closest('.input-container-custom').style.transform = 'scale(1.02)';
-            });
-            
-            input.addEventListener('blur', function() {
-                this.closest('.input-container-custom').style.transform = 'scale(1)';
-            });
+    document.addEventListener('DOMContentLoaded', function () {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
         });
+
+        // Toggle password visibility function
+        window.togglePasswordVisibility = function (inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
+            const eyeIconPath = toggleIcon.querySelector('#eyeIconPath');
+            const eyeIconCircle = toggleIcon.querySelector('#eyeIconCircle');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIconPath.setAttribute('d', 'M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20');
+                if (eyeIconCircle) eyeIconCircle.style.display = 'none';
+            } else {
+                passwordInput.type = 'password';
+                eyeIconPath.setAttribute('d', 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z');
+                if (eyeIconCircle) eyeIconCircle.style.display = 'block';
+            }
+        };
     });
 </script>
 {% endblock %}

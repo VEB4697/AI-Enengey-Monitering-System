@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 import json
 from core.models import Device
 from device_api.models import SensorData, DeviceCommandQueue
-from django.db.models import Max # For latest sensor data
+from django.db.models import Max 
 
 @login_required
 def user_dashboard(request):
@@ -31,40 +31,24 @@ def device_detail(request, device_id):
     device = get_object_or_404(Device, id=device_id, owner=request.user)
     
     # Get recent sensor data for display/charts
-    sensor_data_entries = SensorData.objects.filter(device=device).order_by('-timestamp')[:100] # Last 100 readings
+    # IMPORTANT: Fetch the data and convert timestamps to ISO format for JSON serialization
+    raw_sensor_data_entries = SensorData.objects.filter(device=device).order_by('-timestamp')[:100] # Last 100 readings
     
-    # Prepare data for Chart.js - this will need to be dynamic based on device_type
-    chart_labels = []
-    chart_data = {} # Dictionary to hold different data series (e.g., 'voltage', 'power')
-
-    # Initialize data series based on expected keys for 'power_monitor' type
-    if device.device_type == 'power_monitor':
-        chart_data['voltage'] = []
-        chart_data['current'] = []
-        chart_data['power'] = []
-        chart_data['frequency'] = []
-        chart_data['pf'] = []
-    # Add conditions for other device types here
-    # elif device.device_type == 'water_level':
-    #    chart_data['water_level'] = []
-
-    for data_entry in reversed(sensor_data_entries): # Reverse for chronological order on chart
-        chart_labels.append(data_entry.timestamp.strftime('%H:%M:%S'))
-        if device.device_type == 'power_monitor':
-            chart_data['voltage'].append(data_entry.data.get('voltage'))
-            chart_data['current'].append(data_entry.data.get('current'))
-            chart_data['power'].append(data_entry.data.get('power'))
-            chart_data['frequency'].append(data_entry.data.get('frequency'))
-            chart_data['pf'].append(data_entry.data.get('pf'))
-        # Add data for other device types
-        # elif device.device_type == 'water_level':
-        #    chart_data['water_level'].append(data_entry.data.get('water_level'))
+    # Prepare sensor data for JavaScript (graph and table)
+    # This is crucial for the frontend JS to parse it correctly
+    sensor_data_for_js = []
+    for entry in raw_sensor_data_entries:
+        sensor_data_for_js.append({
+            'timestamp': entry.timestamp.isoformat(), # Convert datetime object to ISO 8601 string
+            'data': entry.data # Assuming 'data' is a JSONField or stores a dict
+        })
 
     context = {
         'device': device,
-        'sensor_data_entries': sensor_data_entries, # Raw data for detailed view
-        'chart_labels': json.dumps(chart_labels),
-        'chart_data': json.dumps(chart_data), # Send all chart data as a single JSON object
+        # Pass the serialized JSON string of sensor data entries
+        'sensor_data_entries': json.dumps(sensor_data_for_js), 
+        # Removed chart_labels and chart_data from context, as frontend JS will generate them
+        # from sensor_data_entries directly.
     }
     return render(request, 'dashboard/device_detail.html', context)
 
@@ -72,28 +56,36 @@ def device_detail(request, device_id):
 @require_POST
 def control_device(request, device_id):
     device = get_object_or_404(Device, id=device_id, owner=request.user)
+    
+    # The frontend is sending FormData, so use request.POST
     command_type = request.POST.get('command')
-    parameters = request.POST.get('parameters', '{}')
+    parameters_json_str = request.POST.get('parameters', '{}') # This will be a JSON string
 
     try:
-        parameters_dict = json.loads(parameters)
+        parameters_dict = json.loads(parameters_json_str)
     except json.JSONDecodeError:
-        parameters_dict = {}
+        return JsonResponse({'status': 'error', 'message': 'Invalid parameters JSON format.'}, status=400)
 
     # Example: Specific command for power_monitor device
     if device.device_type == 'power_monitor' and command_type == 'set_relay_state':
-        if 'state' not in parameters_dict or parameters_dict['state'] not in ['ON', 'OFF']:
+        state = parameters_dict.get('state')
+        if state not in ['ON', 'OFF']:
             return JsonResponse({'status': 'error', 'message': 'Invalid state parameter for set_relay_state.'}, status=400)
         
+        # Create a command in the queue
         DeviceCommandQueue.objects.create(
             device=device,
             command_type=command_type,
             parameters=parameters_dict,
             is_pending=True
         )
-        return JsonResponse({'status': 'success', 'message': f'Command "{command_type}" queued for {device.name}.'})
+        
+        # IMPORTANT: Return the 'state' in the JSON response for frontend feedback
+        return JsonResponse({'status': 'success', 'message': f'Command "{command_type}" queued for {device.name}.', 'state': state})
+    
     # Add conditions for other device types and their specific commands
     # elif device.device_type == 'water_level' and command_type == 'turn_pump_on':
-    #     DeviceCommandQueue.objects.create(...)
+    #     # ... your logic here ...
+    #     return JsonResponse({'status': 'success', 'message': 'Water pump turned on.', 'state': 'ON'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid command type or not applicable for this device type.'}, status=400)
