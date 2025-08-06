@@ -177,87 +177,96 @@
         const chartData = JSON.parse('{{ chart_data|escapejs }}');
         const deviceType = '{{ device.device_type }}';
 
-        if (deviceType === 'power_monitor' && chartLabels.length && chartData && chartData.power) {
-    const ctx = document.getElementById('powerChart')?.getContext('2d');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartLabels,
-                datasets: [
-                    {
-                        label: 'Power (W)',
-                        data: chartData.power,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1,
-                        fill: false
-                    },
-                    {
-                        label: 'Voltage (V)',
-                        data: chartData.voltage,
-                        borderColor: 'rgb(255, 99, 132)',
-                        tension: 0.1,
-                        fill: false
-                    },
-                    {
-                        label: 'Current (A)',
-                        data: chartData.current,
-                        borderColor: 'rgb(54, 162, 235)',
-                        tension: 0.1,
-                        fill: false
-                    },
-                    {
-                        label: 'Frequency (Hz)',
-                        data: chartData.frequency,
-                        borderColor: 'rgb(255, 205, 86)',
-                        tension: 0.1,
-                        fill: false
-                    },
-                    {
-                        label: 'Power Factor',
-                        data: chartData.pf,
-                        borderColor: 'rgb(153, 102, 255)',
-                        tension: 0.1,
-                        fill: false
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Time',
-                            color: '#e0e0e0'
+        if (deviceType === 'power_monitor') {
+            const ctx = document.getElementById('powerChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        {
+                            label: 'Power (W)',
+                            data: chartData.power,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1,
+                            fill: false
                         },
-                        ticks: { color: '#a0aec0' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Value',
-                            color: '#e0e0e0'
+                        {
+                            label: 'Voltage (V)',
+                            data: chartData.voltage,
+                            borderColor: 'rgb(255, 99, 132)',
+                            tension: 0.1,
+                            fill: false
                         },
-                        ticks: { color: '#a0aec0' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                    }
+                        {
+                            label: 'Current (A)',
+                            data: chartData.current,
+                            borderColor: 'rgb(54, 162, 235)',
+                            tension: 0.1,
+                            fill: false
+                        },
+                        {
+                            label: 'Frequency (Hz)',
+                            data: chartData.frequency,
+                            borderColor: 'rgb(255, 205, 86)',
+                            tension: 0.1,
+                            fill: false
+                        },
+                        {
+                            label: 'Power Factor',
+                            data: chartData.pf,
+                            borderColor: 'rgb(153, 102, 255)',
+                            tension: 0.1,
+                            fill: false
+                        }
+                    ]
                 },
-                plugins: {
-                    legend: { labels: { color: '#e0e0e0' } },
-                    tooltip: {
-                        backgroundColor: 'rgba(44, 62, 80, 0.8)',
-                        titleColor: '#e0e0e0',
-                        bodyColor: '#e0e0e0'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#e0e0e0'
+                            },
+                            ticks: {
+                                color: '#a0aec0'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value',
+                                color: '#e0e0e0'
+                            },
+                            ticks: {
+                                color: '#a0aec0'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(44, 62, 80, 0.8)',
+                            titleColor: '#e0e0e0',
+                            bodyColor: '#e0e0e0'
+                        }
                     }
                 }
-            }
-        });
-    }
-}
-
+            });
+        }
         // Add else if for other device types to initialize their specific charts
         // else if (deviceType === 'water_level') { ... }
     });

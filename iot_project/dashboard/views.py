@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import json
+from django.utils import timezone
 from core.models import Device
 from device_api.models import SensorData, DeviceCommandQueue
 from django.db.models import Max # For latest sensor data
