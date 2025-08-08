@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import CustomUserCreationForm
+import requests
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -10,6 +11,7 @@ from .models import Device
 from django.utils import timezone
 from django.contrib import messages
 from .forms import CustomUserChangeForm
+
 
 @login_required
 def profile_view(request):
@@ -138,11 +140,37 @@ def logout_user(request):
     return redirect('homepage')
 
 def device_onboarding_view(request):
-    """
-    Public-facing view for users to enter device API key to check its status.
-    This page guides them to login/register after a successful check.
-    """
-    return render(request, 'core/device_onboarding.html')
+    message = None
+    if request.method == 'POST':
+        device_api_key = request.POST.get('device_api_key')
+        
+        if device_api_key:
+            try:
+                # The API endpoint is the same
+                api_url = f"http://127.0.0.1:8000/api/v1/device/onboard-check/?device_api_key={device_api_key}"
+                response = requests.get(api_url)
+                data = response.json()
+
+                if response.status_code == 200:
+                    message = f"Device '{data.get('device_name')}' is available for registration!"
+                elif response.status_code == 409:
+                    message = data.get('message', 'This device is already registered.')
+                elif response.status_code == 412:
+                    message = data.get('message', 'Device is offline. Please check its connection.')
+                elif response.status_code == 404:
+                    message = data.get('message', 'Invalid Device API Key.')
+                else:
+                    message = data.get('message', 'An unexpected error occurred.')
+
+            except requests.exceptions.RequestException:
+                message = "Network error. The server is unreachable."
+        else:
+            message = "Please enter a Device API Key."
+            
+    context = {
+        'message': message,
+    }
+    return render(request, 'core/device_onboarding.html', context)
 
 @login_required
 def add_device_to_user(request):

@@ -1,0 +1,11 @@
+Django
+djangorestframework
+daphne
+channels
+psycopg2-binary  # Or another database driver if you are not using PostgreSQL
+
+scikit-learn
+prophet
+pandas
+joblib
+matplotlib # Recommended for potential data visualization outside the web app

@@ -4,7 +4,9 @@
 {% block title %}My Dashboard{% endblock %}
 
 {% block head_extra %}
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap"
+    rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <style>
@@ -19,14 +21,20 @@
         /* IoT Theme Colors */
         --background: hsl(222, 47%, 4%);
         --foreground: hsl(210, 40%, 98%);
-        --card: hsla(222, 47%, 8%, 0.6); /* Use hsla for transparency */
+        --card: hsla(222, 47%, 8%, 0.6);
+        /* Use hsla for transparency */
         --card-foreground: hsl(210, 40%, 98%);
-        --primary: hsl(195, 100%, 50%); /* Main accent blue */
+        --primary: hsl(195, 100%, 50%);
+        /* Main accent blue */
         --primary-foreground: hsl(222, 47%, 4%);
-        --secondary: hsl(260, 60%, 65%); /* Purple accent */
-        --accent: hsl(180, 100%, 50%); /* Cyan accent */
-        --muted: hsl(222, 47%, 12%); /* Muted background */
-        --muted-foreground: hsl(215, 20%, 65%); /* Muted text */
+        --secondary: hsl(260, 60%, 65%);
+        /* Purple accent */
+        --accent: hsl(180, 100%, 50%);
+        /* Cyan accent */
+        --muted: hsl(222, 47%, 12%);
+        /* Muted background */
+        --muted-foreground: hsl(215, 20%, 65%);
+        /* Muted text */
         --border: hsl(222, 47%, 20%);
         --input: hsl(222, 47%, 12%);
         --destructive: hsl(0, 84%, 60%);
@@ -82,8 +90,13 @@
     }
 
     @keyframes pan-grid {
-        0% { background-position: 0 0; }
-        100% { background-position: -50px -50px; }
+        0% {
+            background-position: 0 0;
+        }
+
+        100% {
+            background-position: -50px -50px;
+        }
     }
 
     /* Scanline effect for retro tech feel */
@@ -106,6 +119,7 @@
         z-index: 10;
         padding: 2rem;
     }
+
     .card-custom {
         background: var(--gradient-glass);
         backdrop-filter: blur(20px);
@@ -114,6 +128,7 @@
         box-shadow: var(--shadow-glass);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
     .card-custom:hover {
         transform: translateY(-8px) scale(1.02);
         box-shadow: 0 15px 45px hsla(222, 47%, 4%, 0.5);
@@ -132,23 +147,26 @@
     .card-subtitle-custom {
         color: var(--muted-foreground);
     }
-    
+
     .badge-online {
         background-color: var(--accent) !important;
         color: var(--background);
         font-weight: 600;
         animation: pulse 2s infinite;
     }
+
     .badge-offline {
         background-color: var(--destructive) !important;
         color: var(--foreground);
         font-weight: 600;
     }
+
     .badge-on {
         background-color: var(--primary) !important;
         color: var(--primary-foreground);
         font-weight: 600;
     }
+
     .badge-off {
         background-color: var(--destructive) !important;
         color: var(--foreground);
@@ -170,26 +188,30 @@
         text-decoration: none;
         outline: none;
     }
+
     .btn-outline-custom {
         background: transparent;
         border: 1px solid var(--border);
         color: var(--foreground);
     }
+
     .btn-outline-custom:hover {
         border-color: var(--primary);
         background: hsla(195, 100%, 50%, 0.15);
         color: var(--primary);
     }
+
     .btn-outline-primary-custom {
         background: transparent;
         border: 1px solid var(--primary);
         color: var(--primary);
     }
+
     .btn-outline-primary-custom:hover {
         background: hsla(195, 100%, 50%, 0.2);
         color: var(--foreground);
     }
-    
+
     .text-light {
         color: var(--foreground) !important;
         font-family: 'Orbitron', sans-serif;
@@ -203,15 +225,31 @@
 
     /* Animations */
     @keyframes subtle-gradient-shift {
-        0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0; }
-        100% { background-position: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%; }
-    }
-    @keyframes pulse {
-        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.7); }
-        70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0); }
-        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
+        0% {
+            background-position: 0% 0%, 0% 0%, 0% 0%, 0 0, 0 0;
+        }
+
+        100% {
+            background-position: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+        }
     }
 
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.7);
+        }
+
+        70% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0);
+        }
+
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0);
+        }
+    }
 </style>
 {% endblock %}
 
@@ -228,13 +266,13 @@
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title-custom">{{ item.device.name }}</h5>
                     <h6 class="card-subtitle-custom mb-3">{{ item.device.get_device_type_display }}</h6>
-                    
+
                     <p class="mb-2">
                         <strong class="text-white">Status:</strong>
-                        {% if item.device.is_online and item.device.last_seen and item.device.last_seen|timesince:"now"|cut:" " < "5 minutes" %}
-                            <span class="badge badge-online">Online</span>
+                        {% if item.is_online %}
+                        <span class="badge badge-online">Online</span>
                         {% else %}
-                            <span class="badge badge-offline">Offline</span>
+                        <span class="badge badge-offline">Offline</span>
                         {% endif %}
                     </p>
                     <p class="card-text mb-3" style="font-size: 0.9rem; color: var(--muted-foreground);">
@@ -243,35 +281,39 @@
 
                     <div class="mt-auto">
                         {% if item.device.device_type == 'power_monitor' %}
-                            <p class="card-text">
-                                <strong class="text-white">Current Power:</strong> <span style="color: var(--primary);">{{ item.latest_data.power|default:"N/A" }}</span> W<br>
-                                <strong class="text-white">Voltage:</strong> <span style="color: var(--primary);">{{ item.latest_data.voltage|default:"N/A" }}</span> V<br>
-                                <strong class="text-white">Relay State:</strong>
-                                {% if item.latest_data.relay_state == "ON" %}
-                                    <span class="badge badge-on">ON</span>
-                                {% elif item.latest_data.relay_state == "OFF" %}
-                                    <span class="badge badge-off">OFF</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Unknown</span>
-                                {% endif %}
-                            </p>
+                        <p class="card-text">
+                            <strong class="text-white">Current Power:</strong> <span style="color: var(--primary);">
+                                {{ item.latest_data.power|default:"N/A" }}</span> W<br>
+                            <strong class="text-white">Voltage:</strong> <span style="color: var(--primary);">
+                                {{ item.latest_data.voltage|default:"N/A" }}</span> V<br>
+                            <strong class="text-white">Relay State:</strong>
+                            {% if item.latest_data.relay_state|lower == "on" %}
+                            <span class="badge badge-on">ON</span>
+                            {% else %}
+                            <span class="badge badge-off">OFF</span>
+                            {% endif %}
+                        </p>
                         {% elif item.device.device_type == 'water_level' %}
-                            <p class="card-text">
-                                <strong class="text-white">Water Level:</strong> <span style="color: var(--primary);">{{ item.latest_data.water_level|default:"N/A" }}</span>%
-                            </p>
+                        <p class="card-text">
+                            <strong class="text-white">Water Level:</strong> <span style="color: var(--primary);">
+                                {{item.latest_data.get.water_level|default:"N/A" }}</span>%
+                        </p>
                         {% else %}
-                            <p class="card-text text-muted">No specific data available for this device type.</p>
+                        <p class="card-text text-muted">No specific data available for this device type.</p>
                         {% endif %}
                     </div>
-                    <a href="{% url 'dashboard:device_detail' item.device.id %}" class="btn-custom btn-outline-primary-custom mt-3">View Details & Control</a>
+                    <a href="{% url 'dashboard:device_detail' item.device.id %}"
+                        class="btn-custom btn-outline-primary-custom mt-3">View Details & Control</a>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <div class="alert alert-info text-center" role="alert" style="background: var(--gradient-glass); border-color: var(--primary); color: var(--foreground);">
-        You don't have any devices registered yet. <a href="{% url 'add_device_to_user' %}" class="alert-link" style="color: var(--primary);">Set up a new device</a> to get started!
+    <div class="alert alert-info text-center" role="alert"
+        style="background: var(--gradient-glass); border-color: var(--primary); color: var(--foreground);">
+        You don't have any devices registered yet. <a href="{% url 'add_device_to_user' %}" class="alert-link"
+            style="color: var(--primary);">Set up a new device</a> to get started!
     </div>
     {% endif %}
 </div>

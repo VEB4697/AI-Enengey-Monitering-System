@@ -4,7 +4,9 @@
 {% block title %}Smart IoT - Add Device{% endblock %}
 
 {% block head_extra %}
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap"
+    rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
 <style>
     /* IoT Theme Colors from homepage.html */
@@ -13,16 +15,24 @@
         --foreground: hsl(210, 40%, 98%);
         --card: hsl(222, 47%, 8%);
         --card-foreground: hsl(210, 40%, 98%);
-        --primary: hsl(195, 100%, 50%); /* Main accent blue */
-        --primary-foreground: hsl(222, 47%, 4%); /* Text on primary */
-        --secondary: hsl(260, 60%, 65%); /* Purple accent */
-        --accent: hsl(180, 100%, 50%); /* Cyan accent */
-        --muted: hsl(222, 47%, 12%); /* Muted background */
-        --muted-foreground: hsl(215, 20%, 65%); /* Muted text */
+        --primary: hsl(195, 100%, 50%);
+        /* Main accent blue */
+        --primary-foreground: hsl(222, 47%, 4%);
+        /* Text on primary */
+        --secondary: hsl(260, 60%, 65%);
+        /* Purple accent */
+        --accent: hsl(180, 100%, 50%);
+        /* Cyan accent */
+        --muted: hsl(222, 47%, 12%);
+        /* Muted background */
+        --muted-foreground: hsl(215, 20%, 65%);
+        /* Muted text */
         --border: hsl(222, 47%, 20%);
         --input: hsl(222, 47%, 12%);
-        --ring: hsl(195, 100%, 50%); /* Primary accent for focus rings */
-        --destructive: hsl(0, 84%, 60%); /* Red for errors */
+        --ring: hsl(195, 100%, 50%);
+        /* Primary accent for focus rings */
+        --destructive: hsl(0, 84%, 60%);
+        /* Red for errors */
 
         /* Gradients from homepage.html */
         --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -64,7 +74,7 @@
         z-index: -2;
         animation: subtle-gradient-shift 20s ease-in-out infinite alternate;
     }
-    
+
     .animated-grid {
         position: absolute;
         inset: 0;
@@ -76,10 +86,15 @@
         animation: pan-grid 60s linear infinite;
         opacity: 0.5;
     }
-    
+
     @keyframes pan-grid {
-        0% { background-position: 0 0; }
-        100% { background-position: -50px -50px; }
+        0% {
+            background-position: 0 0;
+        }
+
+        100% {
+            background-position: -50px -50px;
+        }
     }
 
     body::after {
@@ -95,7 +110,7 @@
         z-index: 9999;
         opacity: 0.05;
     }
-    
+
     .container {
         flex-grow: 1;
         display: flex;
@@ -103,7 +118,8 @@
         justify-content: center;
         align-items: center;
         position: relative;
-        z-index: 10; /* Ensure content is on top of background effects */
+        z-index: 10;
+        /* Ensure content is on top of background effects */
     }
 
     .card-custom {
@@ -138,7 +154,8 @@
         transition: all 0.2s ease-in-out;
     }
 
-    .input-custom, .select-custom {
+    .input-custom,
+    .select-custom {
         width: 100%;
         height: 100%;
         padding: 0.75rem 1rem;
@@ -163,7 +180,7 @@
         background-position: right 0.75rem center;
         background-size: 1.2rem;
     }
-    
+
     .select-custom:focus {
         color: var(--foreground);
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="hsl(210, 40%, 98%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>');
@@ -243,23 +260,41 @@
         border-radius: 50%;
         border-left-color: var(--foreground);
         animation: spin 1s ease infinite;
-        display: none; /* Hidden by default */
+        display: none;
+        /* Hidden by default */
     }
-    
+
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
     /* Animations from homepage.html */
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     @keyframes subtle-gradient-shift {
-        0% { background-position: 0% 0%, 0% 0%, 0 0, 0 0; }
-        100% { background-position: 100% 100%, 100% 100%, 60px 60px, 60px 60px; }
+        0% {
+            background-position: 0% 0%, 0% 0%, 0 0, 0 0;
+        }
+
+        100% {
+            background-position: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+        }
     }
 </style>
 {% endblock %}
@@ -282,14 +317,16 @@
             <div class="form-group-custom">
                 <label for="id_device_api_key" class="label-custom">Device API Key</label>
                 <div class="input-container-custom">
-                    <input type="text" id="id_device_api_key" name="device_api_key" class="input-custom" placeholder="Enter the key from your device" required>
+                    <input type="text" id="id_device_api_key" name="device_api_key" class="input-custom"
+                        placeholder="Enter the key from your device" required>
                 </div>
             </div>
 
             <div class="form-group-custom">
                 <label for="id_device_name" class="label-custom">Device Name</label>
                 <div class="input-container-custom">
-                    <input type="text" id="id_device_name" name="device_name" class="input-custom" placeholder="e.g., Living Room AC" required>
+                    <input type="text" id="id_device_name" name="device_name" class="input-custom"
+                        placeholder="e.g., Living Room AC" required>
                 </div>
             </div>
 
@@ -300,21 +337,15 @@
                         <option value="" disabled selected>Select a device type</option>
                         <option value="power_monitor_switch">Power Monitoring & Switch</option>
                         <option value="water_level_sensor">Water Level Sensor</option>
-                        </select>
-                </div>
-            </div>
-
-            <div class="form-group-custom">
-                <label for="id_device_serial_number" class="label-custom">Device Serial Number</label>
-                <div class="input-container-custom">
-                    <input type="text" id="id_device_serial_number" name="device_serial_number" class="input-custom" placeholder="e.g., SN-12345-ABCD" required>
+                    </select>
                 </div>
             </div>
 
             <div class="form-group-custom">
                 <label for="id_location" class="label-custom">Location</label>
                 <div class="input-container-custom">
-                    <input type="text" id="id_location" name="location" class="input-custom" placeholder="e.g., Home, Nashik" required>
+                    <input type="text" id="id_location" name="location" class="input-custom"
+                        placeholder="e.g., Home, Nashik" required>
                 </div>
             </div>
 
@@ -327,7 +358,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('add-device-form');
         const submitButton = document.getElementById('submit-button');
         const buttonText = document.getElementById('button-text');
@@ -344,9 +375,9 @@
             messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
         }
 
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', function (event) {
             event.preventDefault(); // Prevent default form submission
-            
+
             submitButton.disabled = true;
             buttonText.style.display = 'none';
             spinner.style.display = 'block';
@@ -361,34 +392,34 @@
                 },
                 body: formData
             })
-            .then(response => response.json().then(json => {
-                if (response.ok) {
-                    return Promise.resolve(json);
-                } else {
-                    return Promise.reject(json);
-                }
-            }))
-            .then(data => {
-                // Handle success response without redirecting
-                displayMessage(data.message, 'success');
-                // Clear the input fields for a better user experience
-                deviceApiKeyInput.value = '';
-                deviceNameInput.value = '';
-                deviceTypeSelect.value = '';
-                deviceSerialNumberInput.value = '';
-                locationInput.value = '';
-            })
-            .catch(error => {
-                // Handle error response
-                const errorMessage = error.message || 'An unexpected error occurred.';
-                displayMessage(errorMessage, 'error');
-            })
-            .finally(() => {
-                // Reset button state
-                submitButton.disabled = false;
-                buttonText.style.display = 'block';
-                spinner.style.display = 'none';
-            });
+                .then(response => response.json().then(json => {
+                    if (response.ok) {
+                        return Promise.resolve(json);
+                    } else {
+                        return Promise.reject(json);
+                    }
+                }))
+                .then(data => {
+                    // Handle success response without redirecting
+                    displayMessage(data.message, 'success');
+                    // Clear the input fields for a better user experience
+                    deviceApiKeyInput.value = '';
+                    deviceNameInput.value = '';
+                    deviceTypeSelect.value = '';
+                    deviceSerialNumberInput.value = '';
+                    locationInput.value = '';
+                })
+                .catch(error => {
+                    // Handle error response
+                    const errorMessage = error.message || 'An unexpected error occurred.';
+                    displayMessage(errorMessage, 'error');
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitButton.disabled = false;
+                    buttonText.style.display = 'block';
+                    spinner.style.display = 'none';
+                });
         });
     });
 </script>
