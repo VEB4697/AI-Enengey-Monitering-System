@@ -502,89 +502,89 @@
 
         const deviceType = '{{ device.device_type }}';
 
-        // Prepare data for Chart.js from sensorDataEntries
-        let chartLabels = [];
-        let powerData = [];
-        let voltageData = [];
-        let currentData = [];
-        let frequencyData = [];
-        let pfData = [];
-        let waterLevelData = [];
-
-        if (sensorDataEntries && sensorDataEntries.length > 0) {
-            sensorDataEntries.forEach(entry => {
-                const date = new Date(entry.timestamp);
-                chartLabels.push(date.toLocaleTimeString()); // Or toLocaleString() for date+time
-
-                if (deviceType === 'power_monitor' && entry.data) {
-                    powerData.push(entry.data.power);
-                    voltageData.push(entry.data.voltage);
-                    currentData.push(entry.data.current);
-                    frequencyData.push(entry.data.frequency);
-                    pfData.push(entry.data.pf);
-                } else if (deviceType === 'water_level' && entry.data) {
-                    waterLevelData.push(entry.data.water_level);
-                }
-            });
-        }
-
-        // Function to create and render the chart
-        function renderChart(chartId, type, labels, datasets) {
-            const ctx = document.getElementById(chartId)?.getContext('2d');
-            if (ctx) {
-                // Destroy existing chart instance if it exists
-                if (window[chartId + 'ChartInstance']) {
-                    window[chartId + 'ChartInstance'].destroy();
-                }
-
-                window[chartId + 'ChartInstance'] = new Chart(ctx, {
-                    type: type,
-                    data: {
-                        labels: labels,
-                        datasets: datasets
+        if (deviceType === 'power_monitor' && chartLabels.length && chartData && chartData.power) {
+    const ctx = document.getElementById('powerChart')?.getContext('2d');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: 'Power (W)',
+                        data: chartData.power,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                        fill: false
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                title: { display: true, text: 'Time', color: '#e0e0e0' },
-                                ticks: { color: '#a0aec0' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            },
-                            y: {
-                                title: { display: true, text: 'Value', color: '#e0e0e0' },
-                                ticks: { color: '#a0aec0' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            }
-                        },
-                        plugins: {
-                            legend: { labels: { color: '#e0e0e0' } },
-                            tooltip: {
-                                backgroundColor: 'rgba(44, 62, 80, 0.8)',
-                                titleColor: '#e0e0e0',
-                                bodyColor: '#e0e0e0'
-                            }
-                        }
+                    {
+                        label: 'Voltage (V)',
+                        data: chartData.voltage,
+                        borderColor: 'rgb(255, 99, 132)',
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'Current (A)',
+                        data: chartData.current,
+                        borderColor: 'rgb(54, 162, 235)',
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'Frequency (Hz)',
+                        data: chartData.frequency,
+                        borderColor: 'rgb(255, 205, 86)',
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'Power Factor',
+                        data: chartData.pf,
+                        borderColor: 'rgb(153, 102, 255)',
+                        tension: 0.1,
+                        fill: false
                     }
-                });
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time',
+                            color: '#e0e0e0'
+                        },
+                        ticks: { color: '#a0aec0' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Value',
+                            color: '#e0e0e0'
+                        },
+                        ticks: { color: '#a0aec0' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#e0e0e0' } },
+                    tooltip: {
+                        backgroundColor: 'rgba(44, 62, 80, 0.8)',
+                        titleColor: '#e0e0e0',
+                        bodyColor: '#e0e0e0'
+                    }
+                }
             }
-        }
+        });
+    }
+}
 
-        // Render charts based on device type and available data
-        if (deviceType === 'power_monitor' && powerData.length > 0) {
-            renderChart('powerChart', 'line', chartLabels, [
-                { label: 'Power (W)', data: powerData, borderColor: 'rgb(75, 192, 192)', tension: 0.1, fill: false },
-                { label: 'Voltage (V)', data: voltageData, borderColor: 'rgb(255, 99, 132)', tension: 0.1, fill: false },
-                { label: 'Current (A)', data: currentData, borderColor: 'rgb(54, 162, 235)', tension: 0.1, fill: false },
-                { label: 'Frequency (Hz)', data: frequencyData, borderColor: 'rgb(255, 205, 86)', tension: 0.1, fill: false },
-                { label: 'Power Factor', data: pfData, borderColor: 'rgb(153, 102, 255)', tension: 0.1, fill: false }
-            ]);
-        } else if (deviceType === 'water_level' && waterLevelData.length > 0) {
-            renderChart('waterLevelChart', 'line', chartLabels, [
-                { label: 'Water Level (%)', data: waterLevelData, borderColor: 'rgb(0, 123, 255)', tension: 0.1, fill: false }
-            ]);
-        }
+        // Add else if for other device types to initialize their specific charts
+        // else if (deviceType === 'water_level') { ... }
     });
 </script>
 
