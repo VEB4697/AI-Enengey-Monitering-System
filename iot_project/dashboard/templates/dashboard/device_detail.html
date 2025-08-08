@@ -4,217 +4,300 @@
 {% block title %}{{ device.name }} - Details{% endblock %}
 
 {% block head_extra %}
-    <!-- Chart.js for dynamic charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts and Lucide Icons for consistency -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
-    <style>
-        /* Merged CSS from homepage.html for animations and background */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            /* IoT Theme Colors from homepage.html */
-            --background: hsl(222, 47%, 4%);
-            --foreground: hsl(210, 40%, 98%);
-            --card: hsl(222, 47%, 8%);
-            --card-foreground: hsl(210, 40%, 98%);
-            --primary: hsl(195, 100%, 50%); /* Main accent blue */
-            --primary-foreground: hsl(222, 47%, 4%); /* Text on primary */
-            --secondary: hsl(260, 60%, 65%); /* Purple accent */
-            --accent: hsl(180, 100%, 50%); /* Cyan accent */
-            --muted: hsl(222, 47%, 12%); /* Muted background */
-            --muted-foreground: hsl(215, 20%, 65%); /* Muted text */
-            --border: hsl(222, 47%, 20%);
-            --input: hsl(222, 47%, 12%);
-            --destructive: hsl(0, 84%, 60%); /* Red for errors */
-            
-            /* Gradients */
-            --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
-            --gradient-cyber: linear-gradient(45deg, var(--primary), var(--accent));
-            --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 8%, 0.8), hsla(222, 47%, 12%, 0.4));
-            
-            /* Effects */
-            --shadow-cyber: 0 0 30px hsla(195, 100%, 50%, 0.3);
-            --shadow-glass: 0 8px 32px hsla(222, 47%, 4%, 0.3);
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--background);
-            color: var(--foreground);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
+<!-- Chart.js for dynamic charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Google Fonts and Lucide Icons for consistency -->
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap"
+    rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+    /* Merged CSS from homepage.html for animations and background */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        /* Animated Background from homepage.html */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
-                linear-gradient(0deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px),
-                linear-gradient(90deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+    :root {
+        /* IoT Theme Colors from homepage.html */
+        --background: hsl(222, 47%, 4%);
+        --foreground: hsl(210, 40%, 98%);
+        --card: hsl(222, 47%, 8%);
+        --card-foreground: hsl(210, 40%, 98%);
+        --primary: hsl(195, 100%, 50%);
+        /* Main accent blue */
+        --primary-foreground: hsl(222, 47%, 4%);
+        /* Text on primary */
+        --secondary: hsl(260, 60%, 65%);
+        /* Purple accent */
+        --accent: hsl(180, 100%, 50%);
+        /* Cyan accent */
+        --muted: hsl(222, 47%, 12%);
+        /* Muted background */
+        --muted-foreground: hsl(215, 20%, 65%);
+        /* Muted text */
+        --border: hsl(222, 47%, 20%);
+        --input: hsl(222, 47%, 12%);
+        --destructive: hsl(0, 84%, 60%);
+        /* Red for errors */
+
+        /* Gradients */
+        --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
+        --gradient-cyber: linear-gradient(45deg, var(--primary), var(--accent));
+        --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 8%, 0.8), hsla(222, 47%, 12%, 0.4));
+
+        /* Effects */
+        --shadow-cyber: 0 0 30px hsla(195, 100%, 50%, 0.3);
+        --shadow-glass: 0 8px 32px hsla(222, 47%, 4%, 0.3);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--background);
+        color: var(--foreground);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* Animated Background from homepage.html */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 80%, hsla(195, 100%, 50%, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, hsla(260, 60%, 65%, 0.1) 0%, transparent 50%),
+            linear-gradient(0deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, hsla(195, 100%, 50%, 0.08) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+        background-position: 0% 0%, 0% 0%, 0 0, 0 0;
+        opacity: 0.9;
+        z-index: -2;
+        animation: subtle-gradient-shift 20s ease-in-out infinite alternate;
+    }
+
+    .animated-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px;
+        z-index: -1;
+        animation: pan-grid 60s linear infinite;
+        opacity: 0.5;
+    }
+
+    @keyframes subtle-gradient-shift {
+        0% {
             background-position: 0% 0%, 0% 0%, 0 0, 0 0;
-            opacity: 0.9;
-            z-index: -2;
-            animation: subtle-gradient-shift 20s ease-in-out infinite alternate;
-        }
-        
-        .animated-grid {
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -1;
-            animation: pan-grid 60s linear infinite;
-            opacity: 0.5;
-        }
-        
-        @keyframes subtle-gradient-shift {
-            0% { background-position: 0% 0%, 0% 0%, 0 0, 0 0; }
-            100% { background-position: 100% 100%, 100% 100%, 60px 60px, 60px 60px; }
         }
 
-        @keyframes pan-grid {
-            0% { background-position: 0 0; }
-            100% { background-position: -50px -50px; }
+        100% {
+            background-position: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
         }
-        
-        /* Existing device_detail.html styles (adjusted for the new theme) */
-        h2.text-light {
-            font-family: 'Orbitron', sans-serif;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 8px hsla(195, 100%, 50%, 0.5);
-            font-weight: 700;
+    }
+
+    @keyframes pan-grid {
+        0% {
+            background-position: 0 0;
         }
 
-        .card {
-            background-color: var(--card); /* Match homepage card color */
-            color: var(--card-foreground);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            overflow: hidden; /* For rounded corners on chart */
+        100% {
+            background-position: -50px -50px;
         }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 15px var(--primary);
+    }
+
+    /* Existing device_detail.html styles (adjusted for the new theme) */
+    h2.text-light {
+        font-family: 'Orbitron', sans-serif;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 8px hsla(195, 100%, 50%, 0.5);
+        font-weight: 700;
+    }
+
+    .card {
+        background-color: var(--card);
+        /* Match homepage card color */
+        color: var(--card-foreground);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        /* For rounded corners on chart */
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 15px var(--primary);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+        color: var(--primary);
+        text-shadow: 0 0 5px hsla(195, 100%, 50%, 0.3);
+    }
+
+    .badge.bg-success {
+        background-color: hsla(120, 100%, 50%, 0.8) !important;
+        box-shadow: 0 0 5px hsla(120, 100%, 50%, 0.5);
+    }
+
+    .badge.bg-danger {
+        background-color: hsla(0, 84%, 60%, 0.8) !important;
+        box-shadow: 0 0 5px hsla(0, 84%, 60%, 0.5);
+    }
+
+    .card-footer {
+        background-color: var(--muted);
+        border-top: 1px solid var(--border);
+        padding: 1rem 1.5rem;
+        color: var(--muted-foreground);
+        font-size: 0.875rem;
+    }
+
+    /* Chart Canvas Styling */
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    /* Table Styling */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        text-align: left;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .data-table th {
+        color: var(--primary);
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .data-table tbody tr:hover {
+        background-color: hsla(222, 47%, 12%, 0.5);
+    }
+
+    /* Additional styling for elements */
+    .text-primary {
+        color: var(--primary) !important;
+    }
+
+    .text-info {
+        color: var(--accent) !important;
+    }
+
+    .bg-dark {
+        background-color: var(--card) !important;
+    }
+
+    .text-light {
+        color: var(--foreground) !important;
+    }
+
+    .border-secondary {
+        border-color: var(--border) !important;
+    }
+
+    .btn-primary {
+        background: var(--gradient-primary) !important;
+        border: none !important;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 10px var(--primary);
+    }
+
+    .btn-danger {
+        background-color: var(--destructive) !important;
+        border-color: var(--destructive) !important;
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 10px var(--destructive);
+    }
+
+    /* Animation for the chart area */
+    .chart-card {
+        animation: fadeInScale 1s ease-out;
+    }
+
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.98);
         }
 
-        .card-body {
-            padding: 1.5rem;
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Add this to your style block or CSS file */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 40px, 0);
         }
 
-        .card-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            color: var(--primary);
-            text-shadow: 0 0 5px hsla(195, 100%, 50%, 0.3);
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
         }
+    }
 
-        .badge.bg-success {
-            background-color: hsla(120, 100%, 50%, 0.8) !important;
-            box-shadow: 0 0 5px hsla(120, 100%, 50%, 0.5);
-        }
-        
-        .badge.bg-danger {
-            background-color: hsla(0, 84%, 60%, 0.8) !important;
-            box-shadow: 0 0 5px hsla(0, 84%, 60%, 0.5);
-        }
+    .animated {
+        animation-duration: 1s;
+        animation-fill-mode: both;
+    }
 
-        .card-footer {
-            background-color: var(--muted);
-            border-top: 1px solid var(--border);
-            padding: 1rem 1.5rem;
-            color: var(--muted-foreground);
-            font-size: 0.875rem;
-        }
+    .fade-in-up {
+        animation-name: fadeInUp;
+    }
+    .theme-alert {
+    background: var(--card);
+    border: 1px solid var(--primary);
+    color: var(--foreground);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5); /* Add a glowing effect */
+    transition: box-shadow 0.3s ease-in-out;
+}
 
-        /* Chart Canvas Styling */
-        .chart-container {
-            position: relative;
-            height: 300px;
-        }
-        
-        /* Table Styling */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-            text-align: left;
-        }
-        
-        .data-table th, .data-table td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .data-table th {
-            color: var(--primary);
-            font-weight: 500;
-            text-transform: uppercase;
-        }
-        
-        .data-table tbody tr:hover {
-            background-color: hsla(222, 47%, 12%, 0.5);
-        }
+.theme-alert:hover {
+    box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.8);
+}
 
-        /* Additional styling for elements */
-        .text-primary { color: var(--primary) !important; }
-        .text-info { color: var(--accent) !important; }
-        .bg-dark { background-color: var(--card) !important; }
-        .text-light { color: var(--foreground) !important; }
-        .border-secondary { border-color: var(--border) !important; }
-        
-        .btn-primary {
-            background: var(--gradient-primary) !important;
-            border: none !important;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 10px var(--primary);
-        }
-        
-        .btn-danger {
-            background-color: var(--destructive) !important;
-            border-color: var(--destructive) !important;
-            transition: all 0.3s ease;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 10px var(--destructive);
-        }
-
-        /* Animation for the chart area */
-        .chart-card {
-            animation: fadeInScale 1s ease-out;
-        }
-
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
-        }
-    </style>
+.theme-alert h4 {
+    color: var(--primary); /* Highlight the heading */
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -229,11 +312,7 @@
                 <p><strong>API Key:</strong> <code class="text-info">{{ device.device_api_key }}</code></p>
                 <p><strong>Location:</strong> {{ device.location|default:"Not set" }}</p>
                 <p><strong>Status:</strong>
-                    {% if device.is_online and device.last_seen and 'minute' in device.last_seen|timesince:"now" and 'hour' not in device.last_seen|timesince:"now" %}
-                        <span class="badge bg-success">Online</span>
-                    {% else %}
-                        <span class="badge bg-danger">Offline</span>
-                    {% endif %}
+                    {% if device.is_online and device.last_seen and 'minute' in device.last_seen|timesince:"now" and 'hour' not in device.last_seen|timesince:"now" %}<span class="badge bg-success">Online</span>{% else %}<span class="badge bg-danger">Offline</span>{% endif %}
                 </p>
                 <p><strong>Last Seen:</strong> {{ device.last_seen|default:"N/A" }}</p>
             </div>
@@ -248,47 +327,49 @@
             <div class="card-body">
                 <h5 class="card-title text-primary">Controls</h5>
                 {% if device.device_type == 'power_monitor' %}
-                    <p class="lead">Water Pump Control</p>
-                    <form id="controlForm" method="post" action="{% url 'dashboard:control_device' device.id %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="command" id="commandInput">
-                        <input type="hidden" name="parameters" id="parametersInput">
-                        <button type="button" class="btn btn-lg btn-success me-3" onclick="sendCommand('set_relay_state', 'ON')">Turn ON Pump</button>
-                        <button type="button" class="btn btn-lg btn-danger" onclick="sendCommand('set_relay_state', 'OFF')">Turn OFF Pump</button>
-                    </form>
-                    <div id="controlFeedback" class="mt-3"></div>
+                <p class="lead">Water Pump Control</p>
+                <form id="controlForm" method="post" action="{% url 'dashboard:control_device' device.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="command" id="commandInput">
+                    <input type="hidden" name="parameters" id="parametersInput">
+                    <button type="button" class="btn btn-lg btn-success me-3"
+                        onclick="sendCommand('set_relay_state', 'ON')">Turn ON Pump</button>
+                    <button type="button" class="btn btn-lg btn-danger"
+                        onclick="sendCommand('set_relay_state', 'OFF')">Turn OFF Pump</button>
+                </form>
+                <div id="controlFeedback" class="mt-3"></div>
                 {% elif device.device_type == 'water_level' %}
-                    <p class="text-muted">No direct controls for this device type.</p>
+                <p class="text-muted">No direct controls for this device type.</p>
                 {% else %}
-                    <p class="text-muted">Controls not defined for this device type.</p>
+                <p class="text-muted">Controls not defined for this device type.</p>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
 
+{% if sensor_data_entries %}
 <div class="row mt-4">
     <div class="col-12">
         <div class="card shadow-lg bg-dark text-light border-secondary">
             <div class="card-body">
                 <h5 class="card-title text-primary">Sensor Data History</h5>
-                
-                {% if device.device_type == 'power_monitor' and sensor_data_entries %}
-                    <div style="position: relative; height: 400px; width: 100%;">
-                        <canvas id="powerChart"></canvas>
-                    </div>
-                {% elif device.device_type == 'water_level' and sensor_data_entries %}
-                    <div style="position: relative; height: 400px; width: 100%;">
-                        <canvas id="waterLevelChart"></canvas>
-                    </div>
+
+                {% if device.device_type == 'power_monitor' %}
+                <div style="position: relative; height: 400px; width: 100%;">
+                    <canvas id="powerChart"></canvas>
+                </div>
+                {% elif device.device_type == 'water_level' %}
+                <div style="position: relative; height: 400px; width: 100%;">
+                    <canvas id="waterLevelChart"></canvas>
+                </div>
                 {% else %}
-                    <p class="text-muted">No charts defined or data missing for this device type.</p>
+                <p class="text-muted">No charts defined or data missing for this device type.</p>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
-
 
 <div class="row mt-4">
     <div class="col-12">
@@ -301,17 +382,17 @@
                             <tr>
                                 <th>Timestamp</th>
                                 {% if device.device_type == 'power_monitor' %}
-                                    <th>Voltage (V)</th>
-                                    <th>Current (A)</th>
-                                    <th>Power (W)</th>
-                                    <th>Energy (kWh)</th>
-                                    <th>Frequency (Hz)</th>
-                                    <th>PF</th>
-                                    <th>Relay State</th>
+                                <th>Voltage (V)</th>
+                                <th>Current (A)</th>
+                                <th>Power (W)</th>
+                                <th>Energy (kWh)</th>
+                                <th>Frequency (Hz)</th>
+                                <th>PF</th>
+                                <th>Relay State</th>
                                 {% elif device.device_type == 'water_level' %}
-                                    <th>Water Level (%)</th>
+                                <th>Water Level (%)</th>
                                 {% else %}
-                                    <th>Raw Data</th>
+                                <th>Raw Data</th>
                                 {% endif %}
                             </tr>
                         </thead>
@@ -320,17 +401,19 @@
                             <tr>
                                 <td>{{ data_entry.timestamp|date:"Y-m-d H:i:s" }}</td>
                                 {% if device.device_type == 'power_monitor' %}
-                                    <td>{{ data_entry.data.voltage|floatformat:2 }}</td>
-                                    <td>{{ data_entry.data.current|floatformat:2 }}</td>
-                                    <td>{{ data_entry.data.power|floatformat:2 }}</td>
-                                    <td>{{ data_entry.data.energy|floatformat:2 }}</td>
-                                    <td>{{ data_entry.data.frequency|floatformat:2 }}</td>
-                                    <td>{{ data_entry.data.pf|floatformat:2 }}</td>
-                                    <td><span class="badge {% if data_entry.data.relay_state == 'ON' %}bg-success{% else %}bg-danger{% endif %}">{{ data_entry.data.relay_state }}</span></td>
+                                <td>{{ data_entry.data.voltage|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.current|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.power|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.energy|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.frequency|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.pf|floatformat:2 }}</td>
+                                <td><span
+                                        class="badge {% if data_entry.data.relay_state == 'ON' %}bg-success{% else %}bg-danger{% endif %}">{{
+                                        data_entry.data.relay_state }}</span></td>
                                 {% elif device.device_type == 'water_level' %}
-                                    <td>{{ data_entry.data.water_level|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.water_level|floatformat:2 }}</td>
                                 {% else %}
-                                    <td>{{ data_entry.data|pprint }}</td> {# pprint is not a Django filter, use json.dumps in view #}
+                                <td>{{ data_entry.data|pprint }}</td>
                                 {% endif %}
                             </tr>
                             {% empty %}
@@ -345,6 +428,12 @@
         </div>
     </div>
 </div>
+{% else %}
+<div class="alert text-center mt-4 theme-alert" role="alert" data-aos="fade-up">
+    <h4 class="alert-heading">No sensor data available.</h4>
+    <p>This device has not yet sent any data. Please ensure it is connected and operational.</p>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block scripts_extra %}
@@ -379,7 +468,7 @@
 
             if (response.ok) {
                 controlFeedback.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                
+
                 // Add the specific popup message as requested
                 if (state === 'ON') {
                     controlFeedback.innerHTML += `<p class="mt-2 text-success">Relay is on</p>`;
@@ -398,7 +487,7 @@
     }
 
     // Chart.js initialization
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Get sensor data directly from the Django context
         // Ensure 'sensor_data_entries' is passed as a JSON string from your Django view
         const sensorDataEntriesElement = document.getElementById('sensor-data-entries-json');
@@ -410,7 +499,7 @@
                 console.error("Error parsing sensor_data_entries JSON:", e);
             }
         }
-        
+
         const deviceType = '{{ device.device_type }}';
 
         // Prepare data for Chart.js from sensorDataEntries

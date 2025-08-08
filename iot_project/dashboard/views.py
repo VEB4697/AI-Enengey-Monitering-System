@@ -1,24 +1,53 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.db.models import Max
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 import json
+
 from core.models import Device
-from device_api.models import SensorData, DeviceCommandQueue
-from django.db.models import Max 
+from device_api.models import DeviceCommandQueue, SensorData
 
 @login_required
 def user_dashboard(request):
+    """
+    Renders the user dashboard, fetching data efficiently.
+    """
     user_devices = Device.objects.filter(owner=request.user, is_registered=True).order_by('-last_seen')
-    
-    # Fetch latest sensor data for each device to display on dashboard summary
+
+    # Fix for Loading Delay: Use a single query to get the latest data ID for each device.
+    latest_data_ids = SensorData.objects.values('device_id').annotate(
+        max_timestamp=Max('timestamp')
+    ).values_list('id', flat=True)
+
+    # Fetch all latest data entries in one go.
+    latest_data_entries = SensorData.objects.filter(
+        id__in=latest_data_ids,
+        device__in=user_devices
+    ).select_related('device')
+
+    # Create a dictionary for quick lookup of latest data by device ID
+    latest_data_dict = {entry.device_id: entry for entry in latest_data_entries}
+
     devices_with_latest_data = []
+    current_time = timezone.now()
+
+    # Fix for Status Issue: Calculate the time difference in the view.
     for device in user_devices:
-        latest_data_entry = SensorData.objects.filter(device=device).order_by('-timestamp').first()
+        latest_data_entry = latest_data_dict.get(device.id)
         latest_data = latest_data_entry.data if latest_data_entry else {}
+        is_online = False
+        if latest_data_entry and latest_data_entry.timestamp:
+            time_difference = current_time - latest_data_entry.timestamp
+            # A device is considered 'online' if it has sent data in the last 5 minutes.
+            if time_difference.total_seconds() < 300:
+                is_online = True
+
         devices_with_latest_data.append({
             'device': device,
-            'latest_data': latest_data
+            'latest_data': latest_data,
+            'is_online': is_online,
         })
 
     context = {
@@ -29,26 +58,14 @@ def user_dashboard(request):
 @login_required
 def device_detail(request, device_id):
     device = get_object_or_404(Device, id=device_id, owner=request.user)
-    
-    # Get recent sensor data for display/charts
-    # IMPORTANT: Fetch the data and convert timestamps to ISO format for JSON serialization
-    raw_sensor_data_entries = SensorData.objects.filter(device=device).order_by('-timestamp')[:100] # Last 100 readings
-    
-    # Prepare sensor data for JavaScript (graph and table)
-    # This is crucial for the frontend JS to parse it correctly
-    sensor_data_for_js = []
-    for entry in raw_sensor_data_entries:
-        sensor_data_for_js.append({
-            'timestamp': entry.timestamp.isoformat(), # Convert datetime object to ISO 8601 string
-            'data': entry.data # Assuming 'data' is a JSONField or stores a dict
-        })
+
+    # Fetch the latest sensor data to check for its existence
+    latest_data = SensorData.objects.filter(device=device).order_by('-timestamp').first()
+    has_sensor_data = latest_data is not None
 
     context = {
         'device': device,
-        # Pass the serialized JSON string of sensor data entries
-        'sensor_data_entries': json.dumps(sensor_data_for_js), 
-        # Removed chart_labels and chart_data from context, as frontend JS will generate them
-        # from sensor_data_entries directly.
+        'has_sensor_data': has_sensor_data,
     }
     return render(request, 'dashboard/device_detail.html', context)
 
