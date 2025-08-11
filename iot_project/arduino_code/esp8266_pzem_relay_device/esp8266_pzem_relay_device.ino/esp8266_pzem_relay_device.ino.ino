@@ -35,9 +35,549 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 const byte DNS_PORT = 53;
 DNSServer dnsServer;
 ESP8266WebServer webServer(80);
-// This is a placeholder for the HTML content. In a real-world application,
-// this would be a more complete HTML page.
-const char PROGMEM CONFIG_PORTAL_HTML[] = R"rawliteral(
+// The HTML content is now dynamically generated in handleRoot()
+// and not a static PROGMEM string anymore.
+
+// --- Sensor & Actuator Pin Definitions ---
+#define PZEM_RX_PIN D5  // GPIO14
+#define PZEM_TX_PIN D6  // GPIO12
+#define RELAY_PIN D8    // GPIO15 (Note: D8 is active LOW on boot)
+
+// --- Button Pin Definitions ---
+#define WIFI_RESET_BUTTON_PIN D7 // GPIO13
+#define READ_SWIPE_BUTTON_PIN D3 // GPIO0
+#define RELAY_CONTROL_BUTTON_PIN D4 // GPIO2
+
+// --- Global Objects ---
+SoftwareSerial pzemSerial(PZEM_RX_PIN, PZEM_TX_PIN);
+PZEM004Tv30 pzem(pzemSerial);
+
+// --- Constants ---
+const char* DJANGO_SERVER_DOMAIN = "192.168.0.116:8000";
+const char* DEVICE_DATA_ENDPOINT = "/api/v1/device/data/";
+const char* DEVICE_COMMAND_ENDPOINT = "/api/v1/device/commands/";
+const long SENSOR_SEND_INTERVAL = 4000; // Increased interval for stable comms
+const long COMMAND_CHECK_INTERVAL = 5000;
+const unsigned long LONG_PRESS_DURATION_MS = 5000;
+const long DISPLAY_UPDATE_INTERVAL = 3000; // 3 seconds to auto-swipe display
+
+// --- Button State Variables ---
+unsigned long lastButtonPressTime = 0;
+bool wifiResetButtonHandled = false;
+unsigned long swipeButtonLastDebounceTime = 0;
+unsigned long relayButtonLastDebounceTime = 0;
+const unsigned long debounceDelay = 50;
+int readSwipeCounter = 0; // To cycle through display values
+
+// --- Display State Variables ---
+unsigned long lastDisplayUpdateTime = 0;
+int wifiAnimFrame = 0;
+bool isDisplayConnected = false;
+
+// --- Global state flag for WiFi connection attempt
+volatile bool shouldConnectToNewWifi = false;
+
+// --- Function Prototypes ---
+void loadConfig();
+void saveConfig();
+void clearEEPROMConfig();
+void sendSensorData();
+void checkCommands();
+void setRelayState(bool state);
+void setupAPMode();
+void handleRoot();
+void handleSave();
+void handleNotFound();
+void setupDisplay();
+void displayAPModeInfo();
+void displayConnecting(const char* ssid, int frame);
+void displayData();
+void checkButtons();
+void attemptConnect(); // New function prototype
+
+// --- Setup Function ---
+void setup() {
+  Serial.begin(115200);
+  delay(100);
+
+  // Initialize and test the OLED display
+  setupDisplay();
+
+  // Initialize EEPROM and load saved configuration
+  EEPROM.begin(sizeof(DeviceConfig));
+  loadConfig();
+
+  // Initialize all button pins with pull-ups
+  pinMode(WIFI_RESET_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(READ_SWIPE_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(RELAY_CONTROL_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(RELAY_PIN, OUTPUT); // Configure relay pin as output
+
+  // Check for long press on WiFi Reset button during boot
+  // This will clear the config and immediately enter AP mode
+  delay(100); // Small delay to allow button state to settle after power-on
+  if (digitalRead(WIFI_RESET_BUTTON_PIN) == LOW) {
+    unsigned long bootButtonPressTime = millis();
+    while (digitalRead(WIFI_RESET_BUTTON_PIN) == LOW && (millis() - bootButtonPressTime < LONG_PRESS_DURATION_MS)) {
+      display.clearDisplay();
+      display.setCursor(0, 0);
+      display.println("Holding for Factory Reset...");
+      display.display();
+      delay(100);
+    }
+    if ((millis() - bootButtonPressTime) >= LONG_PRESS_DURATION_MS) {
+      display.clearDisplay();
+      display.setCursor(0, 0);
+      display.println("Factory Resetting...");
+      display.display();
+      delay(2000);
+      clearEEPROMConfig();
+      setupAPMode();
+      return; // Exit setup() to prevent further execution
+    }
+  }
+
+  // Generate / Assign device_api_key if not set
+  if (strlen(deviceConfig.device_api_key) == 0) {
+    String mac_address_str = WiFi.macAddress();
+    mac_address_str.replace(":", "");
+    String uuid_str = mac_address_str;
+    uuid_str.toCharArray(deviceConfig.device_api_key, 37);
+    saveConfig();
+  }
+
+  // Set device type if not already set
+  if (strlen(deviceConfig.device_type) == 0) {
+    strcpy(deviceConfig.device_type, "power_monitor");
+    saveConfig();
+  }
+
+  // Initialize PZEM and Relay pin
+  pzemSerial.begin(9600);
+  setRelayState(false); // Ensure relay is off by default
+
+  // Attempt to connect to saved WiFi or start AP mode
+  if (deviceConfig.configured && strlen(deviceConfig.wifi_ssid) > 0) {
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(deviceConfig.wifi_ssid, deviceConfig.wifi_password);
+    int retries = 0;
+    while (WiFi.status() != WL_CONNECTED && retries < 40) {
+      displayConnecting(deviceConfig.wifi_ssid, retries);
+      delay(500);
+      retries++;
+    }
+    if (WiFi.status() == WL_CONNECTED) {
+      display.clearDisplay();
+      display.setCursor(0, 0);
+      display.println("Connected!");
+      display.println(WiFi.localIP());
+      display.display();
+      delay(2000);
+    } else {
+      Serial.println("Failed to connect with saved credentials. Entering AP mode.");
+      setupAPMode();
+    }
+  } else {
+    Serial.println("No saved WiFi config. Entering AP mode.");
+    setupAPMode();
+  }
+}
+
+// --- Loop Function ---
+void loop() {
+  if (shouldConnectToNewWifi) {
+    attemptConnect();
+  }
+  
+  if (WiFi.getMode() == WIFI_AP) {
+    dnsServer.processNextRequest();
+    webServer.handleClient();
+    displayAPModeInfo(); // Update the display in AP mode
+  } else {
+    // STA (client) mode operations
+    static unsigned long lastSensorSendTime = 0;
+    static unsigned long lastCommandCheckTime = 0;
+    checkButtons(); // Check for button presses
+
+    if (millis() - lastSensorSendTime > SENSOR_SEND_INTERVAL) {
+      sendSensorData();
+      lastSensorSendTime = millis();
+    }
+
+    if (millis() - lastCommandCheckTime > COMMAND_CHECK_INTERVAL) {
+      checkCommands();
+      lastCommandCheckTime = millis();
+    }
+
+    // Auto-swipe the display every 3 seconds
+    if (millis() - lastDisplayUpdateTime > DISPLAY_UPDATE_INTERVAL) {
+      readSwipeCounter++;
+      if (readSwipeCounter > 8) readSwipeCounter = 0;
+      lastDisplayUpdateTime = millis();
+    }
+    displayData(); // Update the display with sensor data
+  }
+  delay(10);
+}
+
+// --- Display-specific Functions ---
+void setupDisplay() {
+  // Initialize with the I2C address 0x3C for 128x64 display
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    isDisplayConnected = false;
+  } else {
+    isDisplayConnected = true;
+    display.display();
+    delay(2000);
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 0);
+    display.println("ESP8266 Started");
+    display.display();
+  }
+}
+
+void displayAPModeInfo() {
+  if (!isDisplayConnected) return;
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.println("AP Mode Active");
+  display.print("SSID: ");
+  display.println(String("IoTSetup-") + WiFi.macAddress().substring(9));
+  display.print("IP: ");
+  display.println(WiFi.softAPIP());
+  display.println("----------------");
+  display.println("Device Key:");
+  display.println(deviceConfig.device_api_key);
+  display.display();
+}
+
+void displayConnecting(const char* ssid, int frame) {
+  if (!isDisplayConnected) return;
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.println("Connecting to:");
+  display.println(ssid);
+  // Simple WiFi animation (frame varies from 0 to 3)
+  wifiAnimFrame = (wifiAnimFrame + 1) % 4; // Advance frame
+  for(int i = 0; i < wifiAnimFrame + 1; ++i) {
+      display.drawPixel(100 + (i * 5), 30, SSD1306_WHITE);
+  }
+  display.display();
+}
+
+void displayData() {
+  if (!isDisplayConnected) return;
+  // Get fresh sensor data
+  float voltage = pzem.voltage();
+  float current = pzem.current();
+  float power = pzem.power();
+  float energy = pzem.energy();
+  float frequency = pzem.frequency();
+  float pf = pzem.pf();
+  // Read the actual relay pin state. For active-low relay, LOW means ON and HIGH means OFF
+  bool relayState = (digitalRead(RELAY_PIN) == LOW); 
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+
+  switch (readSwipeCounter) {
+    case 0:
+      // Welcome message with a placeholder username.
+      display.println("Welcome, User!");
+      display.println("Swipe for data.");
+      break;
+    case 1:
+      display.println("Device API Key:");
+      display.println(deviceConfig.device_api_key);
+      break;
+    case 2:
+      display.println("Voltage:");
+      display.setTextSize(2);
+      display.print(voltage);
+      display.println(" V");
+      break;
+    case 3:
+      display.println("Current:");
+      display.setTextSize(2);
+      display.print(current);
+      display.println(" A");
+      break;
+    case 4:
+      display.println("Power:");
+      display.setTextSize(2);
+      display.print(power);
+      display.println(" W");
+      break;
+    case 5:
+      display.println("Energy:");
+      display.setTextSize(2);
+      display.print(energy);
+      display.println(" kWh");
+      break;
+    case 6:
+      display.println("Frequency:");
+      display.setTextSize(2);
+      display.print(frequency);
+      display.println(" Hz");
+      break;
+    case 7:
+      display.println("Power Factor:");
+      display.setTextSize(2);
+      display.println(pf);
+      break;
+    case 8:
+      display.println("Relay State:");
+      display.setTextSize(2);
+      display.println(relayState ? "ON" : "OFF");
+      break;
+  }
+  display.display();
+}
+
+// --- Button Handling Functions ---
+void checkButtons() {
+  // WiFi Reset Button
+  static unsigned long wifiResetPressStartTime = 0;
+  static bool wifiResetButtonHeld = false;
+  static int lastWifiResetButtonState = HIGH;
+  int wifiResetReading = digitalRead(WIFI_RESET_BUTTON_PIN);
+
+  // Debounce logic for WiFi Reset button
+  if (wifiResetReading != lastWifiResetButtonState) {
+    if (millis() - lastButtonPressTime > debounceDelay) {
+      if (wifiResetReading == LOW) { // Button just pressed
+        wifiResetPressStartTime = millis();
+      } else { // Button just released
+        wifiResetPressStartTime = 0;
+        wifiResetButtonHeld = false; // Reset held flag on release
+      }
+      lastWifiResetButtonState = wifiResetReading;
+      lastButtonPressTime = millis(); // Update last debounce time
+    }
+  }
+
+  // Check for long press of WiFi Reset button
+  if (wifiResetReading == LOW && !wifiResetButtonHeld) {
+    if (millis() - wifiResetPressStartTime >= LONG_PRESS_DURATION_MS) {
+      wifiResetButtonHeld = true; // Mark as handled
+      display.clearDisplay();
+      display.setCursor(0,0);
+      display.println("Long press detected!");
+      display.println("Factory Resetting...");
+      display.display();
+      delay(2000); // Display the message for a clear duration
+      clearEEPROMConfig();
+      // Directly transition to AP mode without a restart
+      WiFi.disconnect(true); // Disconnect from current WiFi if connected
+      delay(100);
+      setupAPMode(); // Set up Access Point mode
+    }
+  }
+
+  // Relay Control Button
+  static unsigned long relayButtonLastDebounceTime = 0; 
+  static int lastRelayButtonState = HIGH; 
+  int relayReading = digitalRead(RELAY_CONTROL_BUTTON_PIN);
+
+  // Check for state change and debounce
+  if (relayReading != lastRelayButtonState) {
+    relayButtonLastDebounceTime = millis(); // Reset debounce timer
+  }
+
+  if ((millis() - relayButtonLastDebounceTime) > debounceDelay) {
+    // Only act if the button state has been stable for debounceDelay
+    if (relayReading == LOW && lastRelayButtonState == HIGH) { // Button pressed (HIGH to LOW transition)
+      bool currentState = (digitalRead(RELAY_PIN) == LOW); // Get current logical state (true if ON)
+      setRelayState(!currentState); // Toggle the state
+    }
+  }
+  lastRelayButtonState = relayReading; // Save the current state for the next loop
+  
+  // Read Value Swipe Button
+  static unsigned long swipeButtonLastDebounceTime = 0; 
+  static int lastSwipeButtonState = HIGH; 
+  int swipeReading = digitalRead(READ_SWIPE_BUTTON_PIN);
+
+  // Check for state change and debounce
+  if (swipeReading != lastSwipeButtonState) {
+    swipeButtonLastDebounceTime = millis(); // Reset debounce timer
+  }
+
+  if ((millis() - swipeButtonLastDebounceTime) > debounceDelay) {
+    // Only act if the button state has been stable for debounceDelay
+    if (swipeReading == LOW && lastSwipeButtonState == HIGH) { // Button pressed (HIGH to LOW transition)
+      readSwipeCounter++;
+      if (readSwipeCounter > 8) readSwipeCounter = 0;
+      lastDisplayUpdateTime = millis(); // Reset auto-swipe timer
+    }
+  }
+  lastSwipeButtonState = swipeReading; // Save the current state for the next loop
+}
+
+// --- Other existing functions (loadConfig, saveConfig, etc.) ---
+
+void loadConfig() {
+  EEPROM.get(0, deviceConfig);
+}
+
+void saveConfig() {
+  EEPROM.put(0, deviceConfig);
+  EEPROM.commit();
+}
+
+void clearEEPROMConfig() {
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.println("Clearing Config...");
+  display.display();
+  delay(1000);
+  EEPROM.begin(sizeof(DeviceConfig));
+  for (unsigned int i = 0; i < sizeof(DeviceConfig); i++) {
+    EEPROM.write(i, 0);
+  }
+  EEPROM.commit();
+}
+
+void sendSensorData() {
+  HTTPClient http;
+  WiFiClient client;
+  String serverPath = String("http://") + DJANGO_SERVER_DOMAIN + DEVICE_DATA_ENDPOINT;
+  http.begin(client, serverPath);
+  http.addHeader("Content-Type", "application/json");
+
+  // Create the main JSON document
+  StaticJsonDocument<500> doc; // Increased size to accommodate nested structure
+
+  // Add top-level fields
+  doc["device_api_key"] = deviceConfig.device_api_key;
+  doc["device_type"] = deviceConfig.device_type; // Include device_type
+
+  // Create a nested JSON object for sensor_data
+  JsonObject sensor_data_obj = doc.createNestedObject("sensor_data");
+
+  // Populate the nested sensor_data object with readings
+  sensor_data_obj["voltage"] = pzem.voltage();
+  sensor_data_obj["current"] = pzem.current();
+  sensor_data_obj["power"] = pzem.power();
+  sensor_data_obj["energy"] = pzem.energy();
+  sensor_data_obj["frequency"] = pzem.frequency();
+  sensor_data_obj["power_factor"] = pzem.pf();
+
+  String httpRequestData;
+  serializeJson(doc, httpRequestData);
+
+  Serial.print("Sending data: ");
+  Serial.println(httpRequestData); // Print the full JSON payload for debugging
+
+  int httpResponseCode = http.POST(httpRequestData);
+
+  if (httpResponseCode > 0) {
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+    String responsePayload = http.getString(); // Read server response
+    Serial.print("Server Response: ");
+    Serial.println(responsePayload); // Print server response for debugging
+  } else {
+    Serial.print("Error code: ");
+    Serial.println(httpResponseCode);
+    Serial.print("HTTP Error: ");
+    Serial.println(http.errorToString(httpResponseCode)); // More detailed error
+  }
+  http.end();
+}
+
+void checkCommands() {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    WiFiClient client;
+    String serverPath = String("http://") + DJANGO_SERVER_DOMAIN + DEVICE_COMMAND_ENDPOINT + String("?device_api_key=") + deviceConfig.device_api_key;
+    http.begin(client, serverPath);
+    int httpResponseCode = http.GET();
+
+    if (httpResponseCode > 0) {
+      String payload = http.getString();
+      Serial.print("Received command payload: "); // Add this line
+      Serial.println(payload); // Add this line to print the raw payload
+
+      StaticJsonDocument<200> doc;
+      DeserializationError error = deserializeJson(doc, payload);
+
+      if (error) {
+        Serial.print(F("deserializeJson() failed for commands: "));
+        Serial.println(error.f_str());
+        return; // Exit if JSON is invalid
+      }
+
+      if (doc.containsKey("command") && doc["command"].as<String>() == "no_command") {
+        Serial.println("No pending command.");
+      } else if (doc.containsKey("command")) {
+        String command_type = doc["command"].as<String>();
+        Serial.print("Received command: ");
+        Serial.println(command_type);
+
+        if (command_type == "set_relay_state" && doc.containsKey("parameters")) {
+          JsonObject params = doc["parameters"].as<JsonObject>();
+          if (params.containsKey("relay_state")) {
+            bool relay_state = params["relay_state"].as<bool>();
+            setRelayState(relay_state);
+          } else {
+            Serial.println("Missing 'relay_state' parameter for 'set_relay_state' command.");
+          }
+        } else {
+          Serial.print("Unhandled command type or missing parameters: ");
+          Serial.println(command_type);
+        }
+      } else {
+         Serial.println("Unknown response format from commands endpoint. (Missing 'command' key)");
+      }
+
+    } else {
+      Serial.print("Error code: ");
+      Serial.println(httpResponseCode);
+      Serial.print("HTTP Error: ");
+      Serial.println(http.errorToString(httpResponseCode));
+    }
+    http.end();
+  }
+}
+
+void setRelayState(bool state) {
+  // Relays are active LOW, so 'state' (true for ON, false for OFF)
+  // maps to LOW (ON) or HIGH (OFF) for the digital output.
+  digitalWrite(RELAY_PIN, state ? LOW : HIGH); // Changed HIGH to LOW and LOW to HIGH
+  Serial.print("Setting relay state to: ");
+  Serial.println(state ? "ON (LOW)" : "OFF (HIGH)");
+}
+
+void setupAPMode() {
+  Serial.println("Setting up AP Mode...");
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.println("AP Mode Setup...");
+  display.display();
+
+  String ap_ssid = "IoTSetup-" + WiFi.macAddress().substring(9);
+  WiFi.softAP(ap_ssid.c_str());
+
+  dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+  webServer.on("/", handleRoot);
+  webServer.on("/save", handleSave);
+  webServer.onNotFound(handleNotFound);
+  webServer.begin();
+
+  Serial.println("AP SSID: " + ap_ssid);
+  Serial.println("AP IP: " + WiFi.softAPIP().toString());
+}
+
+// Modified handleRoot to scan for networks and generate HTML
+void handleRoot() {
+  String html = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +701,7 @@ const char PROGMEM CONFIG_PORTAL_HTML[] = R"rawliteral(
             margin-bottom: 0.5rem;
         }
         
-        input[type=text], input[type=password] {
+        input[type=text], input[type=password], select {
             width: 100%;
             padding: 12px;
             margin-bottom: 1rem;
@@ -174,7 +714,7 @@ const char PROGMEM CONFIG_PORTAL_HTML[] = R"rawliteral(
             transition: all 0.3s ease;
         }
         
-        input[type=text]:focus, input[type=password]:focus {
+        input[type=text]:focus, input[type=password]:focus, select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 10px var(--primary);
@@ -207,8 +747,26 @@ const char PROGMEM CONFIG_PORTAL_HTML[] = R"rawliteral(
     <div class="container">
         <h2>Wi-Fi Configuration</h2>
         <form action="/save" method="post">
-            <label for="ssid">SSID:</label>
-            <input type="text" id="ssid" name="ssid" required>
+            <label for="ssid">Select Network:</label>
+            <select id="ssid" name="ssid">
+    )rawliteral" ;
+
+  // Scan for WiFi networks
+  int n = WiFi.scanNetworks();
+  if (n == 0) {
+    html += "<option value=\"\">No networks found</option>";
+  } else {
+    for (int i = 0; i < n; ++i) {
+      // Add each network to the dropdown
+      html += "<option value=\"" + WiFi.SSID(i) + "\">" + WiFi.SSID(i) + "</option>";
+      delay(10); // Small delay to allow the ESP to breathe
+    }
+  }
+
+  html += R"rawliteral(
+            </select>
+            <label for="manual_ssid">Or Enter Manually (if not listed):</label>
+            <input type="text" id="manual_ssid" name="manual_ssid" placeholder="Enter SSID manually">
             <label for="password">Password:</label>
             <input type="password" id="password" name="password">
             <button type="submit">Save</button>
@@ -221,508 +779,54 @@ const char PROGMEM CONFIG_PORTAL_HTML[] = R"rawliteral(
             function createSparkle() {
                 const sparkle = document.createElement('div');
                 sparkle.classList.add('sparkle');
-                const size = Math.random() * 3 + 1;s
-                sparkle.style.width = ${size}px;
-                sparkle.style.height = ${size}px;
-                sparkle.style.left = ${Math.random() * 100}%;
-                sparkle.style.top = ${Math.random() * 100}%;
-                sparkle.style.animationDelay = ${Math.random() * 5}s;
+                const size = Math.random() * 3 + 1;
+                sparkle.style.width = `${size}px`;
+                sparkle.style.height = `${size}px`;
+                sparkle.style.left = `${Math.random() * 100}%`;
+                sparkle.style.top = `${Math.random() * 100}%`;
+                sparkle.style.animationDelay = `${Math.random() * 5}s`;
                 if (sparklesContainer) {
                     sparklesContainer.appendChild(sparkle);
                     setTimeout(() => sparkle.remove(), 5000);
                 }
             }
             setInterval(createSparkle, 200);
+
+            // Logic to handle selected SSID vs manual entry
+            const ssidSelect = document.getElementById('ssid');
+            const manualSsidInput = document.getElementById('manual_ssid');
+            const form = document.querySelector('form');
+
+            form.addEventListener('submit', function(event) {
+                // If manual SSID is entered, prioritize it
+                if (manualSsidInput.value.trim() !== '') {
+                    ssidSelect.name = ''; // Disable the select field
+                    manualSsidInput.name = 'ssid'; // Enable manual input as the SSID source
+                } else {
+                    manualSsidInput.name = ''; // Disable manual input
+                    ssidSelect.name = 'ssid'; // Enable select as the SSID source
+                }
+            });
         });
     </script>
 </body>
 </html>
 )rawliteral";
-
-// --- Sensor & Actuator Pin Definitions ---
-// Note: We are re-defining the relay pin to avoid conflict with I2C SCL (D1).
-// Using D8 (GPIO15) which requires a pull-down resistor.
-#define PZEM_RX_PIN D5  // GPIO14
-#define PZEM_TX_PIN D6  // GPIO12
-#define RELAY_PIN D8    // GPIO15 (Note: D8 is active LOW on boot)
-
-// --- Button Pin Definitions ---
-#define WIFI_RESET_BUTTON_PIN D7 // GPIO13
-#define READ_SWIPE_BUTTON_PIN D3 // GPIO0
-#define RELAY_CONTROL_BUTTON_PIN D4 // GPIO2
-
-// --- Global Objects ---
-SoftwareSerial pzemSerial(PZEM_RX_PIN, PZEM_TX_PIN);
-PZEM004Tv30 pzem(pzemSerial);
-
-// --- Constants ---
-const char* DJANGO_SERVER_DOMAIN = "192.168.0.116:8000";
-const char* DEVICE_DATA_ENDPOINT = "/api/v1/device/data/";
-const char* DEVICE_COMMAND_ENDPOINT = "/api/v1/device/commands/";
-const long SENSOR_SEND_INTERVAL = 3000;
-const long COMMAND_CHECK_INTERVAL = 3000;
-const unsigned long LONG_PRESS_DURATION_MS = 5000;
-const long DISPLAY_UPDATE_INTERVAL = 2000; // 3 seconds to auto-swipe display
-
-// --- Button State Variables ---
-unsigned long lastButtonPressTime = 0;
-bool wifiResetButtonHandled = false;
-unsigned long swipeButtonLastDebounceTime = 0;
-unsigned long relayButtonLastDebounceTime = 0;
-const unsigned long debounceDelay = 50;
-int readSwipeCounter = 0; // To cycle through display values
-
-// --- Display State Variables ---
-unsigned long lastDisplayUpdateTime = 0;
-int wifiAnimFrame = 0;
-bool isDisplayConnected = false;
-
-// --- Global state flag for WiFi connection attempt
-volatile bool shouldConnectToNewWifi = false;
-
-// --- Function Prototypes ---
-void loadConfig();
-void saveConfig();
-void clearEEPROMConfig();
-void sendSensorData();
-void checkCommands();
-void setRelayState(bool state);
-void setupAPMode();
-void handleRoot();
-void handleSave();
-void handleNotFound();
-void setupDisplay();
-void displayAPModeInfo();
-void displayConnecting(const char* ssid, int frame);
-void displayData();
-void checkButtons();
-void attemptConnect(); // New function prototype
-
-// --- Setup Function ---
-void setup() {
-  Serial.begin(115200);
-  delay(100);
-
-  // Initialize and test the OLED display
-  setupDisplay();
-
-  // Initialize EEPROM and load saved configuration
-  EEPROM.begin(sizeof(DeviceConfig));
-  loadConfig();
-
-  // Initialize all button pins with pull-ups
-  pinMode(WIFI_RESET_BUTTON_PIN, INPUT_PULLUP);
-  pinMode(READ_SWIPE_BUTTON_PIN, INPUT_PULLUP);
-  pinMode(RELAY_CONTROL_BUTTON_PIN, INPUT_PULLUP);
-  pinMode(RELAY_PIN, OUTPUT); // Configure relay pin as output
-
-  // Check for long press on WiFi Reset button during boot
-  // This will clear the config and immediately enter AP mode
-  delay(100);
-  if (digitalRead(WIFI_RESET_BUTTON_PIN) == LOW) {
-    unsigned long bootButtonPressTime = millis();
-    while (digitalRead(WIFI_RESET_BUTTON_PIN) == LOW && (millis() - bootButtonPressTime < LONG_PRESS_DURATION_MS)) {
-      display.clearDisplay();
-      display.setCursor(0, 0);
-      display.println("Holding for Factory Reset...");
-      display.display();
-      delay(100);
-    }
-    if ((millis() - bootButtonPressTime) >= LONG_PRESS_DURATION_MS) {
-      display.clearDisplay();
-      display.setCursor(0, 0);
-      display.println("Factory Resetting...");
-      display.display();
-      delay(1000);
-      clearEEPROMConfig();
-      setupAPMode();
-      return; // Exit setup() to prevent further execution
-    }
-  }
-
-  // Generate / Assign device_api_key if not set
-  if (strlen(deviceConfig.device_api_key) == 0) {
-    String mac_address_str = WiFi.macAddress();
-    mac_address_str.replace(":", "");
-    String uuid_str = mac_address_str;
-    uuid_str.toCharArray(deviceConfig.device_api_key, 37);
-    saveConfig();
-  }
-
-  // Set device type if not already set
-  if (strlen(deviceConfig.device_type) == 0) {
-    strcpy(deviceConfig.device_type, "power_monitor");
-    saveConfig();
-  }
-
-  // Initialize PZEM and Relay pin
-  pzemSerial.begin(9600);
-  setRelayState(false);
-
-  // Attempt to connect to saved WiFi or start AP mode
-  if (deviceConfig.configured && strlen(deviceConfig.wifi_ssid) > 0) {
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(deviceConfig.wifi_ssid, deviceConfig.wifi_password);
-    int retries = 0;
-    while (WiFi.status() != WL_CONNECTED && retries < 40) {
-      displayConnecting(deviceConfig.wifi_ssid, retries);
-      delay(500);
-      retries++;
-    }
-    if (WiFi.status() == WL_CONNECTED) {
-      display.clearDisplay();
-      display.setCursor(0, 0);
-      display.println("Connected!");
-      display.println(WiFi.localIP());
-      display.display();
-      delay(2000);
-    } else {
-      setupAPMode();
-    }
-  } else {
-    setupAPMode();
-  }
+  webServer.send(200, "text/html", html);
 }
 
-// --- Loop Function ---
-void loop() {
-  if (shouldConnectToNewWifi) {
-    attemptConnect();
-  }
-  
-  if (WiFi.getMode() == WIFI_AP) {
-    dnsServer.processNextRequest();
-    webServer.handleClient();
-    displayAPModeInfo(); // Update the display in AP mode
-  } else {
-    // STA (client) mode operations
-    static unsigned long lastSensorSendTime = 0;
-    static unsigned long lastCommandCheckTime = 0;
-    checkButtons(); // Check for button presses
-
-    if (millis() - lastSensorSendTime > SENSOR_SEND_INTERVAL) {
-      sendSensorData();
-      lastSensorSendTime = millis();
-    }
-
-    if (millis() - lastCommandCheckTime > COMMAND_CHECK_INTERVAL) {
-      checkCommands();
-      lastCommandCheckTime = millis();
-    }
-
-    // Auto-swipe the display every 3 seconds
-    if (millis() - lastDisplayUpdateTime > DISPLAY_UPDATE_INTERVAL) {
-      readSwipeCounter++;
-      if (readSwipeCounter > 8) readSwipeCounter = 0;
-      lastDisplayUpdateTime = millis();
-    }
-    displayData(); // Update the display with sensor data
-  }
-  delay(10);
-}
-
-// --- Display-specific Functions ---
-void setupDisplay() {
-  // Initialize with the I2C address 0x3C for 128x64 display
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    isDisplayConnected = false;
-  } else {
-    isDisplayConnected = true;
-    display.display();
-    delay(2000);
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setTextColor(SSD1306_WHITE);
-    display.setCursor(0, 0);
-    display.println("ESP8266 Started");
-    display.display();
-  }
-}
-
-void displayAPModeInfo() {
-  if (!isDisplayConnected) return;
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setCursor(0, 0);
-  display.println("AP Mode Active");
-  display.print("SSID: ");
-  display.println(String("IoTSetup-") + WiFi.macAddress().substring(9));
-  display.print("IP: ");
-  display.println(WiFi.softAPIP());
-  display.println("----------------");
-  display.println("Device Key:");
-  display.println(deviceConfig.device_api_key);
-  display.display();
-}
-
-void displayConnecting(const char* ssid, int frame) {
-  if (!isDisplayConnected) return;
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setCursor(0, 0);
-  display.println("Connecting to:");
-  display.println(ssid);
-  // Simple WiFi animation
-  display.drawPixel(100 + (frame % 4), 30, SSD1306_WHITE);
-  display.display();
-}
-
-void displayData() {
-  if (!isDisplayConnected) return;
-  // Get fresh sensor data
-  float voltage = pzem.voltage();
-  float current = pzem.current();
-  float power = pzem.power();
-  float energy = pzem.energy();
-  float frequency = pzem.frequency();
-  float pf = pzem.pf();
-  bool relayState = digitalRead(RELAY_PIN);
-
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setCursor(0, 0);
-
-  switch (readSwipeCounter) {
-    case 0:
-      // Welcome message with a placeholder username.
-      display.println("Welcome, User!");
-      display.println("Swipe for data.");
-      break;
-    case 1:
-      display.println("Device API Key:");
-      display.println(deviceConfig.device_api_key);
-      break;
-    case 2:
-      display.println("Voltage:");
-      display.setTextSize(2);
-      display.print(voltage);
-      display.println(" V");
-      break;
-    case 3:
-      display.println("Current:");
-      display.setTextSize(2);
-      display.print(current);
-      display.println(" A");
-      break;
-    case 4:
-      display.println("Power:");
-      display.setTextSize(2);
-      display.print(power);
-      display.println(" W");
-      break;
-    case 5:
-      display.println("Energy:");
-      display.setTextSize(2);
-      display.print(energy);
-      display.println(" kWh");
-      break;
-    case 6:
-      display.println("Frequency:");
-      display.setTextSize(2);
-      display.print(frequency);
-      display.println(" Hz");
-      break;
-    case 7:
-      display.println("Power Factor:");
-      display.setTextSize(2);
-      display.println(pf);
-      break;
-    case 8:
-      display.println("Relay State:");
-      display.setTextSize(2);
-      display.println(relayState ? "ON" : "OFF");
-      break;
-  }
-  display.display();
-}
-
-// --- Button Handling Functions ---
-void checkButtons() {
-  // WiFi Reset Button
-  static unsigned long wifiResetPressStartTime = 0;
-  static bool wifiResetButtonHeld = false;
-  static int lastWifiResetButtonState = HIGH;
-  int wifiResetReading = digitalRead(WIFI_RESET_BUTTON_PIN);
-
-  if (wifiResetReading != lastWifiResetButtonState) {
-    if (millis() - lastButtonPressTime > debounceDelay) {
-      if (wifiResetReading == LOW) {
-        wifiResetPressStartTime = millis();
-      } else {
-        wifiResetPressStartTime = 0;
-        wifiResetButtonHeld = false;
-      }
-    }
-    lastWifiResetButtonState = wifiResetReading;
-    lastButtonPressTime = millis();
-  }
-
-  if (wifiResetReading == LOW && !wifiResetButtonHeld) {
-    if (millis() - wifiResetPressStartTime >= LONG_PRESS_DURATION_MS) {
-      wifiResetButtonHeld = true;
-      display.clearDisplay();
-      display.setCursor(0,0);
-      display.println("Long press detected!");
-      display.println("Factory Resetting...");
-      display.display();
-      delay(2000); // Display the message for a clear duration
-      clearEEPROMConfig();
-      // Directly transition to AP mode without a restart
-      WiFi.disconnect(true);
-      delay(100);
-      setupAPMode();
-    }
-  }
-
-  // Relay Control Button
-  static int lastRelayButtonState = HIGH;
-  int relayReading = digitalRead(RELAY_CONTROL_BUTTON_PIN);
-  if (relayReading != lastRelayButtonState) {
-    if (millis() - relayButtonLastDebounceTime > debounceDelay) {
-      if (relayReading == LOW) {
-        bool currentState = digitalRead(RELAY_PIN);
-        setRelayState(!currentState);
-      }
-      relayButtonLastDebounceTime = millis();
-    }
-    lastRelayButtonState = relayReading;
-  }
-
-  // Read Value Swipe Button
-  static int lastSwipeButtonState = HIGH;
-  int swipeReading = digitalRead(READ_SWIPE_BUTTON_PIN);
-  if (swipeReading != lastSwipeButtonState) {
-    if (millis() - swipeButtonLastDebounceTime > debounceDelay) {
-      if (swipeReading == LOW) {
-        readSwipeCounter++;
-        if (readSwipeCounter > 8) readSwipeCounter = 0;
-        lastDisplayUpdateTime = millis(); // Reset auto-swipe timer
-      }
-      swipeButtonLastDebounceTime = millis();
-    }
-    lastSwipeButtonState = swipeReading;
-  }
-}
-
-// --- Other existing functions (loadConfig, saveConfig, etc.) ---
-
-void loadConfig() {
-  EEPROM.get(0, deviceConfig);
-}
-
-void saveConfig() {
-  EEPROM.put(0, deviceConfig);
-  EEPROM.commit();
-}
-
-void clearEEPROMConfig() {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("Clearing Config...");
-  display.display();
-  delay(1000);
-  EEPROM.begin(sizeof(DeviceConfig));
-  for (unsigned int i = 0; i < sizeof(DeviceConfig); i++) {
-    EEPROM.write(i, 0);
-  }
-  EEPROM.commit();
-}
-
-void sendSensorData() {
-  // This is a placeholder for the actual HTTP request to a Django server.
-  // The original functionality is kept.
-  HTTPClient http;
-  WiFiClient client; // Create a WiFiClient object
-  String serverPath = String("http://") + DJANGO_SERVER_DOMAIN + DEVICE_DATA_ENDPOINT;
-  http.begin(client, serverPath); // Use the updated begin function
-  http.addHeader("Content-Type", "application/json");
-
-  StaticJsonDocument<200> doc;
-  doc["device_api_key"] = deviceConfig.device_api_key;
-  doc["voltage"] = pzem.voltage();
-  doc["current"] = pzem.current();
-  doc["power"] = pzem.power();
-  doc["energy"] = pzem.energy();
-  doc["frequency"] = pzem.frequency();
-  doc["power_factor"] = pzem.pf();
-
-  String httpRequestData;
-  serializeJson(doc, httpRequestData);
-
-  int httpResponseCode = http.POST(httpRequestData);
-
-  if (httpResponseCode > 0) {
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
-  } else {
-    Serial.print("Error code: ");
-    Serial.println(httpResponseCode);
-  }
-  http.end();
-}
-
-void checkCommands() {
-  // This is a placeholder for the actual command check.
-  // The original functionality is kept.
-  if (WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    WiFiClient client; // Create a WiFiClient object
-    String serverPath = String("http://") + DJANGO_SERVER_DOMAIN + DEVICE_COMMAND_ENDPOINT + String("?device_api_key=") + deviceConfig.device_api_key;
-    http.begin(client, serverPath); // Use the updated begin function
-    int httpResponseCode = http.GET();
-
-    if (httpResponseCode > 0) {
-      String payload = http.getString();
-      StaticJsonDocument<200> doc;
-      deserializeJson(doc, payload);
-
-      bool relay_state = doc["relay_state"];
-      setRelayState(relay_state);
-
-    } else {
-      Serial.print("Error code: ");
-      Serial.println(httpResponseCode);
-    }
-    http.end();
-  }
-}
-
-void setRelayState(bool state) {
-  // Relays are often active LOW, so HIGH means OFF.
-  // Adjust this based on your specific relay module.
-  digitalWrite(RELAY_PIN, state ? HIGH : LOW);
-}
-
-void setupAPMode() {
-  Serial.println("Setting up AP Mode...");
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("AP Mode Setup...");
-  display.display();
-
-  String ap_ssid = "IoTSetup-" + WiFi.macAddress().substring(9);
-  WiFi.softAP(ap_ssid.c_str());
-
-  dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
-  webServer.on("/", handleRoot);
-  webServer.on("/save", handleSave);
-  webServer.onNotFound(handleNotFound);
-  webServer.begin();
-
-  Serial.println("AP SSID: " + ap_ssid);
-  Serial.println("AP IP: " + WiFi.softAPIP().toString());
-}
-
-void handleRoot() {
-  webServer.send(200, "text/html", CONFIG_PORTAL_HTML);
-}
 
 void handleSave() {
-  if (webServer.hasArg("ssid") && webServer.hasArg("password")) {
-    String ssid = webServer.arg("ssid");
+  String ssidToSave;
+  if (webServer.hasArg("manual_ssid") && webServer.arg("manual_ssid").length() > 0) {
+    ssidToSave = webServer.arg("manual_ssid");
+  } else if (webServer.hasArg("ssid")) {
+    ssidToSave = webServer.arg("ssid");
+  }
+
+  if (!ssidToSave.isEmpty() && webServer.hasArg("password")) {
     String password = webServer.arg("password");
-    ssid.toCharArray(deviceConfig.wifi_ssid, 64);
+    ssidToSave.toCharArray(deviceConfig.wifi_ssid, 64);
     password.toCharArray(deviceConfig.wifi_password, 64);
     deviceConfig.configured = true;
     saveConfig();
@@ -734,7 +838,7 @@ void handleSave() {
     webServer.send(200, "text/plain", "Configuration saved! Attempting to connect to new Wi-Fi...");
     delay(100);
   } else {
-    webServer.send(400, "text/plain", "Invalid request");
+    webServer.send(400, "text/plain", "Invalid request: SSID or password missing.");
   }
 }
 

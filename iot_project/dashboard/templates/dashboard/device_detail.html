@@ -312,7 +312,12 @@
                 <p><strong>API Key:</strong> <code class="text-info">{{ device.device_api_key }}</code></p>
                 <p><strong>Location:</strong> {{ device.location|default:"Not set" }}</p>
                 <p><strong>Status:</strong>
-                    {% if device.is_online and device.last_seen and 'minute' in device.last_seen|timesince:"now" and 'hour' not in device.last_seen|timesince:"now" %}<span class="badge bg-success">Online</span>{% else %}<span class="badge bg-danger">Offline</span>{% endif %}
+                    {# Ensure device.is_online and device.last_seen are reliable from Django view #}
+                    {% if device.is_online and device.last_seen and device.last_seen|timesince:"now"|length < 10 %} {# Simplified check for "recently online" #}
+                        <span class="badge bg-success">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger">Offline</span>
+                    {% endif %}
                 </p>
                 <p><strong>Last Seen:</strong> {{ device.last_seen|default:"N/A" }}</p>
             </div>
@@ -397,23 +402,25 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {# IMPORTANT: Your Django view MUST parse data_entry.data into a Python dictionary #}
+                            {# Example: data_entry.parsed_data = json.loads(data_entry.data) #}
                             {% for data_entry in sensor_data_entries %}
                             <tr>
                                 <td>{{ data_entry.timestamp|date:"Y-m-d H:i:s" }}</td>
                                 {% if device.device_type == 'power_monitor' %}
-                                <td>{{ data_entry.data.voltage|floatformat:2 }}</td>
-                                <td>{{ data_entry.data.current|floatformat:2 }}</td>
-                                <td>{{ data_entry.data.power|floatformat:2 }}</td>
-                                <td>{{ data_entry.data.energy|floatformat:2 }}</td>
-                                <td>{{ data_entry.data.frequency|floatformat:2 }}</td>
-                                <td>{{ data_entry.data.pf|floatformat:2 }}</td>
+                                <td>{{ data_entry.parsed_data.voltage|floatformat:2 }}</td> {# Changed to .parsed_data #}
+                                <td>{{ data_entry.parsed_data.current|floatformat:2 }}</td> {# Changed to .parsed_data #}
+                                <td>{{ data_entry.parsed_data.power|floatformat:2 }}</td> {# Changed to .parsed_data #}
+                                <td>{{ data_entry.parsed_data.energy|floatformat:2 }}</td> {# Changed to .parsed_data #}
+                                <td>{{ data_entry.parsed_data.frequency|floatformat:2 }}</td> {# Changed to .parsed_data #}
+                                <td>{{ data_entry.parsed_data.power_factor|floatformat:2 }}</td> {# Changed to .parsed_data #}
                                 <td><span
-                                        class="badge {% if data_entry.data.relay_state == 'ON' %}bg-success{% else %}bg-danger{% endif %}">{{
-                                        data_entry.data.relay_state }}</span></td>
+                                        class="badge {% if data_entry.parsed_data.relay_state %}bg-success{% else %}bg-danger{% endif %}">{{
+                                        data_entry.parsed_data.relay_state|yesno:"ON,OFF" }}</span></td> {# Changed to .parsed_data and used yesno #}
                                 {% elif device.device_type == 'water_level' %}
-                                <td>{{ data_entry.data.water_level|floatformat:2 }}</td>
+                                <td>{{ data_entry.parsed_data.water_level|floatformat:2 }}</td> {# Changed to .parsed_data #}
                                 {% else %}
-                                <td>{{ data_entry.data|pprint }}</td>
+                                <td>{{ data_entry.parsed_data|pprint }}</td> {# Changed to .parsed_data #}
                                 {% endif %}
                             </tr>
                             {% empty %}
@@ -445,7 +452,7 @@
         const controlFeedback = document.getElementById('controlFeedback');
 
         commandInput.value = commandType;
-        parametersInput.value = JSON.stringify({ state: state });
+        parametersInput.value = JSON.stringify({ relay_state: (state === 'ON') }); // Ensure boolean for relay_state
 
         const form = document.getElementById('controlForm');
         const formData = new FormData(form);
@@ -486,15 +493,16 @@
         }
     }
 
-    // Chart.js initialization
+    // Chart.js initialization and data parsing
     document.addEventListener('DOMContentLoaded', function () {
         // Get sensor data directly from the Django context
-        // Ensure 'sensor_data_entries' is passed as a JSON string from your Django view
+        // sensor_data_entries is expected to be a JSON string here, so parse it.
         const sensorDataEntriesElement = document.getElementById('sensor-data-entries-json');
-        let sensorDataEntries = [];
+        let sensorDataFromDjango = [];
         if (sensorDataEntriesElement) {
             try {
-                sensorDataEntries = JSON.parse(sensorDataEntriesElement.textContent);
+                // Parse the JSON string from the hidden script tag
+                sensorDataFromDjango = JSON.parse(sensorDataEntriesElement.textContent);
             } catch (e) {
                 console.error("Error parsing sensor_data_entries JSON:", e);
             }
@@ -502,89 +510,133 @@
 
         const deviceType = '{{ device.device_type }}';
 
-        if (deviceType === 'power_monitor' && chartLabels.length && chartData && chartData.power) {
-    const ctx = document.getElementById('powerChart')?.getContext('2d');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartLabels,
-                datasets: [
-                    {
-                        label: 'Power (W)',
-                        data: chartData.power,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1,
-                        fill: false
-                    },
-                    {
-                        label: 'Voltage (V)',
-                        data: chartData.voltage,
-                        borderColor: 'rgb(255, 99, 132)',
-                        tension: 0.1,
-                        fill: false
-                    },
-                    {
-                        label: 'Current (A)',
-                        data: chartData.current,
-                        borderColor: 'rgb(54, 162, 235)',
-                        tension: 0.1,
-                        fill: false
-                    },
-                    {
-                        label: 'Frequency (Hz)',
-                        data: chartData.frequency,
-                        borderColor: 'rgb(255, 205, 86)',
-                        tension: 0.1,
-                        fill: false
-                    },
-                    {
-                        label: 'Power Factor',
-                        data: chartData.pf,
-                        borderColor: 'rgb(153, 102, 255)',
-                        tension: 0.1,
-                        fill: false
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Time',
-                            color: '#e0e0e0'
-                        },
-                        ticks: { color: '#a0aec0' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Value',
-                            color: '#e0e0e0'
-                        },
-                        ticks: { color: '#a0aec0' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                    }
-                },
-                plugins: {
-                    legend: { labels: { color: '#e0e0e0' } },
-                    tooltip: {
-                        backgroundColor: 'rgba(44, 62, 80, 0.8)',
-                        titleColor: '#e0e0e0',
-                        bodyColor: '#e0e0e0'
-                    }
-                }
-            }
-        });
-    }
-}
+        // Prepare data for Chart.js
+        const chartLabels = [];
+        const chartData = {
+            power: [],
+            voltage: [],
+            current: [],
+            energy: [],
+            frequency: [],
+            pf: []
+            // Add other data types as needed for different device types
+        };
 
+        // Populate chart data, ensuring 'data' within each entry is parsed
+        sensorDataFromDjango.forEach(entry => {
+            chartLabels.push(new Date(entry.timestamp).toLocaleTimeString()); // Format time for labels
+            let parsedData = {};
+            try {
+                // Ensure data.data is parsed, as it's a JSON string
+                parsedData = JSON.parse(entry.data); 
+            } catch (e) {
+                console.error("Error parsing individual sensor data entry JSON:", e);
+            }
+            
+            if (deviceType === 'power_monitor') {
+                chartData.power.push(parsedData.power);
+                chartData.voltage.push(parsedData.voltage);
+                chartData.current.push(parsedData.current);
+                chartData.energy.push(parsedData.energy);
+                chartData.frequency.push(parsedData.frequency);
+                chartData.pf.push(parsedData.power_factor);
+            }
+            // Add else if for other device types like water_level
+            // else if (deviceType === 'water_level') {
+            //     chartData.water_level.push(parsedData.water_level);
+            // }
+        });
+
+        // Initialize Charts
+        if (deviceType === 'power_monitor' && chartLabels.length > 0) {
+            const ctx = document.getElementById('powerChart')?.getContext('2d');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [
+                            {
+                                label: 'Power (W)',
+                                data: chartData.power,
+                                borderColor: 'rgb(75, 192, 192)',
+                                tension: 0.1,
+                                fill: false
+                            },
+                            {
+                                label: 'Voltage (V)',
+                                data: chartData.voltage,
+                                borderColor: 'rgb(255, 99, 132)',
+                                tension: 0.1,
+                                fill: false
+                            },
+                            {
+                                label: 'Current (A)',
+                                data: chartData.current,
+                                borderColor: 'rgb(54, 162, 235)',
+                                tension: 0.1,
+                                fill: false
+                            },
+                            {
+                                label: 'Energy (kWh)',
+                                data: chartData.energy,
+                                borderColor: 'rgb(201, 203, 207)',
+                                tension: 0.1,
+                                fill: false
+                            },
+                            {
+                                label: 'Frequency (Hz)',
+                                data: chartData.frequency,
+                                borderColor: 'rgb(255, 205, 86)',
+                                tension: 0.1,
+                                fill: false
+                            },
+                            {
+                                label: 'Power Factor',
+                                data: chartData.pf,
+                                borderColor: 'rgb(153, 102, 255)',
+                                tension: 0.1,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Time',
+                                    color: '#e0e0e0'
+                                },
+                                ticks: { color: '#a0aec0' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Value',
+                                    color: '#e0e0e0'
+                                },
+                                ticks: { color: '#a0aec0' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#e0e0e0' } },
+                            tooltip: {
+                                backgroundColor: 'rgba(44, 62, 80, 0.8)',
+                                titleColor: '#e0e0e0',
+                                bodyColor: '#e0e0e0'
+                            }
+                        }
+                    }
+                });
+            }
+        }
         // Add else if for other device types to initialize their specific charts
-        // else if (deviceType === 'water_level') { ... }
+        // else if (deviceType === 'water_level' && chartLabels.length > 0) { ... }
     });
 </script>
 
