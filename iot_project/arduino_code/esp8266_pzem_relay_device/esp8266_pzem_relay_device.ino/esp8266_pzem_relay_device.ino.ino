@@ -41,7 +41,7 @@ ESP8266WebServer webServer(80);
 // --- Sensor & Actuator Pin Definitions ---
 #define PZEM_RX_PIN D5  // GPIO14
 #define PZEM_TX_PIN D6  // GPIO12
-#define RELAY_PIN D8    // GPIO15 (Note: D8 is active LOW on boot)
+#define RELAY_PIN D0    // GPIO16 (Note: D0 is active HIGH on boot, so it's a good choice for active-low relay)
 
 // --- Button Pin Definitions ---
 #define WIFI_RESET_BUTTON_PIN D7 // GPIO13
@@ -62,12 +62,18 @@ const unsigned long LONG_PRESS_DURATION_MS = 5000;
 const long DISPLAY_UPDATE_INTERVAL = 3000; // 3 seconds to auto-swipe display
 
 // --- Button State Variables ---
-unsigned long lastButtonPressTime = 0;
-bool wifiResetButtonHandled = false;
+// Note: Each button now has its own debounce timer for robust handling
+unsigned long wifiResetButtonLastDebounceTime = 0;
 unsigned long swipeButtonLastDebounceTime = 0;
 unsigned long relayButtonLastDebounceTime = 0;
-const unsigned long debounceDelay = 50;
-int readSwipeCounter = 0; // To cycle through display values
+const unsigned long debounceDelay = 50; // Milliseconds for debounce
+
+// State tracking for long press of WiFi Reset button
+bool wifiResetButtonHeld = false;
+unsigned long wifiResetPressStartTime = 0;
+
+// Counter for display swipe
+int readSwipeCounter = 0; 
 
 // --- Display State Variables ---
 unsigned long lastDisplayUpdateTime = 0;
@@ -83,7 +89,7 @@ void saveConfig();
 void clearEEPROMConfig();
 void sendSensorData();
 void checkCommands();
-void setRelayState(bool state);
+void setRelayState(bool state); // Keep the prototype here.
 void setupAPMode();
 void handleRoot();
 void handleSave();
@@ -94,6 +100,14 @@ void displayConnecting(const char* ssid, int frame);
 void displayData();
 void checkButtons();
 void attemptConnect(); // New function prototype
+
+// --- setRelayState Function Definition (MOVED HERE to resolve 'undefined reference' errors) ---
+void setRelayState(bool state) {
+  // Relay is active LOW, so 'true' (ON) means digitalWrite(LOW), 'false' (OFF) means digitalWrite(HIGH).
+  digitalWrite(RELAY_PIN, state ? LOW : HIGH); 
+  Serial.print("Setting relay state to: ");
+  Serial.println(state ? "ON (LOW)" : "OFF (HIGH)");
+}
 
 // --- Setup Function ---
 void setup() {
@@ -108,14 +122,24 @@ void setup() {
   loadConfig();
 
   // Initialize all button pins with pull-ups
+  // INPUT_PULLUP means the pin will be HIGH when button is NOT pressed, LOW when pressed
   pinMode(WIFI_RESET_BUTTON_PIN, INPUT_PULLUP);
   pinMode(READ_SWIPE_BUTTON_PIN, INPUT_PULLUP);
   pinMode(RELAY_CONTROL_BUTTON_PIN, INPUT_PULLUP);
   pinMode(RELAY_PIN, OUTPUT); // Configure relay pin as output
 
+  // Debugging: Print initial button pin states
+  Serial.print("Initial WIFI_RESET_BUTTON_PIN (D7) state: "); Serial.println(digitalRead(WIFI_RESET_BUTTON_PIN));
+  Serial.print("Initial READ_SWIPE_BUTTON_PIN (D3) state: "); Serial.println(digitalRead(READ_SWIPE_BUTTON_PIN));
+  Serial.print("Initial RELAY_CONTROL_BUTTON_PIN (D4) state: "); Serial.println(digitalRead(RELAY_CONTROL_BUTTON_PIN));
+
+
+  // Initial state for relay: OFF (HIGH for active-low relay)
+  setRelayState(false); // This call is now after the function definition.
+
   // Check for long press on WiFi Reset button during boot
-  // This will clear the config and immediately enter AP mode
-  delay(100); // Small delay to allow button state to settle after power-on
+  // This allows factory reset by holding the button during power-on
+  delay(100); 
   if (digitalRead(WIFI_RESET_BUTTON_PIN) == LOW) {
     unsigned long bootButtonPressTime = millis();
     while (digitalRead(WIFI_RESET_BUTTON_PIN) == LOW && (millis() - bootButtonPressTime < LONG_PRESS_DURATION_MS)) {
@@ -133,7 +157,7 @@ void setup() {
       delay(2000);
       clearEEPROMConfig();
       setupAPMode();
-      return; // Exit setup() to prevent further execution
+      return; 
     }
   }
 
@@ -152,9 +176,8 @@ void setup() {
     saveConfig();
   }
 
-  // Initialize PZEM and Relay pin
+  // Initialize PZEM
   pzemSerial.begin(9600);
-  setRelayState(false); // Ensure relay is off by default
 
   // Attempt to connect to saved WiFi or start AP mode
   if (deviceConfig.configured && strlen(deviceConfig.wifi_ssid) > 0) {
@@ -185,25 +208,31 @@ void setup() {
 
 // --- Loop Function ---
 void loop() {
+  // If a new WiFi connection attempt is pending from handleSave(), execute it
   if (shouldConnectToNewWifi) {
     attemptConnect();
   }
   
   if (WiFi.getMode() == WIFI_AP) {
+    // If in Access Point mode, handle web server and DNS
     dnsServer.processNextRequest();
     webServer.handleClient();
     displayAPModeInfo(); // Update the display in AP mode
   } else {
-    // STA (client) mode operations
+    // If in STA (client) mode, perform sensor readings and communication with backend
     static unsigned long lastSensorSendTime = 0;
     static unsigned long lastCommandCheckTime = 0;
-    checkButtons(); // Check for button presses
+    
+    // Always check buttons in STA mode
+    checkButtons(); 
 
+    // Send sensor data periodically
     if (millis() - lastSensorSendTime > SENSOR_SEND_INTERVAL) {
       sendSensorData();
       lastSensorSendTime = millis();
     }
 
+    // Check for pending commands periodically
     if (millis() - lastCommandCheckTime > COMMAND_CHECK_INTERVAL) {
       checkCommands();
       lastCommandCheckTime = millis();
@@ -212,12 +241,12 @@ void loop() {
     // Auto-swipe the display every 3 seconds
     if (millis() - lastDisplayUpdateTime > DISPLAY_UPDATE_INTERVAL) {
       readSwipeCounter++;
-      if (readSwipeCounter > 8) readSwipeCounter = 0;
+      if (readSwipeCounter > 8) readSwipeCounter = 0; // Cycle through 0-8
       lastDisplayUpdateTime = millis();
     }
-    displayData(); // Update the display with sensor data
+    displayData(); // Update the OLED display with sensor data
   }
-  delay(10);
+  delay(10); // Small delay to prevent watchdog timer resets
 }
 
 // --- Display-specific Functions ---
@@ -228,8 +257,8 @@ void setupDisplay() {
     isDisplayConnected = false;
   } else {
     isDisplayConnected = true;
-    display.display();
-    delay(2000);
+    display.display(); // Clear display buffer
+    delay(2000); // Pause for 2 seconds
     display.clearDisplay();
     display.setTextSize(1);
     display.setTextColor(SSD1306_WHITE);
@@ -240,7 +269,7 @@ void setupDisplay() {
 }
 
 void displayAPModeInfo() {
-  if (!isDisplayConnected) return;
+  if (!isDisplayConnected) return; // Don't try to draw if display isn't connected
   display.clearDisplay();
   display.setTextSize(1);
   display.setCursor(0, 0);
@@ -272,7 +301,7 @@ void displayConnecting(const char* ssid, int frame) {
 
 void displayData() {
   if (!isDisplayConnected) return;
-  // Get fresh sensor data
+  // Get fresh sensor data readings from PZEM
   float voltage = pzem.voltage();
   float current = pzem.current();
   float power = pzem.power();
@@ -286,6 +315,7 @@ void displayData() {
   display.setTextSize(1);
   display.setCursor(0, 0);
 
+  // Cycle through different data displays based on readSwipeCounter
   switch (readSwipeCounter) {
     case 0:
       // Welcome message with a placeholder username.
@@ -342,82 +372,100 @@ void displayData() {
 
 // --- Button Handling Functions ---
 void checkButtons() {
-  // WiFi Reset Button
-  static unsigned long wifiResetPressStartTime = 0;
-  static bool wifiResetButtonHeld = false;
-  static int lastWifiResetButtonState = HIGH;
+  unsigned long currentMillis = millis(); // Get current time once for all buttons
+
+  // --- WiFi Reset Button (Long Press for Factory Reset) ---
+  static int lastWifiResetButtonState = HIGH; 
   int wifiResetReading = digitalRead(WIFI_RESET_BUTTON_PIN);
 
-  // Debounce logic for WiFi Reset button
+  // Check if button state has changed for debouncing
   if (wifiResetReading != lastWifiResetButtonState) {
-    if (millis() - lastButtonPressTime > debounceDelay) {
-      if (wifiResetReading == LOW) { // Button just pressed
-        wifiResetPressStartTime = millis();
-      } else { // Button just released
-        wifiResetPressStartTime = 0;
-        wifiResetButtonHeld = false; // Reset held flag on release
-      }
+    wifiResetButtonLastDebounceTime = currentMillis; 
+  }
+
+  // Check if debounce time has passed and update last state if stable
+  if ((currentMillis - wifiResetButtonLastDebounceTime) > debounceDelay) {
+    if (wifiResetReading != lastWifiResetButtonState) { // Only update if actual state differs after debounce
       lastWifiResetButtonState = wifiResetReading;
-      lastButtonPressTime = millis(); // Update last debounce time
+
+      if (lastWifiResetButtonState == LOW) { // Button just pressed (stable LOW)
+        wifiResetPressStartTime = currentMillis;
+        wifiResetButtonHeld = false;
+      } else { // Button just released (stable HIGH)
+        wifiResetPressStartTime = 0;
+        wifiResetButtonHeld = false;
+      }
     }
   }
 
-  // Check for long press of WiFi Reset button
-  if (wifiResetReading == LOW && !wifiResetButtonHeld) {
-    if (millis() - wifiResetPressStartTime >= LONG_PRESS_DURATION_MS) {
-      wifiResetButtonHeld = true; // Mark as handled
+  // Check for long press ONLY if button is currently LOW and hasn't been handled yet
+  // Using digitalRead directly here to check current physical state, not debounced state.
+  if (digitalRead(WIFI_RESET_BUTTON_PIN) == LOW && !wifiResetButtonHeld) { 
+    if ((currentMillis - wifiResetPressStartTime) >= LONG_PRESS_DURATION_MS && wifiResetPressStartTime != 0) {
+      wifiResetButtonHeld = true;
+      Serial.println("\nLong press detected! Entering AP mode for Wi-Fi reconfiguration.");
       display.clearDisplay();
       display.setCursor(0,0);
       display.println("Long press detected!");
       display.println("Factory Resetting...");
       display.display();
-      delay(2000); // Display the message for a clear duration
+      delay(2000); 
       clearEEPROMConfig();
-      // Directly transition to AP mode without a restart
-      WiFi.disconnect(true); // Disconnect from current WiFi if connected
-      delay(100);
-      setupAPMode(); // Set up Access Point mode
+      WiFi.disconnect(true);
+      delay(100); 
+      setupAPMode();
     }
   }
 
-  // Relay Control Button
-  static unsigned long relayButtonLastDebounceTime = 0; 
+  // --- Relay Control Button ---
   static int lastRelayButtonState = HIGH; 
   int relayReading = digitalRead(RELAY_CONTROL_BUTTON_PIN);
 
-  // Check for state change and debounce
+  // Check if button state has changed for debouncing
   if (relayReading != lastRelayButtonState) {
-    relayButtonLastDebounceTime = millis(); // Reset debounce timer
+    relayButtonLastDebounceTime = currentMillis; 
   }
 
-  if ((millis() - relayButtonLastDebounceTime) > debounceDelay) {
-    // Only act if the button state has been stable for debounceDelay
-    if (relayReading == LOW && lastRelayButtonState == HIGH) { // Button pressed (HIGH to LOW transition)
-      bool currentState = (digitalRead(RELAY_PIN) == LOW); // Get current logical state (true if ON)
-      setRelayState(!currentState); // Toggle the state
+  // Check if debounce time has passed and update last state if stable
+  if ((currentMillis - relayButtonLastDebounceTime) > debounceDelay) {
+    if (relayReading != lastRelayButtonState) { // Only update if actual state differs after debounce
+      lastRelayButtonState = relayReading;
+      if (lastRelayButtonState == LOW) { // Button just pressed (stable LOW)
+        bool currentState = (digitalRead(RELAY_PIN) == LOW); 
+        setRelayState(!currentState);
+        Serial.print("Relay Toggled: ");
+        Serial.println(digitalRead(RELAY_PIN) == LOW ? "ON" : "OFF");
+      }
     }
   }
-  lastRelayButtonState = relayReading; // Save the current state for the next loop
   
-  // Read Value Swipe Button
-  static unsigned long swipeButtonLastDebounceTime = 0; 
+  // --- Read Value Swipe Button ---
   static int lastSwipeButtonState = HIGH; 
   int swipeReading = digitalRead(READ_SWIPE_BUTTON_PIN);
 
-  // Check for state change and debounce
+  // Debugging: Print raw button state
+  Serial.print("SWIPE Raw Read (D3): ");
+  Serial.println(swipeReading);
+
+  // Check if button state has changed for debouncing
   if (swipeReading != lastSwipeButtonState) {
-    swipeButtonLastDebounceTime = millis(); // Reset debounce timer
+    swipeButtonLastDebounceTime = currentMillis;
+    Serial.println("SWIPE State Change Detected (Raw)");
   }
 
-  if ((millis() - swipeButtonLastDebounceTime) > debounceDelay) {
-    // Only act if the button state has been stable for debounceDelay
-    if (swipeReading == LOW && lastSwipeButtonState == HIGH) { // Button pressed (HIGH to LOW transition)
-      readSwipeCounter++;
-      if (readSwipeCounter > 8) readSwipeCounter = 0;
-      lastDisplayUpdateTime = millis(); // Reset auto-swipe timer
+  // Check if debounce time has passed and update last state if stable
+  if ((currentMillis - swipeButtonLastDebounceTime) > debounceDelay) {
+    if (swipeReading != lastSwipeButtonState) { // Only update if actual state differs after debounce
+      lastSwipeButtonState = swipeReading; // Update last state ONLY when stable
+      if (lastSwipeButtonState == LOW) { // Stable button press (LOW)
+        readSwipeCounter++;
+        if (readSwipeCounter > 8) readSwipeCounter = 0; // Cycle counter
+        lastDisplayUpdateTime = currentMillis;
+        Serial.print("SWIPE Action Triggered! Counter: ");
+        Serial.println(readSwipeCounter);
+      }
     }
   }
-  lastSwipeButtonState = swipeReading; // Save the current state for the next loop
 }
 
 // --- Other existing functions (loadConfig, saveConfig, etc.) ---
@@ -468,6 +516,8 @@ void sendSensorData() {
   sensor_data_obj["energy"] = pzem.energy();
   sensor_data_obj["frequency"] = pzem.frequency();
   sensor_data_obj["power_factor"] = pzem.pf();
+  // Include relay state in sensor data
+  sensor_data_obj["relay_state"] = (digitalRead(RELAY_PIN) == LOW); // true if ON, false if OFF
 
   String httpRequestData;
   serializeJson(doc, httpRequestData);
@@ -502,8 +552,8 @@ void checkCommands() {
 
     if (httpResponseCode > 0) {
       String payload = http.getString();
-      Serial.print("Received command payload: "); // Add this line
-      Serial.println(payload); // Add this line to print the raw payload
+      Serial.print("Received command payload: "); 
+      Serial.println(payload); 
 
       StaticJsonDocument<200> doc;
       DeserializationError error = deserializeJson(doc, payload);
@@ -511,7 +561,7 @@ void checkCommands() {
       if (error) {
         Serial.print(F("deserializeJson() failed for commands: "));
         Serial.println(error.f_str());
-        return; // Exit if JSON is invalid
+        return; 
       }
 
       if (doc.containsKey("command") && doc["command"].as<String>() == "no_command") {
@@ -524,6 +574,7 @@ void checkCommands() {
         if (command_type == "set_relay_state" && doc.containsKey("parameters")) {
           JsonObject params = doc["parameters"].as<JsonObject>();
           if (params.containsKey("relay_state")) {
+            // Read as boolean. Ensure backend sends true/false.
             bool relay_state = params["relay_state"].as<bool>();
             setRelayState(relay_state);
           } else {
@@ -545,14 +596,6 @@ void checkCommands() {
     }
     http.end();
   }
-}
-
-void setRelayState(bool state) {
-  // Relays are active LOW, so 'state' (true for ON, false for OFF)
-  // maps to LOW (ON) or HIGH (OFF) for the digital output.
-  digitalWrite(RELAY_PIN, state ? LOW : HIGH); // Changed HIGH to LOW and LOW to HIGH
-  Serial.print("Setting relay state to: ");
-  Serial.println(state ? "ON (LOW)" : "OFF (HIGH)");
 }
 
 void setupAPMode() {
@@ -749,7 +792,7 @@ void handleRoot() {
         <form action="/save" method="post">
             <label for="ssid">Select Network:</label>
             <select id="ssid" name="ssid">
-    )rawliteral" ;
+    )" ;
 
   // Scan for WiFi networks
   int n = WiFi.scanNetworks();
@@ -803,7 +846,7 @@ void handleRoot() {
                     ssidSelect.name = ''; // Disable the select field
                     manualSsidInput.name = 'ssid'; // Enable manual input as the SSID source
                 } else {
-                    manualSsidInput.name = ''; // Disable manual input
+                    manualSuldInput.name = ''; // Disable manual input
                     ssidSelect.name = 'ssid'; // Enable select as the SSID source
                 }
             });
