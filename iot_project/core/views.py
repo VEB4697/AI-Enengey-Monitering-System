@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CustomUserCreationForm
 import requests
 from django.contrib.auth.forms import AuthenticationForm
@@ -11,7 +11,6 @@ from .models import Device
 from django.utils import timezone
 from django.contrib import messages
 from .forms import CustomUserChangeForm
-from django.shortcuts import redirect
 
 
 @login_required
