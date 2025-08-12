@@ -142,18 +142,21 @@ def logout_user(request):
 def device_onboarding_view(request):
     if request.method == 'POST':
         device_api_key = request.POST.get('device_api_key')
+        URL = '192.168.0.116'
         
         if not device_api_key:
             messages.error(request, "Please enter a Device API Key.", extra_tags='device_onboarding')
             return redirect('device_onboarding')
         
         try:
-            api_url = f"http://127.0.0.1:8000/api/v1/device/onboard-check/?device_api_key={device_api_key}"
+
+            api_url = f"http://{URL}:8000/api/v1/device/onboard-check/?device_api_key={device_api_key}"
             response = requests.get(api_url)
             data = response.json()
 
             if response.status_code == 200:
                 messages.success(request, f"Device '{data.get('device_name')}' is online and available for registration!", extra_tags='device_onboarding')
+
             elif response.status_code == 409:
                 messages.info(request, "API key is already registered.", extra_tags='device_onboarding')
             elif response.status_code == 412:
