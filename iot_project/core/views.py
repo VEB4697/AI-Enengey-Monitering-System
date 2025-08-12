@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CustomUserCreationForm
 import requests
 from django.contrib.auth.forms import AuthenticationForm
@@ -140,37 +140,34 @@ def logout_user(request):
     return redirect('homepage')
 
 def device_onboarding_view(request):
-    message = None
     if request.method == 'POST':
         device_api_key = request.POST.get('device_api_key')
+        URL = '192.168.0.116'
         
-        if device_api_key:
-            try:
-                # The API endpoint is the same
-                api_url = f"http://127.0.0.1:8000/api/v1/device/onboard-check/?device_api_key={device_api_key}"
-                response = requests.get(api_url)
-                data = response.json()
+        if not device_api_key:
+            messages.error(request, "Please enter a Device API Key.", extra_tags='device_onboarding')
+            return redirect('device_onboarding')
+        
+        try:
+            api_url = f"http://{URL}:8000/api/v1/device/onboard-check/?device_api_key={device_api_key}"
+            response = requests.get(api_url)
+            data = response.json()
 
-                if response.status_code == 200:
-                    message = f"Device '{data.get('device_name')}' is available for registration!"
-                elif response.status_code == 409:
-                    message = data.get('message', 'This device is already registered.')
-                elif response.status_code == 412:
-                    message = data.get('message', 'Device is offline. Please check its connection.')
-                elif response.status_code == 404:
-                    message = data.get('message', 'Invalid Device API Key.')
-                else:
-                    message = data.get('message', 'An unexpected error occurred.')
+            if response.status_code == 200:
+                messages.success(request, f"Device '{data.get('device_name')}' is online and available for registration!", extra_tags='device_onboarding')
+            elif response.status_code == 412:
+                messages.warning(request, data.get('message', 'Device is offline. Please check its connection.'), extra_tags='device_onboarding')
+            elif response.status_code == 404:
+                messages.error(request, data.get('message', 'API key is not registered.'), extra_tags='device_onboarding')
+            else:
+                messages.error(request, data.get('message', 'An unexpected error occurred.'), extra_tags='device_onboarding')
 
-            except requests.exceptions.RequestException:
-                message = "Network error. The server is unreachable."
-        else:
-            message = "Please enter a Device API Key."
-            
-    context = {
-        'message': message,
-    }
-    return render(request, 'core/device_onboarding.html', context)
+        except requests.exceptions.RequestException:
+            messages.error(request, "Network error. The server is unreachable.", extra_tags='device_onboarding')
+
+        return redirect('device_onboarding')
+    
+    return render(request, 'core/device_onboarding.html')
 
 @login_required
 def add_device_to_user(request):

@@ -352,7 +352,7 @@
                 //   "device": { "id": 1, "is_online": true, "last_seen": "2025-08-10T22:30:00Z", "device_type": "power_monitor" },
                 //   "latest_data": { "power": 123.4, "voltage": 240.5, "relay_state": true }
                 // }
-                fetch(`/api/v1/devices/${deviceId}/latest_data/`)
+                fetch(`/api/v1/device/${deviceId}/latest_data/`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');

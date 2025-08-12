@@ -51,9 +51,9 @@ ESP8266WebServer webServer(80);
 // --- Global Objects ---
 SoftwareSerial pzemSerial(PZEM_RX_PIN, PZEM_TX_PIN);
 PZEM004Tv30 pzem(pzemSerial);
+const char* DJANGO_SERVER_DOMAIN = "192.168.0.116:8000";
 
 // --- Constants ---
-const char* DJANGO_SERVER_DOMAIN = "192.168.0.116:8000";
 const char* DEVICE_DATA_ENDPOINT = "/api/v1/device/data/";
 const char* DEVICE_COMMAND_ENDPOINT = "/api/v1/device/commands/";
 const long SENSOR_SEND_INTERVAL = 4000; // Increased interval for stable comms

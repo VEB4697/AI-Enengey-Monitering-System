@@ -544,15 +544,36 @@
         }
     }
 
-    /* Specific alert styles for feedback messages */
+    /* Specific alert styles for feedback messages - ENHANCED */
     .alert-custom {
-        padding: 0.75rem 1rem;
+        padding: 1rem 1.5rem;
+        /* Increased padding */
         margin-bottom: 1rem;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
+        border-radius: 0.75rem;
+        /* More rounded corners */
+        font-size: 0.95rem;
+        /* Slightly larger font */
         text-align: left;
+        position: relative;
+        overflow: hidden;
+        /* Combine transition for fade and transform for pop */
+        transition: opacity 0.4s ease-out, transform 0.4s ease-out, box-shadow 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        /* Soft shadow for card effect */
+        transform: translateY(-20px);
+        /* Initial hidden state, slightly above */
+        opacity: 0;
+        /* Initial hidden state */
     }
 
+    /* State when alert is shown */
+    .alert-custom.show {
+        opacity: 1;
+        transform: translateY(0);
+        /* Pops into place */
+    }
+
+    /* Applying background and border for each type */
     .alert-custom.alert-info {
         background-color: hsla(195, 100%, 50%, 0.2);
         color: var(--primary);
@@ -577,21 +598,113 @@
         border: 1px solid hsl(40, 100%, 60%);
     }
 
-    /* Adjustments for specific text elements */
-    .text-center.lead {
-        /* For the instruction paragraphs */
-        font-size: 1.05rem;
-        /* Slightly larger for readability */
-        line-height: 1.6;
+    .device-message {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        animation: fadeInDown 0.5s ease;
     }
 
-    .text-center code {
-        font-family: 'Space Mono', monospace;
-        /* A distinct monospace font for code snippets */
+    /* Red for error */
+    .device-message.error,
+    .device-message.danger {
+        background-color: #ff4d4f;
+        color: white;
+    }
+
+    /* Yellow for warning */
+    .device-message.warning {
+        background-color: #faad14;
+        color: black;
+    }
+
+    /* Green for success */
+    .device-message.success {
+        background-color: #52c41a;
+        color: white;
+    }
+
+    /* Blue for info */
+    .device-message.info {
+        background-color: #1890ff;
+        color: white;
+    }
+
+    /* Removed @keyframes fadeInDown, as it's now controlled by .alert-custom.show */
+    /* Removed @keyframes fadeOutUp, as it's now controlled by .alert-custom transition and removal of .show */
+    @keyframes fadeInDown {
+
+        /* Keeping this for the initial onboarding device message, not for Django messages */
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Specific alert styles for feedback messages - ENHANCED */
+    .alert-custom {
+        padding: 1rem 1.5rem;
+        /* Increased padding */
+        margin-bottom: 1rem;
+        border-radius: 0.75rem;
+        /* More rounded corners */
         font-size: 0.95rem;
-        background-color: hsla(180, 100%, 50%, 0.1);
-        padding: 0.2em 0.4em;
-        border-radius: 0.25em;
+        /* Slightly larger font */
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+        /* Combine transition for fade and transform for pop */
+        transition: opacity 0.4s ease-out, transform 0.4s ease-out, box-shadow 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        /* Soft shadow for card effect */
+        transform: translateY(-20px);
+        /* Initial hidden state, slightly above */
+        opacity: 0;
+        /* Initial hidden state */
+    }
+
+    /* State when alert is shown */
+    .alert-custom.show {
+        opacity: 1;
+        transform: translateY(0);
+        /* Pops into place */
+    }
+
+    /* Applying background and border for each type */
+    .alert-custom.alert-info {
+        background-color: hsla(195, 100%, 50%, 0.2);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .alert-custom.alert-success {
+        background-color: hsla(120, 100%, 30%, 0.2);
+        color: hsl(120, 100%, 50%);
+        border: 1px solid hsl(120, 100%, 40%);
+    }
+
+    /* ENHANCED RED BOX FOR ERROR MESSAGES */
+    .alert-custom.alert-danger {
+        background-color: var(--destructive);
+        /* Use the destructive red color variable */
+        color: white;
+        /* White text for contrast */
+        border: 1px solid var(--destructive);
+        /* Solid red border */
+        box-shadow: 0 4px 15px hsla(0, 84%, 60%, 0.4);
+        /* More prominent shadow for errors */
+    }
+
+    .alert-custom.alert-warning {
+        background-color: hsla(40, 100%, 60%, 0.2);
+        color: hsl(40, 100%, 70%);
+        border: 1px solid hsl(40, 100%, 60%);
     }
 </style>
 {% endblock %}
@@ -616,6 +729,26 @@
             <path d="M18 9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />
         </svg>
     </div>
+    <div class="messages-container fixed-top mt-3" style="z-index: 1050; width: 100%; max-width: 600px; margin: auto;">
+        {% for message in messages %}
+        {# Removed 'show' class initially. JS will add it. #}
+        <div class="alert alert-custom alert-{{ message.tags }} fade" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const messages = document.querySelectorAll('.alert');
+                messages.forEach(function (message) {
+                    setTimeout(function () {
+                        const alert = new bootstrap.Alert(message);
+                        alert.close();
+                    }, 5000); // 5000 milliseconds = 5 seconds
+                });
+            });
+        </script>
+    </div>
 
     <div class="card-custom">
         <div class="card-header-custom">
@@ -638,11 +771,11 @@
                 style="color: var(--accent);">192.168.4.1</code> in your browser to configure its Wi-Fi.
         </p>
         <p class="text-center lead" style="color: var(--foreground); margin-bottom: 1.5rem;">
-            Once your device is connected to your home Wi-Fi, enter its unique **Device API Key** below to link it to
+            Once your device is connected to your home Wi-Fi, enter its unique *Device API Key* below to link it to
             your account.
         </p>
 
-        <form method="post">
+        <form method="post" onsubmit="document.getElementById('checkDeviceBtn').disabled = true;">
             {% csrf_token %}
             <div class="form-group-custom">
                 <label for="deviceApiKeyInput" class="label-custom">Device API Key</label>
@@ -695,41 +828,55 @@
 {% endblock %}
 
 {% block scripts_extra %}
-{% if message %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const onboardingForm = document.getElementById('onboardingForm');
-        const checkDeviceBtn = document.getElementById('checkDeviceBtn');
-        const deviceApiKeyInput = document.getElementById('deviceApiKeyInput');
+    document.addEventListener('DOMContentLoaded', function () {
+        const messagesContainer = document.querySelector('.messages-container');
+        if (messagesContainer) {
+            const alerts = Array.from(messagesContainer.querySelectorAll('.alert'));
+            let currentAlertIndex = 0;
+            const displayDuration = 5000; // 5 seconds
 
-        // Prevent the form from reloading the page on submission
-        onboardingForm.addEventListener('submit', async function(event) {
-            event.preventDefault(); 
-            
-            const deviceApiKey = deviceApiKeyInput.value;
-            checkDeviceBtn.disabled = true;
+            function showNextAlert() {
+                if (currentAlertIndex < alerts.length) {
+                    const currentAlert = alerts[currentAlertIndex];
+                    currentAlert.style.display = 'block'; // Ensure it's display block before animating
+                    currentAlert.classList.add('show'); // Add show class to trigger pop-in and fade-in
 
-            try {
-                // Perform the API call using the fetch API
-                const response = await fetch(`/api/v1/device/onboard-check/?device_api_key=${deviceApiKey}`);
-                const data = await response.json();
+                    // Create a Bootstrap Alert instance for dismissal functionality
+                    const bsAlert = new bootstrap.Alert(currentAlert);
 
-                if (response.ok) {
-                    // Success! Display a pop-up with a success message
-                    alert(`Device "${data.device_name}" is online and available for registration!`);
-                } else {
-                    // API returned an error, display the message from the API response
-                    alert(`Error: ${data.message || 'Unknown error.'}`);
+                    // Set timeout for auto-closing
+                    setTimeout(() => {
+                        bsAlert.close(); // Trigger Bootstrap's close, which removes 'show' and handles fade-out
+
+                        // Listen for Bootstrap's 'closed.bs.alert' event to sequence the next alert
+                        currentAlert.addEventListener('closed.bs.alert', () => {
+                            currentAlertIndex++;
+                            showNextAlert(); // Show the next alert
+                        }, { once: true }); // Ensure listener is only called once
+                    }, displayDuration);
+
+                    // Handle manual close button click
+                    currentAlert.querySelector('.btn-close').addEventListener('click', () => {
+                        // Bootstrap's default handler for data-bs-dismiss="alert" will trigger close()
+                        // The 'closed.bs.alert' event listener above will then handle showing the next alert.
+                    }, { once: true });
+
                 }
-            } catch (error) {
-                // A network or other unexpected error occurred
-                console.error('Error checking device:', error);
-                alert('Network error or server unreachable. Please try again later.');
-            } finally {
-                checkDeviceBtn.disabled = false;
             }
-        });
+
+            // Initially hide all alerts by removing 'show' and setting display to none
+            alerts.forEach(alert => {
+                alert.classList.remove('show');
+                alert.style.display = 'none'; // Temporarily hide to prevent flickering before JS takes over
+            });
+
+            // If there are messages, start the display sequence
+            if (alerts.length > 0) {
+                showNextAlert();
+            }
+        }
     });
 </script>
-{% endif %}
 {% endblock %}
