@@ -105,3 +105,16 @@ def control_device(request, device_id):
     #     return JsonResponse({'status': 'success', 'message': 'Water pump turned on.', 'state': 'ON'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid command type or not applicable for this device type.'}, status=400)
+    
+# New view to render the analysis page HTML
+@login_required
+def device_analysis_page(request, device_id):
+    """
+    Renders the device analysis page. The actual data fetching for charts and
+    suggestions is done via JavaScript calling the /api/v1/devices/<id>/analysis/ API.
+    """
+    device = get_object_or_404(Device, pk=device_id, owner=request.user)
+    context = {
+        'device': device,
+    }
+    return render(request, 'dashboard/analysis_page.html', context) # Assumes analysis_page.html is in dashboard/templates/dashboard/

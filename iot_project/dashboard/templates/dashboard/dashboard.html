@@ -262,14 +262,14 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for item in devices_with_latest_data %}
         <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
-            <div class="card-custom h-100 p-4" data-device-id="{{ item.device.id }}">
+            <div class="card-custom h-100 p-4">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title-custom">{{ item.device.name }}</h5>
                     <h6 class="card-subtitle-custom mb-3">{{ item.device.get_device_type_display }}</h6>
 
                     <p class="mb-2">
                         <strong class="text-white">Status:</strong>
-                        {% if item.device.is_online %} {# Changed to item.device.is_online #}
+                        {% if item.device.is_online %}
                         <span class="badge badge-online">Online</span>
                         {% else %}
                         <span class="badge badge-offline">Offline</span>
@@ -287,7 +287,6 @@
                             <strong class="text-white">Voltage:</strong> <span class="voltage-value" style="color: var(--primary);">
                                 {{ item.latest_data.voltage|default:"N/A" }}</span> V<br>
                             <strong class="text-white">Relay State:</strong>
-                            {# Simplified relay state check. Assumes latest_data.relay_state is a boolean from backend #}
                             {% if item.latest_data.relay_state %}
                             <span class="badge badge-on relay-badge">ON</span>
                             {% else %}
@@ -297,7 +296,7 @@
                         {% elif item.device.device_type == 'water_level' %}
                         <p class="card-text">
                             <strong class="text-white">Water Level:</strong> <span style="color: var(--primary);">
-                                {{item.latest_data.water_level|default:"N/A" }}</span>% {# Removed .get #}
+                                {{item.latest_data.water_level|default:"N/A" }}</span>%
                         </p>
                         {% else %}
                         <p class="card-text text-muted">No specific data available for this device type.</p>
@@ -420,4 +419,3 @@
     });
 </script>
 {% endblock %}
-

@@ -11,7 +11,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap"
     rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 <style>
     /* Merged CSS from homepage.html for animations and background */
     * {
@@ -280,23 +280,88 @@
     .fade-in-up {
         animation-name: fadeInUp;
     }
+
     .theme-alert {
-    background: var(--card);
-    border: 1px solid var(--primary);
-    color: var(--foreground);
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5); /* Add a glowing effect */
-    transition: box-shadow 0.3s ease-in-out;
-}
+        background: var(--card);
+        border: 1px solid var(--primary);
+        color: var(--foreground);
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5);
+        /* Add a glowing effect */
+        transition: box-shadow 0.3s ease-in-out;
+    }
 
-.theme-alert:hover {
-    box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.8);
-}
+    .theme-alert:hover {
+        box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.8);
+    }
 
-.theme-alert h4 {
-    color: var(--primary); /* Highlight the heading */
-}
+    .theme-alert h4 {
+        color: var(--primary);
+        /* Highlight the heading */
+    }
+
+    /* Update this section in your <style> block in device_detail.html */
+
+    .btn-analysis-glow {
+        background: linear-gradient(90deg, #007bff, #00c6ff);
+        /* A strong blue-to-cyan gradient for solid fill */
+        color: #fff;
+        /* White text for strong contrast */
+        border: none;
+        /* Ensure no border */
+        font-weight: 800;
+        /* Extra bold text */
+        font-size: 1.2rem;
+        /* Slightly larger text */
+        padding: 1rem 3rem;
+        /* Generous padding for a rectangular shape */
+        border-radius: 15px;
+        /* Adjust this value for desired corner roundness (e.g., 10px, 20px) */
+        box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+        /* Stronger, more defined shadow */
+        transition: all 0.3s ease-in-out;
+        /* Smooth transitions */
+        text-transform: uppercase;
+        /* Make the text uppercase for impact */
+        letter-spacing: 1.5px;
+        /* Add some letter spacing */
+        display: inline-flex;
+        /* Use flexbox to align icon and text */
+        align-items: center;
+        justify-content: center;
+        /* Center content within the button */
+        gap: 0.8rem;
+        /* Space between text and icon */
+        cursor: pointer;
+        /* Indicate it's clickable */
+        text-decoration: none;
+        /* Remove underline for links */
+    }
+
+    .btn-analysis-glow:hover {
+        transform: translateY(-4px) scale(1.01);
+        /* Lift slightly and minimal scale on hover */
+        box-shadow: 0 12px 25px rgba(0, 123, 255, 0.6);
+        /* Even stronger shadow on hover */
+        background: linear-gradient(90deg, #0056b3, #0099cc);
+        /* Slightly darker gradient on hover */
+    }
+
+    /* Ensure the SVG icons inside the button are styled */
+    .btn-analysis-glow svg {
+        width: 28px;
+        /* Larger icons */
+        height: 28px;
+        color: #fff;
+        /* Ensure icons are white to match text */
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .btn-analysis-glow:hover svg {
+        transform: scale(1.05);
+        /* Subtle scale on icon hover */
+    }
 </style>
 {% endblock %}
 
@@ -313,11 +378,11 @@
                 <p><strong>Location:</strong> {{ device.location|default:"Not set" }}</p>
                 <p><strong>Status:</strong>
                     {# Ensure device.is_online and device.last_seen are reliable from Django view #}
-                    {% if device.is_online and device.last_seen and device.last_seen|timesince:"now"|length < 10 %} {# Simplified check for "recently online" #}
-                        <span class="badge bg-success">Online</span>
-                    {% else %}
+                    {% if device.is_online and device.last_seen and device.last_seen|timesince:"now"|length < 10 %} {#
+                        Simplified check for "recently online" #} <span class="badge bg-success">Online</span>
+                        {% else %}
                         <span class="badge bg-danger">Offline</span>
-                    {% endif %}
+                        {% endif %}
                 </p>
                 <p><strong>Last Seen:</strong> {{ device.last_seen|default:"N/A" }}</p>
             </div>
@@ -408,19 +473,19 @@
                             <tr>
                                 <td>{{ data_entry.timestamp|date:"Y-m-d H:i:s" }}</td>
                                 {% if device.device_type == 'power_monitor' %}
-                                <td>{{ data_entry.parsed_data.voltage|floatformat:2 }}</td> {# Changed to .parsed_data #}
-                                <td>{{ data_entry.parsed_data.current|floatformat:2 }}</td> {# Changed to .parsed_data #}
-                                <td>{{ data_entry.parsed_data.power|floatformat:2 }}</td> {# Changed to .parsed_data #}
-                                <td>{{ data_entry.parsed_data.energy|floatformat:2 }}</td> {# Changed to .parsed_data #}
-                                <td>{{ data_entry.parsed_data.frequency|floatformat:2 }}</td> {# Changed to .parsed_data #}
-                                <td>{{ data_entry.parsed_data.power_factor|floatformat:2 }}</td> {# Changed to .parsed_data #}
+                                <td>{{ data_entry.data.voltage|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.current|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.power|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.energy|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.frequency|floatformat:2 }}</td>
+                                <td>{{ data_entry.data.power_factor|floatformat:2 }}</td>
                                 <td><span
-                                        class="badge {% if data_entry.parsed_data.relay_state %}bg-success{% else %}bg-danger{% endif %}">{{
-                                        data_entry.parsed_data.relay_state|yesno:"ON,OFF" }}</span></td> {# Changed to .parsed_data and used yesno #}
+                                        class="badge {% if data_entry.data.relay_state %}bg-success{% else %}bg-danger{% endif %}">{{
+                                        data_entry.data.relay_state|yesno:"ON,OFF" }}</span></td>
                                 {% elif device.device_type == 'water_level' %}
-                                <td>{{ data_entry.parsed_data.water_level|floatformat:2 }}</td> {# Changed to .parsed_data #}
+                                <td>{{ data_entry.data.water_level|floatformat:2 }}</td>
                                 {% else %}
-                                <td>{{ data_entry.parsed_data|pprint }}</td> {# Changed to .parsed_data #}
+                                <td>{{ data_entry.data|pprint }}</td>
                                 {% endif %}
                             </tr>
                             {% empty %}
@@ -441,6 +506,28 @@
     <p>This device has not yet sent any data. Please ensure it is connected and operational.</p>
 </div>
 {% endif %}
+
+{# New button for Prediction & Analysis #}
+<div class="row mt-4 mb-4">
+    <div class="col-12 text-center">
+        <a href="{% url 'dashboard:device_analysis_page' device.id %}"
+            class="btn-custom btn-analysis-glow mt-3 animate__animated animate__fadeInUp animate__delay-1s">
+            <svg class="lucide lucide-activity" xmlns="http://www.w3.org/2000/svg" width="28" height="28"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+            <strong>Prediction & Analysis</strong>
+            <svg class="lucide lucide-area-chart" xmlns="http://www.w3.org/2000/svg" width="28" height="28"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M3 3v18h18" />
+                <path d="M7 15l4-5 4 4 5-5" />
+            </svg>
+        </a>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts_extra %}
@@ -528,11 +615,11 @@
             let parsedData = {};
             try {
                 // Ensure data.data is parsed, as it's a JSON string
-                parsedData = JSON.parse(entry.data); 
+                parsedData = JSON.parse(entry.data);
             } catch (e) {
                 console.error("Error parsing individual sensor data entry JSON:", e);
             }
-            
+
             if (deviceType === 'power_monitor') {
                 chartData.power.push(parsedData.power);
                 chartData.voltage.push(parsedData.voltage);
