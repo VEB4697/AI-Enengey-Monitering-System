@@ -52,7 +52,8 @@
         /* Gauge specific colors */
         --gauge-bg-color: hsla(220, 20%, 15%, 0.8);
         --gauge-fill-color: var(--primary);
-        --gauge-needle-color: hsl(0, 100%, 60%); /* Red for needle */
+        --gauge-needle-color: hsl(0, 100%, 60%);
+        /* Red for needle */
         --gauge-text-color: var(--foreground);
         --gauge-unit-color: var(--muted-foreground);
     }
@@ -266,11 +267,14 @@
         gap: 0.8rem;
         margin-top: 1.5rem;
         justify-content: center;
-        align-items: stretch; /* Ensure all items stretch to fill row height */
+        align-items: stretch;
+        /* Ensure all items stretch to fill row height */
     }
 
     /* Common styles for all 8 rectangular modules */
-    .gauge-box, .relay-gauge-box, .action-button-gauge {
+    .gauge-box,
+    .relay-gauge-box,
+    .action-button-gauge {
         border: 1px solid var(--border);
         border-radius: 0.5rem;
         padding: 0.5rem;
@@ -281,25 +285,31 @@
         text-align: center;
         position: relative;
         overflow: hidden;
-        height: 120px; /* Consistent height for rectangular look */
+        height: 120px;
+        /* Consistent height for rectangular look */
         width: 100%;
-        box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
         transition: transform 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
     }
 
-    .gauge-box:hover, .relay-gauge-box:hover, .action-button-gauge:hover {
+    .gauge-box:hover,
+    .relay-gauge-box:hover,
+    .action-button-gauge:hover {
         transform: translateY(-3px);
     }
 
     /* Styles for the standard gauges (Voltage, Current, Power, kWh, Freq, PF) */
     .gauge-box {
-        background-color: var(--gauge-bg-color); /* Base background for gauges */
+        background-color: var(--gauge-bg-color);
+        /* Base background for gauges */
     }
 
     .gauge-box h6 {
-        font-size: 0.75rem; /* Smaller font for labels */
+        font-size: 0.75rem;
+        /* Smaller font for labels */
         color: var(--muted-foreground);
-        margin-bottom: 0.4rem; /* Reduced margin */
+        margin-bottom: 0.4rem;
+        /* Reduced margin */
         font-family: 'Inter', sans-serif;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -307,30 +317,39 @@
 
     /* Speedometer Gauge Styling */
     .gauge-svg {
-        width: 90px; /* Adjusted width for compact view */
-        height: 45px; /* Adjusted height for compact view (maintaining 2:1 aspect for semi-circle) */
+        width: 90px;
+        /* Adjusted width for compact view */
+        height: 45px;
+        /* Adjusted height for compact view (maintaining 2:1 aspect for semi-circle) */
         overflow: hidden;
-        margin-bottom: 0.4rem; /* Reduced margin */
+        margin-bottom: 0.4rem;
+        /* Reduced margin */
     }
 
     .gauge-arc-bg {
         fill: none;
-        stroke: #333; /* Darker background arc */
-        stroke-width: 6; /* Slightly thinner arc */
+        stroke: #333;
+        /* Darker background arc */
+        stroke-width: 6;
+        /* Slightly thinner arc */
         stroke-linecap: round;
     }
 
     .gauge-arc-fill {
         fill: none;
         stroke: var(--gauge-fill-color);
-        stroke-width: 6; /* Slightly thinner arc */
+        stroke-width: 6;
+        /* Slightly thinner arc */
         stroke-linecap: round;
-        transition: stroke-dasharray 0.5s ease-out; /* Smooth fill animation */
+        transition: stroke-dasharray 0.5s ease-out;
+        /* Smooth fill animation */
     }
 
     .gauge-needle {
-        transform-origin: 50px 50px; /* Center of the SVG viewBox remains the same */
-        transition: transform 0.5s ease-out; /* Smooth needle movement */
+        transform-origin: 50px 50px;
+        /* Center of the SVG viewBox remains the same */
+        transition: transform 0.5s ease-out;
+        /* Smooth needle movement */
         fill: var(--gauge-needle-color);
         stroke: var(--gauge-needle-color);
         stroke-width: 1;
@@ -343,23 +362,29 @@
     }
 
     .gauge-value {
-        font-size: 1rem; /* Adjusted font size for readability */
+        font-size: 1rem;
+        /* Adjusted font size for readability */
         font-weight: 700;
         color: var(--gauge-text-color);
-        font-family: 'Orbitron', sans-serif; /* Futuristic font for values */
+        font-family: 'Orbitron', sans-serif;
+        /* Futuristic font for values */
     }
 
     .gauge-unit {
-        font-size: 0.65rem; /* Smaller unit text */
+        font-size: 0.65rem;
+        /* Smaller unit text */
         color: var(--gauge-unit-color);
-        margin-left: 0.1rem; /* Small space after value */
+        margin-left: 0.1rem;
+        /* Small space after value */
     }
 
     /* Relay Status Module - Distinct Appearance */
     .relay-gauge-box {
-        background-color: hsla(260, 60%, 65%, 0.2); /* Use secondary color tint */
+        background-color: hsla(260, 60%, 65%, 0.2);
+        /* Use secondary color tint */
         border-color: var(--secondary);
-        color: var(--secondary); /* Text color for relay */
+        color: var(--secondary);
+        /* Text color for relay */
         gap: 0.2rem;
         font-weight: 700;
         font-size: 1rem;
@@ -379,7 +404,8 @@
 
     .relay-gauge-box h6 {
         font-size: 0.75rem;
-        color: var(--secondary); /* Match the box text color */
+        color: var(--secondary);
+        /* Match the box text color */
         margin-bottom: 0.4rem;
         font-family: 'Inter', sans-serif;
         text-transform: uppercase;
@@ -393,9 +419,11 @@
 
     /* View Details Button Module - Distinct Appearance */
     .action-button-gauge {
-        background-color: hsla(180, 100%, 50%, 0.2); /* Use accent color tint */
+        background-color: hsla(180, 100%, 50%, 0.2);
+        /* Use accent color tint */
         border-color: var(--accent);
-        color: var(--accent); /* Text color for button */
+        color: var(--accent);
+        /* Text color for button */
         text-decoration: none;
         font-weight: 700;
         font-family: 'Inter', sans-serif;
@@ -409,19 +437,22 @@
 
     .action-button-gauge:hover {
         color: var(--foreground);
-        background-color: hsla(180, 100%, 50%, 0.4); /* Darker tint on hover */
+        background-color: hsla(180, 100%, 50%, 0.4);
+        /* Darker tint on hover */
         border-color: var(--accent);
     }
 
     .action-button-gauge .lucide {
         font-size: 2rem;
         margin-bottom: 0.5rem;
-        color: inherit; /* Inherit color from parent (.action-button-gauge) */
+        color: inherit;
+        /* Inherit color from parent (.action-button-gauge) */
     }
 
     .action-button-gauge h6 {
         font-size: 0.75rem;
-        color: var(--accent); /* Match the button text color */
+        color: var(--accent);
+        /* Match the button text color */
         margin-bottom: 0.4rem;
         font-family: 'Inter', sans-serif;
         text-transform: uppercase;
@@ -430,14 +461,19 @@
 
     /* Specific style for device-api-key */
     .device-api-key {
-        font-family: 'Source Code Pro', monospace; /* Monospace font for key */
+        font-family: 'Source Code Pro', monospace;
+        /* Monospace font for key */
         font-size: 0.8rem;
         color: var(--muted-foreground);
-        margin-bottom: 1rem; /* Space below it */
-        word-break: break-all; /* Ensure long keys wrap */
+        margin-bottom: 1rem;
+        /* Space below it */
+        word-break: break-all;
+        /* Ensure long keys wrap */
         white-space: normal;
-        text-align: left; /* Align left */
-        border: 1px dashed var(--border); /* Dashed border for visual separation */
+        text-align: left;
+        /* Align left */
+        border: 1px dashed var(--border);
+        /* Dashed border for visual separation */
         padding: 0.5rem;
         border-radius: 0.3rem;
         background-color: hsla(222, 47%, 8%, 0.3);
@@ -454,7 +490,7 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for item in devices_with_latest_data %}
         <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
-            <div class="card-custom h-100 p-4">
+            <div class="card-custom h-100 p-4" data-device-id="{{ item.device.id }}">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title-custom">{{ item.device.name }}</h5>
                     <h6 class="card-subtitle-custom mb-3">{{ item.device.get_device_type_display }}</h6>
@@ -473,28 +509,115 @@
                         {% endif %}
                     </p>
                     <p class="card-text mb-3" style="font-size: 0.9rem; color: var(--muted-foreground);">
-                        <strong class="text-white">Last Seen:</strong> <span class="last-seen-text">{{ item.device.last_seen|default:"N/A" }}</span>
+                        <strong class="text-white">Last Seen:</strong> <span class="last-seen-text">{{item.device.last_seen|default:"N/A" }}</span>
                     </p>
 
-                    <div class="mt-auto">
-                        {% if item.device.device_type == 'power_monitor' %}
-                        <p class="card-text">
-                            <strong class="text-white">Current Power:</strong> <span class="power-value" style="color: var(--primary);">
-                                {{ item.latest_data.power|default:"N/A" }}</span> W<br>
-                            <strong class="text-white">Voltage:</strong> <span class="voltage-value" style="color: var(--primary);">
-                                {{ item.latest_data.voltage|default:"N/A" }}</span> V<br>
-                            <strong class="text-white">Relay State:</strong>
-                            {# Simplified relay state check. Assumes latest_data.relay_state is a boolean from backend #}
+                    {# --- GAUGES AND CONTROL SECTION (All in one grid) --- #}
+                    {% if item.device.device_type == 'power_monitor' %}
+                    <div class="gauge-grid">
+                        {# Voltage Gauge #}
+                        <div class="gauge-box" id="voltage-gauge-{{ item.device.id }}">
+                            <h6>Voltage</h6>
+                            <svg class="gauge-svg" viewBox="0 0 100 50">
+                                <path class="gauge-arc-bg" d="M10 50 A40 40 0 0 1 90 50" />
+                                <path class="gauge-arc-fill" d="M10 50 A40 40 0 0 1 90 50"
+                                    style="stroke-dasharray: 0 125.66;" />
+                                <polygon class="gauge-needle" points="50,50 48,15 52,15"
+                                    transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div class="gauge-value-display">
+                                <span class="gauge-value">N/A</span><span class="gauge-unit">V</span>
+                            </div>
+                        </div>
+
+                        {# Current Gauge #}
+                        <div class="gauge-box" id="current-gauge-{{ item.device.id }}">
+                            <h6>Current</h6>
+                            <svg class="gauge-svg" viewBox="0 0 100 50">
+                                <path class="gauge-arc-bg" d="M10 50 A40 40 0 0 1 90 50" />
+                                <path class="gauge-arc-fill" d="M10 50 A40 40 0 0 1 90 50"
+                                    style="stroke-dasharray: 0 125.66;" />
+                                <polygon class="gauge-needle" points="50,50 48,15 52,15"
+                                    transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div class="gauge-value-display">
+                                <span class="gauge-value">N/A</span><span class="gauge-unit">A</span>
+                            </div>
+                        </div>
+
+                        {# Power Gauge #}
+                        <div class="gauge-box" id="power-gauge-{{ item.device.id }}">
+                            <h6>Power</h6>
+                            <svg class="gauge-svg" viewBox="0 0 100 50">
+                                <path class="gauge-arc-bg" d="M10 50 A40 40 0 0 1 90 50" />
+                                <path class="gauge-arc-fill" d="M10 50 A40 40 0 0 1 90 50"
+                                    style="stroke-dasharray: 0 125.66;" />
+                                <polygon class="gauge-needle" points="50,50 48,15 52,15"
+                                    transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div class="gauge-value-display">
+                                <span class="gauge-value">N/A</span><span class="gauge-unit">W</span>
+                            </div>
+                        </div>
+
+                        {# kWh Gauge #}
+                        <div class="gauge-box" id="kwh-gauge-{{ item.device.id }}">
+                            <h6>Energy (kWh)</h6>
+                            <svg class="gauge-svg" viewBox="0 0 100 50">
+                                <path class="gauge-arc-bg" d="M10 50 A40 40 0 0 1 90 50" />
+                                <path class="gauge-arc-fill" d="M10 50 A40 40 0 0 1 90 50"
+                                    style="stroke-dasharray: 0 125.66;" />
+                                <polygon class="gauge-needle" points="50,50 48,15 52,15"
+                                    transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div class="gauge-value-display">
+                                <span class="gauge-value">N/A</span><span class="gauge-unit">kWh</span>
+                            </div>
+                        </div>
+
+                        {# Frequency Gauge #}
+                        <div class="gauge-box" id="frequency-gauge-{{ item.device.id }}">
+                            <h6>Frequency</h6>
+                            <svg class="gauge-svg" viewBox="0 0 100 50">
+                                <path class="gauge-arc-bg" d="M10 50 A40 40 0 0 1 90 50" />
+                                <path class="gauge-arc-fill" d="M10 50 A40 40 0 0 1 90 50"
+                                    style="stroke-dasharray: 0 125.66;" />
+                                <polygon class="gauge-needle" points="50,50 48,15 52,15"
+                                    transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div class="gauge-value-display">
+                                <span class="gauge-value">N/A</span><span class="gauge-unit">Hz</span>
+                            </div>
+                        </div>
+
+                        {# Power Factor Gauge #}
+                        <div class="gauge-box" id="pf-gauge-{{ item.device.id }}">
+                            <h6>Power Factor</h6>
+                            <svg class="gauge-svg" viewBox="0 0 100 50">
+                                <path class="gauge-arc-bg" d="M10 50 A40 40 0 0 1 90 50" />
+                                <path class="gauge-arc-fill" d="M10 50 A40 40 0 0 1 90 50"
+                                    style="stroke-dasharray: 0 125.66;" />
+                                <polygon class="gauge-needle" points="50,50 48,15 52,15"
+                                    transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div class="gauge-value-display">
+                                <span class="gauge-value">N/A</span><span class="gauge-unit">PF</span>
+                            </div>
+                        </div>
+
+                        {# Relay Status Gauge #}
+                        <div class="relay-gauge-box {% if item.latest_data.relay_state %}on{% else %}off{% endif %}"
+                            id="relay-status-gauge-{{ item.device.id }}">
+                            <h6>Relay Status</h6>
                             {% if item.latest_data.relay_state %}
-                                <i class="lucide lucide-power text-primary"></i><span>ON</span>
+                            <i class="lucide lucide-power text-primary"></i><span>ON</span>
                             {% else %}
-                                <i class="lucide lucide-power-off text-destructive"></i><span>OFF</span>
+                            <i class="lucide lucide-power-off text-destructive"></i><span>OFF</span>
                             {% endif %}
                         </div>
 
                         {# View Details & Control Button (Styled like a gauge) #}
-                        <a href="{% url 'dashboard:device_detail' item.device.id %}"
-                            class="action-button-gauge">
+                        <a href="{% url 'dashboard:device_detail' item.device.id %}" class="action-button-gauge">
                             <h6>View Details</h6>
                             <i class="lucide lucide-settings"></i>
                         </a>
@@ -502,8 +625,9 @@
                     {% elif item.device.device_type == 'water_level' %}
                     <div class="mt-auto">
                         <p class="card-text">
-                            <strong class="text-white">Water Level:</strong> <span style="color: var(--primary);">
-                                {{item.latest_data.water_level|default:"N/A" }}</span>% {# Removed .get #}
+                            <strong class="text-white">Water Level:</strong> <span class="water-level-value"
+                                style="color: var(--primary);">
+                                {{item.latest_data.water_level|default:"N/A" }}</span>%
                         </p>
                         <a href="{% url 'dashboard:device_detail' item.device.id %}"
                             class="btn-custom btn-outline-primary-custom mt-3">View Details & Control</a>
@@ -574,7 +698,7 @@
             // Calculate rotation for needle (0 to 180 degrees).
             // -90 degrees is the start (0 value) and +90 degrees is the end (maxValue).
             const rotation = (clampedValue / maxValue) * 180 - 90;
-            needle.style.transform = `rotate(${rotation}deg)`;
+            needle.style.transform = 'rotate(${rotation}deg)';
 
             // Update fill arc (circumference of a 40 radius semi-circle is approx 125.66)
             const arcLength = 2 * Math.PI * 40 / 2; // Radius is 40 (from SVG path d attribute)
@@ -583,7 +707,6 @@
             const remainingLength = arcLength - filledLength;
 
             fillArc.style.strokeDasharray = `${filledLength} ${remainingLength}`;
-
             // Update displayed value and unit
             valueDisplay.textContent = typeof value === 'number' ? value.toFixed(1) : 'N/A';
             unitDisplay.textContent = unit;
@@ -632,13 +755,12 @@
                 //   "device": { "id": 1, "is_online": true, "last_seen": "2025-08-10T22:30:00Z", "device_type": "power_monitor" },
                 //   "latest_data": { "power": 123.4, "voltage": 240.5, "current": 1.2, "kwh": 5.6, "frequency": 50.0, "pf": 0.95, "relay_state": true }
                 // }
-                fetch(`/api/v1/device/${deviceId}/latest_data/`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
+                fetch(`/api/v1/device/${deviceId}/latest_data/`).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                     .then(data => {
                         if (data) {
                             // Update last seen and status
@@ -672,11 +794,9 @@
                                 updateGauge(`voltage-gauge-${deviceId}`, voltage, 250, 'V');
                                 updateGauge(`current-gauge-${deviceId}`, current, 20, 'A');
                                 updateGauge(`power-gauge-${deviceId}`, power, 5000, 'W');
-                                updateGauge(`kwh-gauge-${deviceId}`, kwh, 1000, 'kWh'); /* Max kWh: 1000kWh (adjust as per typical max for device) */
+                                updateGauge(`kwh-gauge-${deviceId}`, kwh, 1000, 'kWh');
                                 updateGauge(`frequency-gauge-${deviceId}`, frequency, 60, 'Hz');
                                 updateGauge(`pf-gauge-${deviceId}`, pf, 1.0, 'PF');
-
-                                // Update Relay Status Gauge
                                 updateRelayGauge(`relay-status-gauge-${deviceId}`, relayState);
                             }
                             // Add similar logic for other device types (e.g., water_level) if needed
