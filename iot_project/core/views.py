@@ -11,6 +11,7 @@ from .models import Device
 from django.utils import timezone
 from django.contrib import messages
 from .forms import CustomUserChangeForm
+from django.shortcuts import redirect
 
 
 @login_required
@@ -149,12 +150,21 @@ def device_onboarding_view(request):
             return redirect('device_onboarding')
         
         try:
+<<<<<<< HEAD
             api_url = f"http://{URL}:8000/api/v1/device/onboard-check/?device_api_key={device_api_key}"
+=======
+            api_url = f"http://127.0.0.1:8000/api/v1/device/onboard-check/?device_api_key={device_api_key}"
+>>>>>>> d73c3e2384d1c0794391d819931557b916313724
             response = requests.get(api_url)
             data = response.json()
 
             if response.status_code == 200:
                 messages.success(request, f"Device '{data.get('device_name')}' is online and available for registration!", extra_tags='device_onboarding')
+<<<<<<< HEAD
+=======
+            elif response.status_code == 409:
+                messages.info(request, "API key is already registered.", extra_tags='device_onboarding')
+>>>>>>> d73c3e2384d1c0794391d819931557b916313724
             elif response.status_code == 412:
                 messages.warning(request, data.get('message', 'Device is offline. Please check its connection.'), extra_tags='device_onboarding')
             elif response.status_code == 404:

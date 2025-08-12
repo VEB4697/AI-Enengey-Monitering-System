@@ -706,6 +706,51 @@
         color: hsl(40, 100%, 70%);
         border: 1px solid hsl(40, 100%, 60%);
     }
+
+    .device-message {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        animation: fadeInDown 0.5s ease;
+    }
+
+    /* Red for error */
+    .device-message.error,
+    .device-message.danger {
+        background-color: #ff4d4f;
+        color: white;
+    }
+
+    /* Yellow for warning */
+    .device-message.warning {
+        background-color: #faad14;
+        color: black;
+    }
+
+    /* Green for success */
+    .device-message.success {
+        background-color: #52c41a;
+        color: white;
+    }
+
+    /* Blue for info */
+    .device-message.info {
+        background-color: #1890ff;
+        color: white;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
 {% endblock %}
 
@@ -728,26 +773,6 @@
             <path d="M6 3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2 2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
             <path d="M18 9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />
         </svg>
-    </div>
-    <div class="messages-container fixed-top mt-3" style="z-index: 1050; width: 100%; max-width: 600px; margin: auto;">
-        {% for message in messages %}
-        {# Removed 'show' class initially. JS will add it. #}
-        <div class="alert alert-custom alert-{{ message.tags }} fade" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const messages = document.querySelectorAll('.alert');
-                messages.forEach(function (message) {
-                    setTimeout(function () {
-                        const alert = new bootstrap.Alert(message);
-                        alert.close();
-                    }, 5000); // 5000 milliseconds = 5 seconds
-                });
-            });
-        </script>
     </div>
 
     <div class="card-custom">
@@ -830,53 +855,38 @@
 {% block scripts_extra %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const messagesContainer = document.querySelector('.messages-container');
-        if (messagesContainer) {
-            const alerts = Array.from(messagesContainer.querySelectorAll('.alert'));
-            let currentAlertIndex = 0;
-            const displayDuration = 5000; // 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const onboardingForm = document.getElementById('onboardingForm');
+        const checkDeviceBtn = document.getElementById('checkDeviceBtn');
+        const deviceApiKeyInput = document.getElementById('deviceApiKeyInput');
 
-            function showNextAlert() {
-                if (currentAlertIndex < alerts.length) {
-                    const currentAlert = alerts[currentAlertIndex];
-                    currentAlert.style.display = 'block'; // Ensure it's display block before animating
-                    currentAlert.classList.add('show'); // Add show class to trigger pop-in and fade-in
+        // Prevent the form from reloading the page on submission
+        onboardingForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+            
+            const deviceApiKey = deviceApiKeyInput.value;
+            checkDeviceBtn.disabled = true;
 
-                    // Create a Bootstrap Alert instance for dismissal functionality
-                    const bsAlert = new bootstrap.Alert(currentAlert);
+            try {
+                // Perform the API call using the fetch API
+                const response = await fetch(`/api/v1/device/onboard-check/?device_api_key=${deviceApiKey}`);
+                const data = await response.json();
 
-                    // Set timeout for auto-closing
-                    setTimeout(() => {
-                        bsAlert.close(); // Trigger Bootstrap's close, which removes 'show' and handles fade-out
-
-                        // Listen for Bootstrap's 'closed.bs.alert' event to sequence the next alert
-                        currentAlert.addEventListener('closed.bs.alert', () => {
-                            currentAlertIndex++;
-                            showNextAlert(); // Show the next alert
-                        }, { once: true }); // Ensure listener is only called once
-                    }, displayDuration);
-
-                    // Handle manual close button click
-                    currentAlert.querySelector('.btn-close').addEventListener('click', () => {
-                        // Bootstrap's default handler for data-bs-dismiss="alert" will trigger close()
-                        // The 'closed.bs.alert' event listener above will then handle showing the next alert.
-                    }, { once: true });
-
+                if (response.ok) {
+                    // Success! Display a pop-up with a success message
+                    alert(`Device "${data.device_name}" is online and available for registration!`);
+                } else {
+                    // API returned an error, display the message from the API response
+                    alert(`Error: ${data.message || 'Unknown error.'}`);
                 }
+            } catch (error) {
+                // A network or other unexpected error occurred
+                console.error('Error checking device:', error);
+                alert('Network error or server unreachable. Please try again later.');
+            } finally {
+                checkDeviceBtn.disabled = false;
             }
-
-            // Initially hide all alerts by removing 'show' and setting display to none
-            alerts.forEach(alert => {
-                alert.classList.remove('show');
-                alert.style.display = 'none'; // Temporarily hide to prevent flickering before JS takes over
-            });
-
-            // If there are messages, start the display sequence
-            if (alerts.length > 0) {
-                showNextAlert();
-            }
-        }
+        });
     });
 </script>
 {% endblock %}
