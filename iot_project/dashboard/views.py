@@ -2,7 +2,8 @@ import json
 import sys
 import traceback
 from django.contrib.auth.decorators import login_required
-from django.db.models import Max, OuterRef, Subquery
+from django.db.models import Max, Q, OuterRef, Subquery
+# ... other existing imports
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -28,7 +29,7 @@ def user_dashboard(request):
     """
     Renders the user dashboard, fetching data efficiently.
     """
-    user_devices = Device.objects.filter(owner=request.user, is_registered=True).order_by('-last_seen')
+    user_devices = Device.objects.filter(owner=request.user, is_registered=True).order_by('last_seen')
 
     latest_data_ids = SensorData.objects.values('device_id').annotate(
         max_timestamp=Max('timestamp')
@@ -107,10 +108,63 @@ def device_analysis_page(request, device_id):
     }
     return render(request, 'dashboard/analysis_page.html', context)
 
+@login_required 
+def device_detail(request, device_id): 
+    device = get_object_or_404(Device, id=device_id, owner=request.user) 
 
+    sensor_data_entries = SensorData.objects.filter(device=device).order_by('timestamp')[:50] 
+    
+    chart_labels = [] 
+    chart_data = { 
+        'power': [], 
+        'voltage': [], 
+        'current': [], 
+        'energy': [], 
+        'frequency': [], 
+        'power_factor': [], 
+        'water_level': [] 
+    } 
 
-@login_required
-def device_detail(request, device_id):
+    for entry in sensor_data_entries: 
+        # Ensure parsed_data is a dictionary, not a JSON string.
+        try:
+            parsed_data = json.loads(entry.data)
+        except (json.JSONDecodeError, TypeError):
+            parsed_data = {}
+        
+        chart_labels.append(entry.timestamp.strftime('%Y-%m-%d %H:%M:%S')) 
+
+        if device.device_type == 'power_monitor': 
+            chart_data['power'].append(parsed_data.get('power')) 
+            chart_data['voltage'].append(parsed_data.get('voltage')) 
+            chart_data['current'].append(parsed_data.get('current')) 
+            chart_data['energy'].append(parsed_data.get('energy')) 
+            chart_data['frequency'].append(parsed_data.get('frequency')) 
+            chart_data['power_factor'].append(parsed_data.get('power_factor')) 
+        elif device.device_type == 'water_level': 
+            chart_data['water_level'].append(parsed_data.get('water_level')) 
+        
+    chart_labels_json = json.dumps(chart_labels) 
+    chart_data_json = json.dumps(chart_data) 
+
+    # --- Added is_online calculation here ---
+    current_time = timezone.now()
+    is_online = False
+    if device.last_seen: # device.last_seen is from the fetched Device object
+        time_difference = current_time - device.last_seen
+        if time_difference.total_seconds() < 300: # 5 minutes threshold
+            is_online = True
+    # --- End of added calculation ---
+
+    context = { 
+        'device': device, 
+        'sensor_data_entries': sensor_data_entries, 
+        'chart_labels': chart_labels_json, 
+        'chart_data': chart_data_json, 
+        'is_online': is_online, # Now correctly defined and passed
+    } 
+    return render(request, 'dashboard/device_detail.html', context)
+
     device = get_object_or_404(Device, id=device_id, owner=request.user)
 
     sensor_data_entries = SensorData.objects.filter(device=device).order_by('timestamp')[:50]
@@ -143,6 +197,8 @@ def device_detail(request, device_id):
         
     chart_labels_json = json.dumps(chart_labels)
     chart_data_json = json.dumps(chart_data)
+
+    
 
     context = {
         'device': device,

@@ -383,9 +383,9 @@
                     {# Ensure device.is_online and device.last_seen are reliable from Django view #}
                     {# The is_online calculation is now handled in the view and passed directly for display #}
                     {% if device.is_online %}
-                        <span class="badge bg-success">Online</span>
+                    <span class="badge bg-success">Online</span>
                     {% else %}
-                        <span class="badge bg-danger">Offline</span>
+                    <span class="badge bg-danger">Offline</span>
                     {% endif %}
                 </p>
                 <p><strong>Last Seen:</strong> {{ device.last_seen|default:"N/A" }}</p>
@@ -487,9 +487,8 @@
                                 <td>{{ data_entry.data.energy|floatformat:2|default:"N/A" }}</td>
                                 <td>{{ data_entry.data.frequency|floatformat:2|default:"N/A" }}</td>
                                 <td>{{ data_entry.data.power_factor|floatformat:2|default:"N/A" }}</td>
-                                <td><span
-                                        class="badge {% if data_entry.data.relay_state %}bg-success{% else %}bg-danger{% endif %}">{{
-                                        data_entry.data.relay_state|yesno:"ON,OFF"|default:"N/A" }}</span></td>
+                                <td><span class="badge {% if data_entry.data.relay_state %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ data_entry.data.relay_state|yesno:"ON,OFF"|default:"N/A" }}</span></td>
                                 {% elif device.device_type == 'water_level' %}
                                 <td>{{ data_entry.data.water_level|floatformat:2|default:"N/A" }}</td>
                                 {% else %}
@@ -512,7 +511,7 @@
 {# New button for Prediction & Analysis #}
 <div class="row mt-4 mb-4">
     <div class="col-12 text-center">
-        <a href="{% url 'device_api:device_analysis_page' device.id %}"
+        <a href="{% url 'dashboard:device_analysis_page' device.id %}"
             class="btn-custom btn-analysis-glow mt-3 animate__animated animate__fadeInUp animate__delay-1s">
             <svg class="lucide lucide-activity" xmlns="http://www.w3.org/2000/svg" width="28" height="28"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
