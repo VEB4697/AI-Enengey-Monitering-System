@@ -2,7 +2,8 @@ import json
 import sys
 import traceback
 from django.contrib.auth.decorators import login_required
-from django.db.models import Max, OuterRef, Subquery
+from django.db.models import Max, Q, OuterRef, Subquery
+# ... other existing imports
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -28,7 +29,7 @@ def user_dashboard(request):
     """
     Renders the user dashboard, fetching data efficiently.
     """
-    user_devices = Device.objects.filter(owner=request.user, is_registered=True).order_by('-last_seen')
+    user_devices = Device.objects.filter(owner=request.user, is_registered=True).order_by('last_seen')
 
     latest_data_ids = SensorData.objects.values('device_id').annotate(
         max_timestamp=Max('timestamp')
@@ -108,6 +109,7 @@ def device_analysis_page(request, device_id):
     return render(request, 'dashboard/analysis_page.html', context)
 
 
+
 @login_required
 def device_detail(request, device_id):
     device = get_object_or_404(Device, id=device_id, owner=request.user)
@@ -142,6 +144,8 @@ def device_detail(request, device_id):
         
     chart_labels_json = json.dumps(chart_labels)
     chart_data_json = json.dumps(chart_data)
+
+    
 
     context = {
         'device': device,
