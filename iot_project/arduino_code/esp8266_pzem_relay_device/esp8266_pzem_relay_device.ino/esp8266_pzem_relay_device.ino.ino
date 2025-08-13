@@ -443,9 +443,6 @@ void checkButtons() {
   static int lastSwipeButtonState = HIGH; 
   int swipeReading = digitalRead(READ_SWIPE_BUTTON_PIN);
 
-  // Debugging: Print raw button state
-  Serial.print("SWIPE Raw Read (D3): ");
-  Serial.println(swipeReading);
 
   // Check if button state has changed for debouncing
   if (swipeReading != lastSwipeButtonState) {

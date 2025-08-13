@@ -656,6 +656,7 @@
 {% endblock %}
 
 {% block extra_js %}
+
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -668,11 +669,9 @@
 
         // Function to format the timestamp for human readability
         function formatLastSeen(timestamp) {
-            // If timestamp is null, undefined, or 'N/A', return 'N/A'
             if (!timestamp || timestamp === 'N/A') return 'N/A';
             try {
                 const date = new Date(timestamp);
-                // Check if the date is valid after parsing
                 if (isNaN(date.getTime())) {
                     return 'Invalid Date';
                 }
@@ -686,49 +685,37 @@
 
         /**
          * Updates a speedometer-style gauge.
-         * @param {string} gaugeElementId The ID of the gauge's container div (e.g., 'voltage-gauge-1').
+         * @param {string} gaugeElementId The ID of the gauge's container div.
          * @param {number} value The current value to display.
          * @param {number} maxValue The maximum value for the gauge.
-         * @param {string} unit The unit to display (e.g., 'V', 'A', 'W').
+         * @param {string} unit The unit to display.
          */
         function updateGauge(gaugeElementId, value, maxValue, unit) {
             const gaugeBox = document.getElementById(gaugeElementId);
-            if (!gaugeBox) {
-                // console.warn(`Gauge element with ID ${gaugeElementId} not found.`); // Debugging
-                return;
-            }
+            if (!gaugeBox) return;
 
             const needle = gaugeBox.querySelector('.gauge-needle');
             const fillArc = gaugeBox.querySelector('.gauge-arc-fill');
             const valueDisplay = gaugeBox.querySelector('.gauge-value');
             const unitDisplay = gaugeBox.querySelector('.gauge-unit');
 
-            if (!needle || !fillArc || !valueDisplay || !unitDisplay) {
-                // console.warn(`Missing SVG elements or value display for gauge ${gaugeElementId}.`); // Debugging
-                return;
-            }
+            if (!needle || !fillArc || !valueDisplay || !unitDisplay) return;
 
-            // Ensure value is a number and within bounds, defaulting to 0 if not
             const numericValue = typeof value === 'number' ? value : parseFloat(value);
             const clampedValue = isNaN(numericValue) ? 0 : Math.max(0, Math.min(numericValue, maxValue));
 
-            // Calculate rotation for needle (0 to 180 degrees mapping -90 to +90 css degrees).
-            // -90 degrees is the start (0 value) and +90 degrees is the end (maxValue).
             const rotation = (clampedValue / maxValue) * 180 - 90;
-            // FIX: Use backticks for template literal to correctly interpolate the rotation value
+            // CRITICAL FIX: Ensure backticks are used for template literal
             needle.style.transform = `rotate(${rotation}deg)`; 
 
-            // Update fill arc (circumference of a 40 radius semi-circle is approx 125.66)
-            // The SVG arc path is "M10 50 A40 40 0 0 1 90 50" which implies a radius of 40.
-            const arcRadius = 40; 
-            const arcLength = Math.PI * arcRadius; // Circumference of a semi-circle
+            const arcRadius = 40;
+            const arcLength = Math.PI * arcRadius;
             const fillPercentage = clampedValue / maxValue;
             const filledLength = arcLength * fillPercentage;
             const remainingLength = arcLength - filledLength;
 
             fillArc.style.strokeDasharray = `${filledLength} ${remainingLength}`;
             
-            // Update displayed value and unit
             valueDisplay.textContent = typeof numericValue === 'number' && !isNaN(numericValue) ? numericValue.toFixed(1) : 'N/A';
             unitDisplay.textContent = unit;
         }
@@ -747,27 +734,25 @@
 
             if (!iconElement || !textElement) return;
 
-            // Normalize state to a boolean (handle "ON"/"OFF" strings from backend)
             const isRelayOn = (typeof state === 'boolean' && state) || (typeof state === 'string' && state.toUpperCase() === 'ON');
 
             if (isRelayOn) {
                 relayBox.classList.remove('off');
                 relayBox.classList.add('on');
-                iconElement.classList.remove('lucide-power-off'); // Remove specific 'off' icon class
-                iconElement.classList.add('lucide-power'); // Add specific 'on' icon class
-                // Removed explicit color classes here to let CSS inheritance from .on/.off work
+                iconElement.classList.remove('lucide-power-off');
+                iconElement.classList.add('lucide-power');
+                iconElement.style.color = 'inherit'; // Ensure color inheritance
                 textElement.textContent = 'ON';
             } else {
                 relayBox.classList.remove('on');
                 relayBox.classList.add('off');
-                iconElement.classList.remove('lucide-power'); // Remove specific 'on' icon class
-                iconElement.classList.add('lucide-power-off'); // Add specific 'off' icon class
-                // Removed explicit color classes here to let CSS inheritance from .on/.off work
+                iconElement.classList.remove('lucide-power');
+                iconElement.classList.add('lucide-power-off');
+                iconElement.style.color = 'inherit'; // Ensure color inheritance
                 textElement.textContent = 'OFF';
             }
         }
 
-        // Function to fetch and update data
         function updateDashboard() {
             const deviceCards = document.querySelectorAll('.card-custom');
             deviceCards.forEach(card => {
@@ -777,14 +762,12 @@
                 fetch(`/api/v1/device/${deviceId}/latest_data/`)
                     .then(response => {
                         if (!response.ok) {
-                            // If response is not OK, log status and throw error
                             console.error(`HTTP error! Status: ${response.status} for device ${deviceId}`);
                             throw new Error(`Network response was not ok, status: ${response.status}`);
                         }
                         return response.json();
                     })
                     .then(data => {
-                        // Debug: Log the full data object received from the API for each device
                         console.log('Received data for device', deviceId, ':', data); 
 
                         if (data) {
@@ -795,7 +778,6 @@
                             }
                             const statusBadge = card.querySelector('.badge');
                             if (statusBadge) {
-                                // Use data.device.is_online directly from the API response
                                 if (data.device.is_online) { 
                                     statusBadge.textContent = 'Online';
                                     statusBadge.className = 'badge badge-online';
@@ -805,33 +787,27 @@
                                 }
                             }
 
-                            // Update sensor data for power_monitor and its gauges
                             if (data.device.device_type === 'power_monitor' && data.latest_data) {
-                                // Extract all parameters from backend data. Provide defaults if null.
                                 const power = data.latest_data.power ?? 0;
                                 const voltage = data.latest_data.voltage ?? 0;
                                 const current = data.latest_data.current ?? 0;
                                 const kwh = data.latest_data.kwh ?? 0;
                                 const frequency = data.latest_data.frequency ?? 0;
-                                const pf = data.latest_data.power_factor ?? 0; // Ensure this matches backend JSON key if 'power_factor'
-                                const relayState = data.latest_data.relay_state; // This might be a string "ON"/"OFF" or boolean true/false
+                                // IMPORTANT: Use 'power_factor' if that's what your backend sends, else 'pf'
+                                const pf = data.latest_data.power_factor ?? data.latest_data.pf ?? 0; 
+                                const relayState = data.latest_data.relay_state; 
                                 
-                                // Debug: Log extracted sensor data
                                 console.log('Power monitor data extracted:', {power, voltage, current, kwh, frequency, pf, relayState}); 
 
-                                // Update Speedometer Gauges with appropriate max values
                                 updateGauge(`voltage-gauge-${deviceId}`, voltage, 250, 'V');
                                 updateGauge(`current-gauge-${deviceId}`, current, 20, 'A');
                                 updateGauge(`power-gauge-${deviceId}`, power, 5000, 'W');
                                 updateGauge(`kwh-gauge-${deviceId}`, kwh, 1000, 'kWh'); 
                                 updateGauge(`frequency-gauge-${deviceId}`, frequency, 60, 'Hz');
-                                updateGauge(`pf-gauge-${deviceId}`, pf, 1.0, 'PF'); // Power Factor max is typically 1.0
+                                updateGauge(`pf-gauge-${deviceId}`, pf, 1.0, 'PF'); 
 
-                                // Update Relay Status Gauge
                                 updateRelayGauge(`relay-status-gauge-${deviceId}`, relayState);
-                            }
-                            // Add similar logic for other device types (e.g., water_level) if needed
-                            if (data.device.device_type === 'water_level' && data.latest_data) {
+                            } else if (data.device.device_type === 'water_level' && data.latest_data) {
                                 const waterLevelElement = card.querySelector('.water-level-value');
                                 if (waterLevelElement) waterLevelElement.textContent = data.latest_data.water_level || 'N/A';
                             }
@@ -839,17 +815,14 @@
                     })
                     .catch(error => {
                         console.error('Error fetching latest data for device', deviceId, ':', error);
-                        // Consider updating UI to show 'N/A' or an error state if fetching fails consistently
                     });
             });
         }
 
-        // Run the update function initially
         updateDashboard();
-
-        // Run the update function every 5 seconds (5000 milliseconds) for real-time updates
         setInterval(updateDashboard, 5000);
     });
 </script>
+
 
 {% endblock %}
