@@ -663,6 +663,96 @@
             transform: translateY(0);
         }
     }
+
+    /* Custom styling for Django messages */
+    .messages {
+        /* Base styling for the container */
+        padding: 1rem;
+        /* Add some internal padding */
+        box-sizing: border-box;
+        /* Include padding in width calculation */
+    }
+
+    .messages .alert {
+        /* Apply styles to individual alert messages */
+        border-radius: 0.75rem;
+        /* Rounded corners for a softer look */
+        margin-bottom: 0.75rem;
+        /* Space between multiple messages */
+        padding: 1rem 1.5rem;
+        /* Good padding for content */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        /* Subtle shadow for depth */
+        font-weight: 500;
+        /* Slightly bolder text */
+        animation: fadeInSlideDown 0.5s ease-out forwards;
+        /* Entry animation */
+
+        /* Ensure the background and text colors are based on the theme,
+       or adjust these if your alerts aren't inheriting from Bootstrap's
+       alert-success/alert-danger/etc. classes correctly. */
+    }
+
+    /* Specific background and text colors for different message types */
+    .messages .alert-success {
+        background-color: hsla(140, 70%, 30%, 0.8);
+        /* Darker green with transparency */
+        color: hsl(140, 70%, 90%);
+        /* Light green text */
+        border-color: hsla(140, 70%, 40%, 0.9);
+    }
+
+    .messages .alert-warning {
+        background-color: hsla(40, 90%, 40%, 0.8);
+        /* Darker orange with transparency */
+        color: hsl(40, 90%, 90%);
+        /* Light orange text */
+        border-color: hsla(40, 90%, 50%, 0.9);
+    }
+
+    .messages .alert-danger {
+        background-color: hsla(0, 80%, 40%, 0.8);
+        /* Darker red with transparency */
+        color: hsl(0, 80%, 90%);
+        /* Light red text */
+        border-color: hsla(0, 80%, 50%, 0.9);
+    }
+
+    .messages .alert-info {
+        background-color: hsla(195, 100%, 30%, 0.8);
+        /* Darker primary blue with transparency */
+        color: hsl(195, 100%, 90%);
+        /* Light blue text */
+        border-color: hsla(195, 100%, 40%, 0.9);
+    }
+
+    /* Styling for the close button */
+    .messages .alert .btn-close {
+        color: inherit;
+        /* Inherit color from the alert text */
+        opacity: 0.7;
+        /* Slightly transparent */
+        filter: invert(1);
+        /* Invert color to make it visible on dark backgrounds */
+    }
+
+    .messages .alert .btn-close:hover {
+        opacity: 1;
+        /* Fully visible on hover */
+    }
+
+    /* Animation for messages appearing */
+    @keyframes fadeInSlideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
 {% endblock %}
 
@@ -696,14 +786,18 @@
         {% endfor %}
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
+        // Find all alert messages
+        const alerts = document.querySelectorAll('.alert-dismissible');
+
+        alerts.forEach(alert => {
+            // Set a timeout to fade out and remove each alert
             setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    alert.classList.remove('show');
-                    setTimeout(() => alert.remove(), 300);
-                });
-            }, 5000);
+                const bsAlert = new bootstrap.Alert(alert); // Initialize Bootstrap alert
+                bsAlert.close(); // Close the alert, which triggers the fade out
+            }, 5000); // Adjust time (in milliseconds) as needed, e.g., 5000ms = 5 seconds
         });
+    });
     </script>
     {% endif %}
 
