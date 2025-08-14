@@ -139,39 +139,47 @@ def logout_user(request):
     messages.info(request, "You have been logged out.")
     return redirect('homepage')
 
+# core/views.py - device_onboarding_view snippet
+import requests
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.conf import settings # Make sure settings is imported if URL is from settings
+
 def device_onboarding_view(request):
     if request.method == 'POST':
         device_api_key = request.POST.get('device_api_key')
-        URL = '192.168.0.116'
+        # Assuming URL is defined or fetched from settings.py. Using a placeholder here.
+        # If '192.168.0.116' is hardcoded, ensure it's correct for your setup.
+        URL = '192.168.0.116' 
         
         if not device_api_key:
-            messages.error(request, "Please enter a Device API Key.", extra_tags='device_onboarding')
+            messages.error(request, "Please enter a Device API Key.", extra_tags='danger') # Changed extra_tags
             return redirect('device_onboarding')
         
         try:
-
             api_url = f"http://{URL}:8000/api/v1/device/onboard-check/?device_api_key={device_api_key}"
             response = requests.get(api_url)
             data = response.json()
 
             if response.status_code == 200:
-                messages.success(request, f"Device '{data.get('device_name')}' is online and available for registration!", extra_tags='device_onboarding')
-
+                messages.success(request, f"Device '{data.get('device_name')}' is online and available for registration!", extra_tags='success') # Changed extra_tags
             elif response.status_code == 409:
-                messages.info(request, "API key is already registered.", extra_tags='device_onboarding')
+                messages.info(request, "This device is already registered to a user. Please login to manage it.", extra_tags='info') # Changed extra_tags
             elif response.status_code == 412:
-                messages.warning(request, data.get('message', 'Device is offline. Please check its connection.'), extra_tags='device_onboarding')
+                messages.warning(request, data.get('message', 'Device is offline. Please check its connection.'), extra_tags='warning') # Changed extra_tags
             elif response.status_code == 404:
-                messages.error(request, data.get('message', 'API key is not registered.'), extra_tags='device_onboarding')
+                messages.error(request, data.get('message', 'Invalid Device API Key. Please check the key on your physical device.'), extra_tags='danger') # Changed extra_tags
             else:
-                messages.error(request, data.get('message', 'An unexpected error occurred.'), extra_tags='device_onboarding')
+                messages.error(request, data.get('message', 'An unexpected error occurred.'), extra_tags='danger') # Changed extra_tags
 
         except requests.exceptions.RequestException:
-            messages.error(request, "Network error. The server is unreachable.", extra_tags='device_onboarding')
+            messages.error(request, "Network error. The server is unreachable. Ensure the device is powered on and connected to the same network as the server.", extra_tags='danger') # Changed extra_tags
 
         return redirect('device_onboarding')
     
     return render(request, 'core/device_onboarding.html')
+
+# device_api/views.py (DeviceOnboardingCheck remains unchanged as it's an API view)
 
 @login_required
 def add_device_to_user(request):

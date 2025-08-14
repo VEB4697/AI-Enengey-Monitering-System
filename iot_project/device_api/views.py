@@ -150,7 +150,7 @@ class DeviceOnboardingCheck(APIView):
             if device.is_registered:
                 return Response({'status': 'error', 'message': 'This device is already registered to a user. Please login to manage it.'}, status=status.HTTP_409_CONFLICT)
 
-            if not device.is_online or (timezone.now() - device.last_seen).total_seconds() > 30: # 30 seconds threshold
+            if not device.is_online or (timezone.now() - device.last_seen).total_seconds() > 300: # 30 seconds threshold
                 return Response({'status': 'error', 'message': 'Device not recently online. Please ensure it is powered on and successfully connected to your Wi-Fi network first.'}, status=status.HTTP_412_PRECONDITION_FAILED)
 
             return Response({'status': 'success', 'message': 'Device is available for registration!', 'device_name': device.name, 'device_type': device.device_type}, status=status.HTTP_200_OK)

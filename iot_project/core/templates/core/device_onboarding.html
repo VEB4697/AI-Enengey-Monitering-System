@@ -37,7 +37,7 @@
         --border: hsl(222, 47%, 20%);
         --input: hsl(222, 47%, 12%);
         --destructive: hsl(0, 84%, 60%);
-        /* Red for errors */
+        /* Solid Red for errors */
 
         /* Gradients */
         --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -544,115 +544,103 @@
         }
     }
 
-    /* Specific alert styles for feedback messages - ENHANCED */
-    .alert-custom {
-        padding: 1rem 1.5rem;
-        /* Increased padding */
-        margin-bottom: 1rem;
+    /* --- CONSOLIDATED MESSAGE STYLING --- */
+
+    /* Base styling for the messages container */
+    .messages-container {
+        padding: 1rem;
+        box-sizing: border-box;
+        /* The fixed-top, mt-3, width, max-width, margin, and z-index are already inlined in HTML */
+    }
+
+    /* Base styling for individual alert messages */
+    .messages-container .alert {
         border-radius: 0.75rem;
-        /* More rounded corners */
-        font-size: 0.95rem;
-        /* Slightly larger font */
-        text-align: left;
+        /* Rounded corners for a softer look */
+        margin-bottom: 0.75rem;
+        /* Space between multiple messages */
+        padding: 1rem 1.5rem;
+        /* Good padding for content */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        /* Subtle shadow for depth */
+        font-weight: 500;
+        /* Slightly bolder text */
         position: relative;
         overflow: hidden;
-        /* Combine transition for fade and transform for pop */
-        transition: opacity 0.4s ease-out, transform 0.4s ease-out, box-shadow 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        /* Soft shadow for card effect */
+        /* Initial hidden state with pop-up offset */
         transform: translateY(-20px);
-        /* Initial hidden state, slightly above */
         opacity: 0;
-        /* Initial hidden state */
+        /* Combined transition for smooth entry/exit */
+        transition: opacity 0.4s ease-out, transform 0.4s ease-out, box-shadow 0.3s ease;
     }
 
-    /* State when alert is shown */
-    .alert-custom.show {
+    /* State when alert is shown (for pop-in effect) */
+    .messages-container .alert.show {
         opacity: 1;
         transform: translateY(0);
-        /* Pops into place */
     }
 
-    /* Applying background and border for each type */
-    .alert-custom.alert-info {
-        background-color: hsla(195, 100%, 50%, 0.2);
-        color: var(--primary);
-        border: 1px solid var(--primary);
+    /* Specific background and text colors for different message types */
+    .messages-container .alert-success {
+        background-color: hsla(140, 70%, 30%, 0.9);
+        /* Solid green with slight transparency */
+        color: hsl(140, 70%, 95%);
+        /* Very light green text */
+        border: 1px solid hsla(140, 70%, 45%, 1);
+        /* Solid border matching the theme */
     }
 
-    .alert-custom.alert-success {
-        background-color: hsla(120, 100%, 30%, 0.2);
-        color: hsl(120, 100%, 50%);
-        border: 1px solid hsl(120, 100%, 40%);
+    .messages-container .alert-warning {
+        background-color: hsla(40, 90%, 40%, 0.9);
+        /* Solid orange with slight transparency */
+        color: hsl(40, 90%, 95%);
+        /* Very light orange text */
+        border: 1px solid hsla(40, 90%, 50%, 1);
     }
 
-    .alert-custom.alert-danger {
-        background-color: hsla(0, 84%, 60%, 0.2);
-        color: var(--destructive);
+    /* ENHANCED RED BOX FOR ERROR MESSAGES (SOLID) */
+    .messages-container .alert-danger {
+        background-color: var(--destructive);
+        /* Use the solid destructive red color variable */
+        color: white;
+        /* White text for maximum contrast */
         border: 1px solid var(--destructive);
+        /* Solid red border */
+        box-shadow: 0 6px 20px hsla(0, 84%, 60%, 0.6);
+        /* More prominent shadow for errors */
     }
 
-    .alert-custom.alert-warning {
-        background-color: hsla(40, 100%, 60%, 0.2);
-        color: hsl(40, 100%, 70%);
-        border: 1px solid hsl(40, 100%, 60%);
+    .messages-container .alert-info {
+        background-color: hsla(195, 100%, 30%, 0.9);
+        /* Solid primary blue with slight transparency */
+        color: hsl(195, 100%, 95%);
+        /* Very light blue text */
+        border: 1px solid hsla(195, 100%, 40%, 1);
     }
 
-    /* Adjustments for specific text elements */
-    .text-center.lead {
-        /* For the instruction paragraphs */
-        font-size: 1.05rem;
-        /* Slightly larger for readability */
-        line-height: 1.6;
+    /* Styling for the close button */
+    .messages-container .alert .btn-close {
+        background: transparent;
+        /* Ensure no background */
+        opacity: 1;
+        /* Always visible */
+        filter: none;
+        /* Remove any invert filter */
+        color: inherit;
+        /* Inherit color from the alert text */
+        font-size: 1.2rem;
+        /* Make it slightly larger for better touch target */
+        padding: 0.5rem;
+        /* Add padding for easier clicking */
     }
 
-    .text-center code {
-        font-family: 'Space Mono', monospace;
-        /* A distinct monospace font for code snippets */
-        font-size: 0.95rem;
-        background-color: hsla(180, 100%, 50%, 0.1);
-        padding: 0.2em 0.4em;
-        border-radius: 0.25em;
-    }
-
-    .device-message {
-        padding: 12px 16px;
-        border-radius: 8px;
-        font-weight: 500;
-        margin-bottom: 1rem;
-        animation: fadeInDown 0.5s ease;
-    }
-
-    /* Red for error */
-    .device-message.error,
-    .device-message.danger {
-        background-color: #ff4d4f;
+    .messages-container .alert-danger .btn-close {
         color: white;
+        /* Ensure close button is white on red background */
     }
 
-    /* Yellow for warning */
-    .device-message.warning {
-        background-color: #faad14;
-        color: black;
-    }
-
-    /* Green for success */
-    .device-message.success {
-        background-color: #52c41a;
-        color: white;
-    }
-
-    /* Blue for info */
-    .device-message.info {
-        background-color: #1890ff;
-        color: white;
-    }
-
-    /* Removed @keyframes fadeInDown, as it's now controlled by .alert-custom.show */
-    /* Removed @keyframes fadeOutUp, as it's now controlled by .alert-custom transition and removal of .show */
+    /* Keeping fadeInDown for non-alert-custom elements if they use it */
     @keyframes fadeInDown {
-
-        /* Keeping this for the initial onboarding device message, not for Django messages */
         from {
             opacity: 0;
             transform: translateY(-10px);
@@ -686,26 +674,29 @@
             <path d="M18 9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />
         </svg>
     </div>
-    {% if messages %}
-    <div class="messages fixed-top mt-3" style="z-index: 1050; width: 100%; max-width: 600px; margin: auto;">
+    <div class="messages-container fixed-top mt-3" style="z-index: 1050; width: 100%; max-width: 600px; margin: auto;">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {# Initially remove 'show' class. JS will add it to control pop-in animation. #}
+        <div class="alert alert-custom alert-{{ message.tags }} fade" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endfor %}
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    alert.classList.remove('show');
-                    setTimeout(() => alert.remove(), 300);
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Find all alert messages
+                const alerts = document.querySelectorAll('.alert-dismissible');
+
+                alerts.forEach(alert => {
+                    // Set a timeout to fade out and remove each alert
+                    setTimeout(() => {
+                        const bsAlert = new bootstrap.Alert(alert); // Initialize Bootstrap alert
+                        bsAlert.close(); // Close the alert, which triggers the fade out
+                    }, 5000); // Adjust time (in milliseconds) as needed, e.g., 5000ms = 5 seconds
                 });
-            }, 5000);
-        });
-    </script>
-    {% endif %}
+            });
+        </script>
+    </div>
 
     <div class="card-custom">
         <div class="card-header-custom">
@@ -728,7 +719,7 @@
                 style="color: var(--accent);">192.168.4.1</code> in your browser to configure its Wi-Fi.
         </p>
         <p class="text-center lead" style="color: var(--foreground); margin-bottom: 1.5rem;">
-            Once your device is connected to your home Wi-Fi, enter its unique *Device API Key* below to link it to
+            Once your device is connected to your home Wi-Fi, enter its unique **Device API Key** below to link it to
             your account.
         </p>
 
@@ -788,13 +779,60 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const messages = document.querySelectorAll('.alert');
-        messages.forEach(function (message) {
-            setTimeout(function () {
-                const alert = new bootstrap.Alert(message);
-                alert.close();
-            }, 5000);
-        });
+        const messagesContainer = document.querySelector('.messages-container');
+        if (messagesContainer) {
+            const alerts = Array.from(messagesContainer.querySelectorAll('.alert'));
+            let currentAlertIndex = 0;
+            const displayDuration = 5000; // 5 seconds
+
+            function showNextAlert() {
+                if (currentAlertIndex < alerts.length) {
+                    const currentAlert = alerts[currentAlertIndex];
+                    currentAlert.style.display = 'block'; // Make element visible for transition
+                    currentAlert.classList.add('show'); // Add 'show' class to trigger pop-in animation
+
+                    // Initialize Bootstrap Alert instance (or get existing one)
+                    const bsAlert = bootstrap.Alert.getInstance(currentAlert) || new bootstrap.Alert(currentAlert);
+
+                    // Set timeout for auto-closing the current alert
+                    setTimeout(() => {
+                        bsAlert.close(); // Trigger Bootstrap's close, which removes 'show' and handles fade-out
+
+                        // Listen for Bootstrap's 'closed.bs.alert' event
+                        // This event fires AFTER the fade-out transition is complete.
+                        currentAlert.addEventListener('closed.bs.alert', () => {
+                            // Increment index for the next alert
+                            currentAlertIndex++;
+                            // Fully hide the current alert after it's closed and before showing the next one
+                            currentAlert.style.display = 'none';
+                            showNextAlert(); // Recursively call to show the next alert
+                        }, { once: true }); // Ensure this listener runs only once
+                    }, displayDuration);
+
+                    // Attach event listener for manual close button clicks
+                    const closeButton = currentAlert.querySelector('.btn-close');
+                    if (closeButton) {
+                        closeButton.addEventListener('click', () => {
+                            // Bootstrap's default handler for data-bs-dismiss="alert" will trigger close()
+                            // The 'closed.bs.alert' event listener above will then handle showing the next alert.
+                        }, { once: true }); // Ensure this listener runs only once
+                    }
+
+                }
+            }
+
+            // Step 1: Initially hide all alerts by removing 'show' and setting display to 'none'.
+            // This prevents all messages from appearing at once on page load.
+            alerts.forEach(alert => {
+                alert.classList.remove('show');
+                alert.style.display = 'none';
+            });
+
+            // Step 2: If there are messages, start the display sequence by showing the first one.
+            if (alerts.length > 0) {
+                showNextAlert();
+            }
+        }
     });
 </script>
 {% endblock %}
