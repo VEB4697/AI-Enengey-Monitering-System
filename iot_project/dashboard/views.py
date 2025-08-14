@@ -112,62 +112,70 @@ def device_analysis_page(request, device_id):
     }
     return render(request, 'dashboard/analysis_page.html', context)
 
-@login_required 
-def device_detail(request, device_id): 
+@login_required
+def device_detail(request, device_id):
     """
     Renders the device details page, fetching and parsing sensor data for charts and table.
     Ensures data is correctly prepared as numbers for charting.
     """
-    device = get_object_or_404(Device, id=device_id, owner=request.user) 
+    device = get_object_or_404(Device, id=device_id, owner=request.user)
 
-    sensor_data_entries = SensorData.objects.filter(device=device).order_by('timestamp')[:50:-1] 
+    # FIX 1: Fetch the latest 50 sensor data entries, then reverse them for chronological order.
+    # Chart.js time axis generally expects data in ascending time order.
+    sensor_data_entries_raw = SensorData.objects.filter(device=device).order_by('-timestamp')[:50]
+    sensor_data_entries = list(reversed(sensor_data_entries_raw))
     
-    # This list will hold sensor data entries with a 'parsed_data' attribute (as a Python dict)
-    parsed_sensor_data_entries = []
+    chart_labels = []
+    chart_data = {
+        'power': [],
+        'voltage': [],
+        'current': [],
+        'energy': [],
+        'frequency': [],
+        'power_factor': [],
+        'water_level': []
+    }
+
     for entry in sensor_data_entries:
-        # CRITICAL FIX: Direct access to entry.data. It's ALREADY a dictionary from JSONField.
-        # No need for json.loads() here.
-        data = entry.data 
+        # FIX 2: Access the 'data' JSONField content directly for each entry in the loop.
+        # Assuming entry.data is a JSONField and already deserialized into a Python dictionary.
+        entry_sensor_data = entry.data 
         
-        parsed_sensor_data_entries.append(entry)
-
-    chart_labels = [] 
-    chart_data = { 
-        'power': [], 
-        'voltage': [], 
-        'current': [], 
-        'energy': [], 
-        'frequency': [], 
-        'power_factor': [], 
-        'water_level': [] 
-    } 
-
-    for entry in parsed_sensor_data_entries: 
-        # Use .isoformat() for chart labels for correct Chart.js time scale interpretation
+        # Use strftime for chart labels to match the Chart.js 'yyyy-MM-dd HH:mm:ss' parser
         chart_labels.append(entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'))
 
-        # IMPORTANT: Explicitly convert to float, and handle None if key is missing
-        if device.device_type == 'power_monitor': 
-            chart_data['power'].append(float(data.get('power')) if data.get('power') is not None else None)
-            chart_data['voltage'].append(float(data.get('voltage')) if data.get('voltage') is not None else None) 
-            chart_data['current'].append(float(data.get('current')) if data.get('current') is not None else None) 
-            chart_data['energy'].append(float(data.get('energy')) if data.get('energy') is not None else None) 
-            chart_data['frequency'].append(float(data.get('frequency')) if data.get('frequency') is not None else None) 
-            chart_data['power_factor'].append(float(data.get('power_factor')) if data.get('power_factor') is not None else None) 
-        
-        if device.device_type == 'water_level': # Use 'if' here, not 'elif', for clarity of separate logic
-            chart_data['water_level'].append(float(data.get('water_level')) if data.get('water_level') is not None else None) 
-        
-    # print(f"Chart labels: {chart_labels}") # Keep these for your own debugging if needed
-    # print(f"Chart data: {chart_data}")     # but remove in production
+        # IMPORTANT: Explicitly convert to float, and handle None if key is missing.
+        # Ensure that non-relevant fields for a device type are appended as None.
+        if device.device_type == 'power_monitor':
+            chart_data['power'].append(float(entry_sensor_data.get('power')) if entry_sensor_data.get('power') is not None else None)
+            chart_data['voltage'].append(float(entry_sensor_data.get('voltage')) if entry_sensor_data.get('voltage') is not None else None)
+            chart_data['current'].append(float(entry_sensor_data.get('current')) if entry_sensor_data.get('current') is not None else None)
+            chart_data['energy'].append(float(entry_sensor_data.get('energy')) if entry_sensor_data.get('energy') is not None else None)
+            chart_data['frequency'].append(float(entry_sensor_data.get('frequency')) if entry_sensor_data.get('frequency') is not None else None)
+            chart_data['power_factor'].append(float(entry_sensor_data.get('power_factor')) if entry_sensor_data.get('power_factor') is not None else None)
+            chart_data['water_level'].append(None) # Add None for non-existent fields for consistency
+        elif device.device_type == 'water_level':
+            chart_data['water_level'].append(float(entry_sensor_data.get('water_level')) if entry_sensor_data.get('water_level') is not None else None)
+            # Add None for power_monitor fields if this is a water_level device for consistency
+            chart_data['power'].append(None)
+            chart_data['voltage'].append(None)
+            chart_data['current'].append(None)
+            chart_data['energy'].append(None)
+            chart_data['frequency'].append(None)
+            chart_data['power_factor'].append(None)
+    
+    # Debug prints (keep these for your own testing, remove in production)
+    # print(f"Chart labels: {chart_labels}")
+    # print(f"Chart data: {chart_data}")
 
-    chart_labels_json = json.dumps(chart_labels) 
-    chart_data_json = json.dumps(chart_data) 
+    chart_labels_json = json.dumps(chart_labels)
+    chart_data_json = json.dumps(chart_data)
 
+    # Debug prints for JSON (keep these for your own testing, remove in production)
     # print(f"Chart labels JSON: {chart_labels_json}")
     # print(f"Chart data JSON: {chart_data_json}")
     
-    # Calculate is_online for this single device based on its last_seen timestamp
+    # Calculate is_online based on last_seen timestamp
     current_time = timezone.now()
     is_online = False
     if device.last_seen: 
@@ -177,7 +185,7 @@ def device_detail(request, device_id):
 
     context = { 
         'device': device, 
-        'sensor_data_entries': sensor_data_entries, # This list is used for the table
+        'sensor_data_entries': sensor_data_entries, # This list is still used for your table display
         'chart_labels': chart_labels_json, 
         'chart_data': chart_data_json, 
         'is_online': is_online, 
