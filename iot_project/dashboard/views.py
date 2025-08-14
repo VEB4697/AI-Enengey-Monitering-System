@@ -104,7 +104,8 @@ def device_analysis_page(request, device_id):
     """
     device = get_object_or_404(Device, pk=device_id, owner=request.user)    
 
-    sensor_data_entries = SensorData.objects.filter(device=device).order_by('timestamp')[:50]
+    sensor_data_entries_raw = SensorData.objects.filter(device=device).order_by('-timestamp')[:50]
+    sensor_data_entries = list(reversed(sensor_data_entries_raw))
 
     context = {
         'device': device,

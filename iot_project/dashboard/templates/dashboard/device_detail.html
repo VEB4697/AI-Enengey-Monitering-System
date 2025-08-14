@@ -574,19 +574,19 @@
             const data = await response.json();
 
             if (response.ok) {
-                controlFeedback.innerHTML = '<div class="alert alert-success">${data.message}</div>';
+                controlFeedback.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
                 if (state === 'ON') {
-                    controlFeedback.innerHTML += '<p class="mt-2 text-success">Relay is on</p>';
+                    controlFeedback.innerHTML += `<p class="mt-2 text-success">Relay is on</p>`;
                 } else if (state === 'OFF') {
-                    controlFeedback.innerHTML += '<p class="mt-2 text-danger">Relay is off</p>';
+                    controlFeedback.innerHTML += `<p class="mt-2 text-danger">Relay is off</p>`;
                 }
             } else {
-                controlFeedback.innerHTML = '<div class="alert alert-warning">${data.message || "Failed to send command."} </div>';
+                controlFeedback.innerHTML = `<div class="alert alert-warning">${data.message || "Failed to send command."} </div>`;
             }
 
         } catch (error) {
             console.error('Error sending command:', error);
-            controlFeedback.innerHTML = '<div class="alert alert-danger">Network error or server unreachable: ${error.message}.</div>';
+            controlFeedback.innerHTML = `<div class="alert alert-danger">Network error or server unreachable: ${error.message}.</div>`;
         }
     }
 
