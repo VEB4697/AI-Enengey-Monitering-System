@@ -145,8 +145,6 @@ def device_detail(request, device_id):
     chart_labels_json = json.dumps(chart_labels)
     chart_data_json = json.dumps(chart_data)
 
-    
-
     context = {
         'device': device,
         'sensor_data_entries': sensor_data_entries,

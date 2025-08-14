@@ -585,6 +585,11 @@
         const chartData = JSON.parse('{{ chart_data|escapejs }}');
         const deviceType = '{{ device.device_type }}';
 
+        // --- DEBUGGING: Log parsed data to console ---
+        console.log('Chart Labels:', chartLabels);
+        console.log('Chart Data:', chartData);
+        // --- END DEBUGGING ---
+
         // Check if there's data to display before trying to initialize chart
         if (chartLabels.length > 0) {
             // Power Monitor Chart
