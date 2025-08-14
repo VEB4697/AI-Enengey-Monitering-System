@@ -430,8 +430,8 @@
                 
                 {# Always render the chart canvas, but populate it with data only if available #}
                 {% if device.device_type == 'power_monitor' %}
-                <div style="position: relative; height: 900px; width: 100%;">
-                    <canvas id="powerChart"></canvas>
+                <div>
+                    <canvas id="powerChart"  style="position: relative; height: 900px; width: 100%;"></canvas>
                 </div>
                 {% elif device.device_type == 'water_level' %}
                 <div style="position: relative; height: 400px; width: 100%;">
@@ -532,6 +532,8 @@
 {% endblock %}
 
 {% block scripts_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 <script>
     // Function to handle control button commands using the form
     async function sendCommand(commandType, state) {
@@ -578,177 +580,76 @@
     }
 
    // Chart.js initialization
-document.addEventListener('DOMContentLoaded', function() {
-    // Parse chart data and labels directly from Django context
-    // These are passed as JSON strings, so parse them back into JavaScript objects
-    const chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
-    const chartData = JSON.parse('{{ chart_data|escapejs }}');
-    const deviceType = '{{ device.device_type }}';
+document.addEventListener('DOMContentLoaded', function () {
+    const chartLabels = "{{ chart_labels|safe }}";
+    const chartData = "{{ chart_data|safe }}";
+    const deviceType = "{{ device.device_type }}";
 
-    // Check if there's data to display before trying to initialize chart
-    if (chartLabels.length > 0) {
-        // Power Monitor Chart
-        if (deviceType === 'power_monitor') {
-            const ctx = document.getElementById('powerChart')?.getContext('2d');
-            if (ctx) {
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: chartLabels, // These are now correctly formatted ISO strings
-                        datasets: [
-                            {
-                                label: 'Power (W)',
-                                data: chartData.power,
-                                borderColor: 'rgb(75, 192, 192)',
-                                tension: 0.1,
-                                fill: false
-                            },
-                            {
-                                label: 'Voltage (V)',
-                                data: chartData.voltage,
-                                borderColor: 'rgb(255, 99, 132)',
-                                tension: 0.1,
-                                fill: false
-                            },
-                            {
-                                label: 'Current (A)',
-                                data: chartData.current,
-                                borderColor: 'rgb(54, 162, 235)',
-                                tension: 0.1,
-                                fill: false
-                            },
-                            {
-                                label: 'Energy (kWh)',
-                                data: chartData.energy,
-                                borderColor: 'rgb(201, 203, 207)',
-                                tension: 0.1,
-                                fill: false
-                            },
-                            {
-                                label: 'Frequency (Hz)',
-                                data: chartData.frequency,
-                                borderColor: 'rgb(255, 205, 86)',
-                                tension: 0.1,
-                                fill: false
-                            },
-                            {
-                                label: 'Power Factor',
-                                data: chartData.power_factor,
-                                borderColor: 'rgb(153, 102, 255)',
-                                tension: 0.1,
-                                fill: false
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                type: 'time',
-                                time: {
-                                    unit: 'hour',
-                                    displayFormats: {
-                                        hour: 'h:mm a',
-                                        minute: 'h:mm a'
-                                    },
-                                    // This parser is correct for 'YYYY-MM-DD HH:MM:SS' format
-                                    parser: 'yyyy-MM-dd HH:mm:ss'
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Time',
-                                    color: '#e0e0e0'
-                                },
-                                ticks: { color: '#a0aec0' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Value',
-                                    color: '#e0e0e0'
-                                },
-                                ticks: { color: '#a0aec0' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            }
+    if (chartLabels.length === 0) return;
+
+    if (deviceType === 'power_monitor') {
+        const ctx = document.getElementById('powerChart')?.getContext('2d');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        { label: 'Power (W)', data: chartData.power, borderColor: 'rgb(75,192,192)', fill: false },
+                        { label: 'Voltage (V)', data: chartData.voltage, borderColor: 'rgb(255,99,132)', fill: false },
+                        { label: 'Current (A)', data: chartData.current, borderColor: 'rgb(54,162,235)', fill: false },
+                        { label: 'Energy (kWh)', data: chartData.energy, borderColor: 'rgb(201,203,207)', fill: false },
+                        { label: 'Frequency (Hz)', data: chartData.frequency, borderColor: 'rgb(255,205,86)', fill: false },
+                        { label: 'Power Factor', data: chartData.power_factor, borderColor: 'rgb(153,102,255)', fill: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'hour', displayFormats: { hour: 'h:mm a' } },
+                            title: { display: true, text: 'Time' }
                         },
-                        plugins: {
-                            legend: { labels: { color: '#e0e0e0' } },
-                            tooltip: {
-                                backgroundColor: 'rgba(44, 62, 80, 0.8)',
-                                titleColor: '#e0e0e0',
-                                bodyColor: '#e0e0e0'
-                            }
+                        y: {
+                            title: { display: true, text: 'Value' }
                         }
                     }
-                });
-            }
+                }
+            });
         }
-        // Water Level Chart
-        else if (deviceType === 'water_level') {
-            const ctx = document.getElementById('waterLevelChart')?.getContext('2d');
-            if (ctx) {
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: chartLabels, // These are now correctly formatted ISO strings
-                        datasets: [
-                            {
-                                label: 'Water Level (%)',
-                                data: chartData.water_level,
-                                borderColor: 'rgb(0, 123, 255)',
-                                tension: 0.1,
-                                fill: false
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                type: 'time',
-                                time: {
-                                    unit: 'hour',
-                                    displayFormats: {
-                                        hour: 'h:mm a',
-                                        minute: 'h:mm a'
-                                    },
-                                    // This parser is correct for 'YYYY-MM-DD HH:MM:SS' format
-                                    parser: 'yyyy-MM-dd HH:mm:ss'
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Time',
-                                    color: '#e0e0e0'
-                                },
-                                ticks: { color: '#a0aec0' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Value',
-                                    color: '#e0e0e0'
-                                },
-                                ticks: { color: '#a0aec0' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            }
+    }
+
+    if (deviceType === 'water_level') {
+        const ctx = document.getElementById('waterLevelChart')?.getContext('2d');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        { label: 'Water Level (%)', data: chartData.water_level, borderColor: 'rgb(0,123,255)', fill: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'hour', displayFormats: { hour: 'h:mm a' } },
+                            title: { display: true, text: 'Time' }
                         },
-                        plugins: {
-                            legend: { labels: { color: '#e0e0e0' } },
-                            tooltip: {
-                                backgroundColor: 'rgba(44, 62, 80, 0.8)',
-                                titleColor: '#e0e0e0',
-                                bodyColor: '#e0e0e0'
-                            }
+                        y: {
+                            title: { display: true, text: 'Value' }
                         }
                     }
-                });
-            }
+                }
+            });
         }
     }
 });
+
 </script>
 {% endblock %}

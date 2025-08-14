@@ -127,7 +127,7 @@ def device_detail(request, device_id):
     for entry in sensor_data_entries:
         # CRITICAL FIX: Direct access to entry.data. It's ALREADY a dictionary from JSONField.
         # No need for json.loads() here.
-        entry.parsed_data = entry.data 
+        data = entry.data 
         
         parsed_sensor_data_entries.append(entry)
 
@@ -148,15 +148,15 @@ def device_detail(request, device_id):
 
         # IMPORTANT: Explicitly convert to float, and handle None if key is missing
         if device.device_type == 'power_monitor': 
-            chart_data['power'].append(float(entry.parsed_data.get('power')) if entry.parsed_data.get('power') is not None else None)
-            chart_data['voltage'].append(float(entry.parsed_data.get('voltage')) if entry.parsed_data.get('voltage') is not None else None) 
-            chart_data['current'].append(float(entry.parsed_data.get('current')) if entry.parsed_data.get('current') is not None else None) 
-            chart_data['energy'].append(float(entry.parsed_data.get('energy')) if entry.parsed_data.get('energy') is not None else None) 
-            chart_data['frequency'].append(float(entry.parsed_data.get('frequency')) if entry.parsed_data.get('frequency') is not None else None) 
-            chart_data['power_factor'].append(float(entry.parsed_data.get('power_factor')) if entry.parsed_data.get('power_factor') is not None else None) 
+            chart_data['power'].append(float(data.get('power')) if data.get('power') is not None else None)
+            chart_data['voltage'].append(float(data.get('voltage')) if data.get('voltage') is not None else None) 
+            chart_data['current'].append(float(data.get('current')) if data.get('current') is not None else None) 
+            chart_data['energy'].append(float(data.get('energy')) if data.get('energy') is not None else None) 
+            chart_data['frequency'].append(float(data.get('frequency')) if data.get('frequency') is not None else None) 
+            chart_data['power_factor'].append(float(data.get('power_factor')) if data.get('power_factor') is not None else None) 
         
         if device.device_type == 'water_level': # Use 'if' here, not 'elif', for clarity of separate logic
-            chart_data['water_level'].append(float(entry.parsed_data.get('water_level')) if entry.parsed_data.get('water_level') is not None else None) 
+            chart_data['water_level'].append(float(data.get('water_level')) if data.get('water_level') is not None else None) 
         
     # print(f"Chart labels: {chart_labels}") # Keep these for your own debugging if needed
     # print(f"Chart data: {chart_data}")     # but remove in production
@@ -164,8 +164,8 @@ def device_detail(request, device_id):
     chart_labels_json = json.dumps(chart_labels) 
     chart_data_json = json.dumps(chart_data) 
 
-    # print(f"Chart labels JSON: {chart_labels_json}")
-    # print(f"Chart data JSON: {chart_data_json}")
+    print(f"Chart labels JSON: {chart_labels_json}")
+    print(f"Chart data JSON: {chart_data_json}")
     
     # Calculate is_online for this single device based on its last_seen timestamp
     current_time = timezone.now()
