@@ -123,15 +123,18 @@ void setup() {
 
   // Initialize all button pins with pull-ups
   // INPUT_PULLUP means the pin will be HIGH when button is NOT pressed, LOW when pressed
-  pinMode(WIFI_RESET_BUTTON_PIN, INPUT_PULLUP);
-  pinMode(READ_SWIPE_BUTTON_PIN, INPUT_PULLUP);
-  pinMode(RELAY_CONTROL_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(WIFI_RESET_BUTTON_PIN, INPUT);
+  pinMode(READ_SWIPE_BUTTON_PIN, INPUT);
+  pinMode(RELAY_CONTROL_BUTTON_PIN, INPUT);
   pinMode(RELAY_PIN, OUTPUT); // Configure relay pin as output
 
   // Debugging: Print initial button pin states
-  Serial.print("Initial WIFI_RESET_BUTTON_PIN (D7) state: "); Serial.println(digitalRead(WIFI_RESET_BUTTON_PIN));
-  Serial.print("Initial READ_SWIPE_BUTTON_PIN (D3) state: "); Serial.println(digitalRead(READ_SWIPE_BUTTON_PIN));
-  Serial.print("Initial RELAY_CONTROL_BUTTON_PIN (D4) state: "); Serial.println(digitalRead(RELAY_CONTROL_BUTTON_PIN));
+  Serial.print("Initial WIFI_RESET_BUTTON_PIN (D7) state: ");
+  Serial.println(digitalRead(WIFI_RESET_BUTTON_PIN));
+  Serial.print("Initial READ_SWIPE_BUTTON_PIN (D3) state: "); 
+  Serial.println(digitalRead(READ_SWIPE_BUTTON_PIN));
+  Serial.print("Initial RELAY_CONTROL_BUTTON_PIN (D4) state: "); 
+  Serial.println(digitalRead(RELAY_CONTROL_BUTTON_PIN));
 
 
   // Initial state for relay: OFF (HIGH for active-low relay)
@@ -573,6 +576,7 @@ void checkCommands() {
           if (params.containsKey("relay_state")) {
             // Read as boolean. Ensure backend sends true/false.
             bool relay_state = params["relay_state"].as<bool>();
+            Serial.println(relay_state);
             setRelayState(relay_state);
           } else {
             Serial.println("Missing 'relay_state' parameter for 'set_relay_state' command.");
