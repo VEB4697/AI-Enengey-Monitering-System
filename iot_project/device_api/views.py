@@ -262,7 +262,7 @@ class DeviceAnalysisAPIView(APIView):
                 start_time = end_time - timezone.timedelta(days=7)
             elif duration_param == '30d':
                 start_time = end_time - timezone.timedelta(days=30)
-            else:
+            else: # Default to 24 hours
                 start_time = end_time - timezone.timedelta(hours=24)
 
             sensor_data_qs = SensorData.objects.filter(
@@ -276,17 +276,18 @@ class DeviceAnalysisAPIView(APIView):
                     'device_id': device.id,
                     'device_name': device.name,
                     'device_type': device.device_type,
-                    'message': 'No data available for analysis in the specified period.',
+                    'message': f'No data available for analysis for the last {duration_param}.',
                     'data_points': [],
                     'anomalies': [],
                     'predictions': [],
-                    'suggestions': ["No data to analyze. Please ensure your device is sending data."]
+                    'suggestions': [f"No sensor data available for the last {duration_param}. Please ensure your device is sending data."]
                 }, status=status.HTTP_200_OK)
 
             data_list = []
             for entry in sensor_data_qs:
                 row = {'timestamp': entry['timestamp']}
-                row.update(entry['data'])
+                # Assuming SensorData.data is a JSONField and already a dict
+                row.update(entry['data']) 
                 data_list.append(row)
             
             df = pd.DataFrame(data_list)
@@ -297,7 +298,9 @@ class DeviceAnalysisAPIView(APIView):
             predictions = []
             suggestions = []
 
+            # --- Anomaly Detection and Forecasting Logic ---
             if device.device_type == 'power_monitor':
+                # Isolation Forest for Anomaly Detection (Power)
                 if 'power' in df.columns and len(df) > 10 and df['power'].nunique() > 1:
                     try:
                         iso_forest = IsolationForest(random_state=42, contamination=0.05) 
@@ -311,13 +314,14 @@ class DeviceAnalysisAPIView(APIView):
                                 'value': row['power'],
                                 'description': f"Unusual power consumption detected: {row['power']:.2f} W"
                             })
-                            suggestions.append(f"Consider checking devices connected at {idx.strftime('%Y-%m-%d %H:%M')}. Anomaly detected: Power spike to {row['power']:.2f} W.")
+                            suggestions.append(f"⚠️ Anomaly detected: Power spike to {row['power']:.2f} W at {idx.strftime('%Y-%m-%d %H:%M')}. Consider checking connected devices.")
                     except Exception as e:
                         logger.error(f"Error running Isolation Forest for device {device_id}: {e}", exc_info=True)
-                        suggestions.append("Could not run anomaly detection. Check data quality or sufficient data points.")
+                        suggestions.append("⚠️ Could not run anomaly detection for power. Check data quality or ensure sufficient varied data points (needs > 10).")
                 else:
-                    suggestions.append("Not enough diverse data to perform anomaly detection (needs > 10 varied power readings).")
+                    suggestions.append("ℹ️ Not enough diverse data to perform power anomaly detection (needs > 10 varied readings).")
 
+                # Prophet for Forecasting (Power)
                 if 'power' in df.columns and len(df) > 20 and df['power'].nunique() > 1:
                     try:
                         prophet_df = df[['power']].reset_index().rename(columns={'timestamp': 'ds', 'power': 'y'})
@@ -325,7 +329,7 @@ class DeviceAnalysisAPIView(APIView):
                         m = Prophet(daily_seasonality=True, changepoint_prior_scale=0.05) 
                         m.fit(prophet_df)
 
-                        future = m.make_future_dataframe(periods=24, freq='H') 
+                        future = m.make_future_dataframe(periods=24, freq='H') # Forecast next 24 hours
                         forecast = m.predict(future)
 
                         for idx, row in forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(24).iterrows():
@@ -337,24 +341,25 @@ class DeviceAnalysisAPIView(APIView):
                             })
                         
                         positive_predicted_power = forecast['yhat'].tail(24)
-                        positive_predicted_power = positive_predicted_power[positive_predicted_power > 0]
-                        
+                        positive_predicted_power = positive_predicted_power[positive_predicted_power > 0] # Filter out negative predictions
+
                         if not positive_predicted_power.empty:
                             avg_predicted_power = positive_predicted_power.mean()
-                            if avg_predicted_power > 500:
-                                suggestions.append(f"Expected average power consumption over next 24 hours: {avg_predicted_power:.2f} W. Consider optimizing usage.")
+                            if avg_predicted_power > 500: # Example threshold for high usage
+                                suggestions.append(f"💡 Expected average power consumption over next 24 hours: {avg_predicted_power:.2f} W. Consider optimizing usage during peak times.")
                             else:
-                                suggestions.append("Power consumption forecast looks normal for the next 24 hours.")
+                                suggestions.append("✅ Power consumption forecast looks normal for the next 24 hours.")
                         else:
-                            suggestions.append("Forecast generated, but predicted power values are zero or negative. Check data for patterns.")
+                            suggestions.append("ℹ️ Forecast generated, but predicted power values are unrealistic (zero/negative). Check historical data patterns.")
 
                     except Exception as e:
-                        logger.error(f"Error running Prophet forecast for device {device_id}: {e}", exc_info=True)
-                        suggestions.append("Could not generate power consumption forecast. Check data quality or sufficient data points (needs > 20 varied readings).")
+                        logger.error(f"Error running Prophet forecast for power on device {device_id}: {e}", exc_info=True)
+                        suggestions.append("⚠️ Could not generate power consumption forecast. Check data quality or ensure sufficient varied data points (needs > 20).")
                 else:
-                    suggestions.append("Not enough diverse data to generate power consumption forecast (needs > 20 varied readings).")
+                    suggestions.append("ℹ️ Not enough diverse data to generate power consumption forecast (needs > 20 varied readings).")
 
             elif device.device_type == 'water_level':
+                # Isolation Forest for Anomaly Detection (Water Level)
                 if 'water_level' in df.columns and len(df) > 10 and df['water_level'].nunique() > 1:
                     try:
                         iso_forest = IsolationForest(random_state=42, contamination=0.05) 
@@ -368,21 +373,22 @@ class DeviceAnalysisAPIView(APIView):
                                 'description': f"Unusual water level detected: {row['water_level']:.2f}%"
                             })
                             if row['water_level'] < 10:
-                                suggestions.append(f"Water level is critically low ({row['water_level']:.2f}%). Consider refilling the tank.")
+                                suggestions.append(f"🚨 Water level is critically low ({row['water_level']:.2f}%). Consider refilling the tank immediately.")
                             elif row['water_level'] > 90:
-                                suggestions.append(f"Water level is very high ({row['water_level']:.2f}%). Ensure no overflow issues.")
+                                suggestions.append(f"⚠️ Water level is very high ({row['water_level']:.2f}%). Ensure no overflow issues.")
                     except Exception as e:
                         logger.error(f"Error running Isolation Forest for water_level on device {device_id}: {e}", exc_info=True)
-                        suggestions.append("Could not run water level anomaly detection. Check data quality or sufficient data points.")
+                        suggestions.append("⚠️ Could not run water level anomaly detection. Check data quality or ensure sufficient varied data points.")
                 else:
-                    suggestions.append("Not enough diverse data to perform water level anomaly detection (needs > 10 varied readings).")
+                    suggestions.append("ℹ️ Not enough diverse data to perform water level anomaly detection (needs > 10 varied readings).")
 
+                # Prophet for Forecasting (Water Level)
                 if 'water_level' in df.columns and len(df) > 20 and df['water_level'].nunique() > 1:
                     try:
                         prophet_df = df[['water_level']].reset_index().rename(columns={'timestamp': 'ds', 'water_level': 'y'})
                         m = Prophet(daily_seasonality=True, changepoint_prior_scale=0.05)
                         m.fit(prophet_df)
-                        future = m.make_future_dataframe(periods=24, freq='H')
+                        future = m.make_future_dataframe(periods=24, freq='H') # Forecast next 24 hours
                         forecast = m.predict(future)
                         for idx, row in forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(24).iterrows():
                             predictions.append({
@@ -393,31 +399,33 @@ class DeviceAnalysisAPIView(APIView):
                             })
                         
                         predicted_water_levels = forecast['yhat'].tail(24)
-                        predicted_water_levels = predicted_water_levels[(predicted_water_levels >= 0) & (predicted_water_levels <= 100)]
+                        predicted_water_levels = predicted_water_levels[(predicted_water_levels >= 0) & (predicted_water_levels <= 100)] # Clamp to 0-100%
 
                         if not predicted_water_levels.empty:
                             avg_predicted_level = predicted_water_levels.mean()
-                            if avg_predicted_level < 20:
-                                suggestions.append(f"Predicted average water level over next 24 hours: {avg_predicted_level:.2f}%. Plan for refilling soon.")
+                            if avg_predicted_level < 20: # Example threshold for low level
+                                suggestions.append(f"💡 Predicted average water level over next 24 hours: {avg_predicted_level:.2f}%. Plan for refilling soon.")
                             else:
-                                suggestions.append("Water level forecast looks stable for the next 24 hours.")
+                                suggestions.append("✅ Water level forecast looks stable for the next 24 hours.")
                         else:
-                            suggestions.append("Forecast generated, but predicted water levels are outside expected range (0-100%). Check data for patterns.")
+                            suggestions.append("ℹ️ Forecast generated, but predicted water levels are unrealistic (outside 0-100% range). Check historical data patterns.")
                     except Exception as e:
                         logger.error(f"Error running Prophet forecast for water_level on device {device_id}: {e}", exc_info=True)
-                        suggestions.append("Could not generate water level forecast. Check data quality or sufficient data points (needs > 20 varied readings).")
+                        suggestions.append("⚠️ Could not generate water level forecast. Check data quality or ensure sufficient varied data points (needs > 20).")
                 else:
-                    suggestions.append("Not enough diverse data to generate water level forecast (needs > 20 varied readings).")
+                    suggestions.append("ℹ️ Not enough diverse data to generate water level forecast (needs > 20 varied readings).")
             
             else:
-                suggestions.append("Analysis not yet configured for this device type.")
-                suggestions.append("Ensure the device is sending 'power' or 'water_level' data for analysis.")
+                # Default suggestions for unconfigured device types
+                suggestions.append("ℹ️ Analysis not yet configured for this device type.")
+                suggestions.append("ℹ️ Ensure the device is sending 'power' or 'water_level' data for analysis.")
 
+            # Prepare historical data for response (timestamp and data payload)
             historical_data_for_response = []
             for entry in data_list:
                 historical_data_for_response.append({
-                    'timestamp': entry['timestamp'].isoformat(),
-                    'data': {k: v for k, v in entry.items() if k != 'timestamp'}
+                    'timestamp': entry['timestamp'].isoformat(), # Convert datetime to ISO string
+                    'data': {k: v for k, v in entry.items() if k != 'timestamp'} # Exclude timestamp from 'data' dict
                 })
 
             return Response({

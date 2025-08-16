@@ -1,3 +1,5 @@
+# dashboard/urls.py
+
 from django.urls import path
 from .views import user_dashboard, device_detail, control_device, device_analysis_page
 

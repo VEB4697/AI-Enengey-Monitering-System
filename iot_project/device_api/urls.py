@@ -10,6 +10,5 @@ urlpatterns = [
     path('onboard-check/', DeviceOnboardingCheck.as_view(), name='device_onboarding_check'),
     path('<int:device_id>/latest_data/', DeviceLatestDataRetrieve.as_view(), name='device-latest-data-retrieve'),
     
-    path('<int:device_id>/analysis/', DeviceAnalysisAPIView.as_view(), name='device_analysis_api'),
-
+    path('<int:device_id>/analysis/', DeviceAnalysisAPIView.as_view(), name='device_analysis'),
 ]

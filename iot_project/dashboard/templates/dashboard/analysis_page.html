@@ -6,6 +6,10 @@
 {% block head_extra %}
 <!-- Chart.js for dynamic charts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- REQUIRED for Chart.js time scale: https://www.chartjs.org/docs/latest/axes/timeseries.html#date-adapters -->
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.x/build/global/luxon.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.x/dist/chartjs-adapter-luxon.min.js"></script>
+
 <!-- Google Fonts and Lucide Icons for consistency -->
 <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap"
@@ -42,6 +46,7 @@
         --input: hsl(222, 47%, 12%);
         --destructive: hsl(0, 84%, 60%);
         /* Red for errors */
+        --warning: hsl(40, 95%, 55%); /* Orange for warnings */
 
         /* Gradients */
         --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -281,64 +286,64 @@
         animation-name: fadeInUp;
     }
     .theme-alert {
-    background: var(--card);
-    border: 1px solid var(--primary);
-    color: var(--foreground);
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5); /* Add a glowing effect */
-    transition: box-shadow 0.3s ease-in-out;
-}
+        background: var(--card);
+        border: 1px solid var(--primary);
+        color: var(--foreground);
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5); /* Add a glowing effect */
+        transition: box-shadow 0.3s ease-in-out;
+    }
 
-.theme-alert:hover {
-    box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.8);
-}
+    .theme-alert:hover {
+        box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.8);
+    }
 
-.theme-alert h4 {
-    color: var(--primary); /* Highlight the heading */
-}
+    .theme-alert h4 {
+        color: var(--primary); /* Highlight the heading */
+    }
 
-/* Specific styles for the Suggestions box */
-.suggestions-box {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    box-shadow: var(--shadow-glass);
-    margin-top: 2rem;
-}
+    /* Specific styles for the Suggestions box */
+    .suggestions-box {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-glass);
+        margin-top: 2rem;
+    }
 
-.suggestions-box h5 {
-    font-family: 'Orbitron', sans-serif;
-    color: var(--primary);
-    margin-bottom: 1rem;
-}
+    .suggestions-box h5 {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
 
-.suggestion-item {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 0.75rem;
-    gap: 0.5rem;
-}
+    .suggestion-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+        gap: 0.5rem;
+    }
 
-.suggestion-icon {
-    flex-shrink: 0;
-    color: var(--accent); /* Cyan for icons */
-    width: 1.2rem;
-    height: 1.2rem;
-    margin-top: 0.2rem; /* Align icon with text */
-}
+    .suggestion-icon {
+        flex-shrink: 0;
+        color: var(--accent); /* Cyan for icons */
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-top: 0.2rem; /* Align icon with text */
+    }
 
-.suggestion-text {
-    color: var(--foreground);
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
+    .suggestion-text {
+        color: var(--foreground);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
 
-.suggestion-text strong {
-    color: var(--primary); /* Highlight key phrases */
-}
-
+    .suggestion-text strong {
+        color: var(--primary); /* Highlight key phrases */
+    }
+    /* Styles for the duration selector - REMOVED from the HTML content */
 </style>
 {% endblock %}
 
@@ -351,12 +356,13 @@
         <div class="card shadow-lg bg-dark text-light border-secondary">
             <div class="card-body">
                 <h5 class="card-title text-primary">Sensor Data Trends (Last 24 Hours)</h5>
+                {# Removed duration selector as per user's request to keep UI #}
                 <div style="position: relative; height: 400px; width: 100%;">
                     <canvas id="sensorDataChart"></canvas>
                 </div>
             </div>
             <div class="card-footer text-center">
-                <small>Graphs showing historical sensor readings.</small>
+                <small>Graphs showing historical sensor readings with anomaly detection and future predictions.</small>
             </div>
         </div>
     </div>
@@ -367,13 +373,9 @@
             <div id="suggestionsList">
                 <div class="suggestion-item">
                     <svg class="suggestion-icon lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 3c0 1.8.7 3.3 1.5 4.5 1 .8 1.5 2.1 1.5 3.5"/><line x1="9" x2="11" y1="20" y2="20"/><line x1="12" x2="12" y1="17" y2="20"/><line x1="13" x2="15" y1="20" y2="20"/><path d="M12 20v2H8"/><path d="M16 20v2H12"/></svg>
-                    <p class="suggestion-text">Analyzing your recent **power consumption** patterns...</p>
+                    <p class="suggestion-text">Analyzing your recent **data** for insights...</p>
                 </div>
-                <div class="suggestion-item">
-                    <svg class="suggestion-icon lucide lucide-battery-charging"><path d="M15 7h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1"/><path d="M15 7V5.5A2.5 2.5 0 0 0 12.5 3h-2A2.5 2 0 0 0 8 5.5V7H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1c.67 0 1.3-.33 1.3-.67L11 15h2l.7 2.33c0 .34.63.67 1.3.67H17a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1"/><path d="m11 20 2-5h4"/><path d="m13 14-2 5h-4"/></svg>
-                    <p class="suggestion-text">**No specific anomalies** detected in the last 24 hours.</p>
-                </div>
-                <!-- More suggestions will be dynamically added here -->
+                <!-- Suggestions will be dynamically added here by JavaScript -->
             </div>
         </div>
     </div>
@@ -439,7 +441,7 @@
 
 {% endblock %}
 
-{% block extra_js %}
+{% block extra_js %} {# Ensure this block name matches your base.html #}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const deviceId = "{{ device.id }}";
@@ -450,202 +452,291 @@
         function renderChart(dataPoints, predictions, anomalies, type) {
             const ctx = document.getElementById('sensorDataChart')?.getContext('2d');
             if (!ctx) {
-                console.error("Canvas element not found!");
+                console.error("Canvas element 'sensorDataChart' not found!");
                 return;
             }
 
-            // Destroy existing chart if it exists
+            // Destroy existing chart if it exists to prevent overlap
             if (sensorChartInstance) {
                 sensorChartInstance.destroy();
             }
 
-            // Combine historical and predicted timestamps for x-axis labels
+            // Combine historical and predicted timestamps for x-axis labels (sorted uniquely)
             const allLabels = [...dataPoints.map(p => p.timestamp), ...predictions.map(p => p.timestamp)];
-            // Use a Set to get unique sorted timestamps for the x-axis
             const uniqueSortedLabels = [...new Set(allLabels)].sort();
 
             let datasets = [];
-            let chartTitle = "Sensor Data";
-            let primaryMetric = ''; // Will store the main metric like 'power' or 'water_level'
+            let chartTitle = "Sensor Data Trends";
+            let yAxisLabel = "Value";
 
             if (type === 'power_monitor') {
                 chartTitle = "Power Monitor Metrics & Forecast";
-                primaryMetric = 'power';
+                yAxisLabel = "Measurement";
 
-                const powerData = dataPoints.map(p => ({ x: p.timestamp, y: p.data.power }));
-                // Add anomaly data points for power
+                // Historical Data
+                datasets.push({
+                    label: 'Power (W)',
+                    data: dataPoints.map(p => ({ x: p.timestamp, y: p.data.power })),
+                    borderColor: 'rgb(75, 192, 192)', // Teal
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.2, // Slightly smoother curves
+                    fill: false,
+                    pointRadius: 3, // Make points visible
+                    pointBackgroundColor: 'rgb(75, 192, 192)',
+                    yAxisID: 'y'
+                });
+                datasets.push({
+                    label: 'Voltage (V)',
+                    data: dataPoints.map(p => ({ x: p.timestamp, y: p.data.voltage })),
+                    borderColor: 'rgb(255, 99, 132)', // Red
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.2,
+                    fill: false,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    yAxisID: 'y'
+                });
+                datasets.push({
+                    label: 'Current (A)',
+                    data: dataPoints.map(p => ({ x: p.timestamp, y: p.data.current })),
+                    borderColor: 'rgb(54, 162, 235)', // Blue
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    tension: 0.2,
+                    fill: false,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                    yAxisID: 'y'
+                });
+                datasets.push({
+                    label: 'Energy (kWh)',
+                    data: dataPoints.map(p => ({ x: p.timestamp, y: p.data.energy })),
+                    borderColor: 'rgb(201, 203, 207)', // Grey
+                    backgroundColor: 'rgba(201, 203, 207, 0.2)',
+                    tension: 0.2,
+                    fill: false,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgb(201, 203, 207)',
+                    yAxisID: 'y'
+                });
+                datasets.push({
+                    label: 'Frequency (Hz)',
+                    data: dataPoints.map(p => ({ x: p.timestamp, y: p.data.frequency })),
+                    borderColor: 'rgb(255, 205, 86)', // Yellow
+                    backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                    tension: 0.2,
+                    fill: false,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgb(255, 205, 86)',
+                    yAxisID: 'y'
+                });
+                datasets.push({
+                    label: 'Power Factor',
+                    data: dataPoints.map(p => ({ x: p.timestamp, y: p.data.power_factor })), 
+                    borderColor: 'rgb(153, 102, 255)', // Purple
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    tension: 0.2,
+                    fill: false,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgb(153, 102, 255)',
+                    yAxisID: 'y'
+                });
+
+                // Anomalies (Power)
                 const powerAnomalies = anomalies
                     .filter(a => a.metric === 'power')
                     .map(a => ({ x: a.timestamp, y: a.value }));
-
-                const powerPredictions = predictions.map(p => ({ x: p.timestamp, y: p.predicted_power }));
-                const powerPredictionsLower = predictions.map(p => ({ x: p.timestamp, y: p.lower_bound }));
-                const powerPredictionsUpper = predictions.map(p => ({ x: p.timestamp, y: p.upper_bound }));
-
-                datasets = [
-                    {
-                        label: 'Power (W)',
-                        data: powerData,
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.3,
-                        fill: false,
-                        yAxisID: 'y'
-                    },
-                    {
+                if (powerAnomalies.length > 0) {
+                    datasets.push({
                         label: 'Power Anomalies',
                         data: powerAnomalies,
-                        pointBackgroundColor: 'rgb(255, 0, 0)',
-                        pointBorderColor: 'rgb(255, 0, 0)',
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                        showLine: false,
-                        type: 'scatter', // Use scatter to show individual anomaly points
+                        pointBackgroundColor: 'rgb(255, 0, 0)', // Bright Red for anomalies
+                        pointBorderColor: 'rgb(255, 255, 255)',
+                        pointBorderWidth: 2,
+                        pointRadius: 8, // Larger radius to stand out
+                        pointHoverRadius: 10,
+                        showLine: false, // Don't connect anomaly points
+                        type: 'scatter', // Render as individual points
                         yAxisID: 'y'
-                    },
-                    {
+                    });
+                }
+
+                // Predictions (Power)
+                if (predictions.length > 0) {
+                    datasets.push({
                         label: 'Predicted Power (W)',
-                        data: powerPredictions,
-                        borderColor: 'rgb(255, 159, 64)',
-                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        data: predictions.map(p => ({ x: p.timestamp, y: p.predicted_power })),
+                        borderColor: 'rgb(0, 200, 0)', // Green for predictions
+                        backgroundColor: 'rgba(0, 200, 0, 0.2)',
                         borderDash: [5, 5], // Dotted line for prediction
-                        tension: 0.3,
+                        tension: 0.2,
                         fill: false,
+                        pointRadius: 0, // No points on prediction line
                         yAxisID: 'y'
-                    },
-                    {
-                        label: 'Prediction Bounds',
-                        data: powerPredictionsUpper,
-                        borderColor: 'rgba(255, 159, 64, 0.1)',
-                        backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                    });
+                    // Prediction Bounds
+                    datasets.push({
+                        label: 'Prediction Upper Bound',
+                        data: predictions.map(p => ({ x: p.timestamp, y: p.upper_bound })),
+                        borderColor: 'transparent',
+                        backgroundColor: 'rgba(0, 200, 0, 0.1)', // Light green fill for bounds
                         fill: '-1', // Fill area between this and the previous dataset (lower bound)
                         pointRadius: 0,
                         borderWidth: 0,
                         showLine: false,
                         yAxisID: 'y'
-                    },
-                     {
-                        label: 'Prediction Bounds (Lower)',
-                        data: powerPredictionsLower,
-                        borderColor: 'rgba(255, 159, 64, 0.1)',
-                        backgroundColor: 'rgba(255, 159, 64, 0.1)',
-                        fill: false, // This ensures the fill is between upper and lower
+                    });
+                    datasets.push({
+                        label: 'Prediction Lower Bound',
+                        data: predictions.map(p => ({ x: p.timestamp, y: p.lower_bound })),
+                        borderColor: 'transparent',
+                        backgroundColor: 'transparent', // This ensures fill is only above lower bound
+                        fill: false, // Important to prevent filling downwards
                         pointRadius: 0,
                         borderWidth: 0,
                         showLine: false,
                         yAxisID: 'y'
-                    }
-                ];
+                    });
+                }
+
             } else if (type === 'water_level') {
                 chartTitle = "Water Level History & Forecast";
-                primaryMetric = 'water_level';
-                
-                const waterLevelData = dataPoints.map(p => ({ x: p.timestamp, y: p.data.water_level }));
+                yAxisLabel = "Water Level (%)";
+
+                datasets.push({
+                    label: 'Water Level (%)',
+                    data: dataPoints.map(p => ({ x: p.timestamp, y: p.data.water_level })),
+                    borderColor: 'rgb(0, 123, 255)',
+                    backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                    tension: 0.2,
+                    fill: true, // Fill for water level makes sense
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgb(0, 123, 255)',
+                    yAxisID: 'y'
+                });
+
+                // Anomalies (Water Level)
                 const waterLevelAnomalies = anomalies
                     .filter(a => a.metric === 'water_level')
                     .map(a => ({ x: a.timestamp, y: a.value }));
-                
-                const waterLevelPredictions = predictions.map(p => ({ x: p.timestamp, y: p.predicted_water_level }));
-                const waterLevelPredictionsLower = predictions.map(p => ({ x: p.timestamp, y: p.lower_bound }));
-                const waterLevelPredictionsUpper = predictions.map(p => ({ x: p.timestamp, y: p.upper_bound }));
-
-                datasets = [
-                    {
-                        label: 'Water Level (%)',
-                        data: waterLevelData,
-                        borderColor: 'rgb(0, 123, 255)',
-                        backgroundColor: 'rgba(0, 123, 255, 0.2)',
-                        tension: 0.3,
-                        fill: true,
-                        yAxisID: 'y'
-                    },
-                    {
+                if (waterLevelAnomalies.length > 0) {
+                    datasets.push({
                         label: 'Water Level Anomalies',
                         data: waterLevelAnomalies,
-                        pointBackgroundColor: 'rgb(255, 0, 0)',
-                        pointBorderColor: 'rgb(255, 0, 0)',
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
+                        pointBackgroundColor: 'rgb(255, 0, 0)', // Bright Red
+                        pointBorderColor: 'rgb(255, 255, 255)',
+                        pointBorderWidth: 2,
+                        pointRadius: 8,
+                        pointHoverRadius: 10,
                         showLine: false,
                         type: 'scatter',
                         yAxisID: 'y'
-                    },
-                    {
+                    });
+                }
+
+                // Predictions (Water Level)
+                if (predictions.length > 0) {
+                     datasets.push({
                         label: 'Predicted Water Level (%)',
-                        data: waterLevelPredictions,
-                        borderColor: 'rgb(123, 0, 255)',
+                        data: predictions.map(p => ({ x: p.timestamp, y: p.predicted_water_level })),
+                        borderColor: 'rgb(123, 0, 255)', // Purple for predictions
                         backgroundColor: 'rgba(123, 0, 255, 0.2)',
                         borderDash: [5, 5],
-                        tension: 0.3,
+                        tension: 0.2,
                         fill: false,
+                        pointRadius: 0,
                         yAxisID: 'y'
-                    },
-                    {
-                        label: 'Prediction Bounds',
-                        data: waterLevelPredictionsUpper,
-                        borderColor: 'rgba(123, 0, 255, 0.1)',
-                        backgroundColor: 'rgba(123, 0, 255, 0.1)',
+                    });
+                     // Prediction Bounds
+                    datasets.push({
+                        label: 'Prediction Upper Bound',
+                        data: predictions.map(p => ({ x: p.timestamp, y: p.upper_bound })),
+                        borderColor: 'transparent',
+                        backgroundColor: 'rgba(123, 0, 255, 0.1)', // Light purple fill for bounds
                         fill: '-1',
                         pointRadius: 0,
                         borderWidth: 0,
                         showLine: false,
                         yAxisID: 'y'
-                    },
-                    {
-                        label: 'Prediction Bounds (Lower)',
-                        data: waterLevelPredictionsLower,
-                        borderColor: 'rgba(123, 0, 255, 0.1)',
-                        backgroundColor: 'rgba(123, 0, 255, 0.1)',
+                    });
+                    datasets.push({
+                        label: 'Prediction Lower Bound',
+                        data: predictions.map(p => ({ x: p.timestamp, y: p.lower_bound })),
+                        borderColor: 'transparent',
+                        backgroundColor: 'transparent', // This ensures fill is only above lower bound
                         fill: false,
                         pointRadius: 0,
                         borderWidth: 0,
                         showLine: false,
                         yAxisID: 'y'
-                    }
-                ];
+                    });
+                }
             } else {
-                // Default case if device type not specifically handled
-                datasets = [];
-                chartTitle = "No Chart Available for This Device Type";
+                // If device type not specifically handled, provide a fallback message on canvas
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = '18px Inter, sans-serif'; 
+                ctx.fillStyle = 'var(--muted-foreground)';
+                ctx.textAlign = 'center';
+                ctx.fillText('Analysis not available for this device type.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return; // Exit if no chart can be rendered
             }
 
             // Create the chart
             sensorChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: uniqueSortedLabels.map(ts => new Date(ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })),
+                    // Chart.js `time` scale handles parsing ISO strings directly; no need for `toLocaleTimeString` here
+                    labels: uniqueSortedLabels, 
                     datasets: datasets
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: {
-                        mode: 'index',
-                        intersect: false,
+                        mode: 'index', // Allows hovering over multiple datasets at a point
+                        intersect: false, // Ensures tooltip shows even if not directly over a point
                     },
                     plugins: {
                         title: {
                             display: true,
                             text: chartTitle,
-                            color: 'var(--foreground)'
+                            color: 'var(--foreground)',
+                            font: {
+                                size: 18,
+                                family: 'Orbitron',
+                                weight: 'bold'
+                            }
                         },
                         legend: {
                             labels: {
-                                color: 'var(--muted-foreground)'
+                                color: 'var(--muted-foreground)',
+                                font: {
+                                    size: 14
+                                }
                             }
                         },
                         tooltip: {
+                            backgroundColor: 'rgba(44, 62, 80, 0.9)', // Darker, more opaque tooltip
+                            titleColor: '#e0e0e0',
+                            bodyColor: '#e0e0e0',
+                            borderColor: 'var(--primary)',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            padding: 10,
                             callbacks: {
                                 title: function(context) {
-                                    return new Date(context[0].parsed.x).toLocaleString();
+                                    // Display full timestamp in tooltip title
+                                    return Luxon.DateTime.fromISO(context[0].label).toLocaleString(Luxon.DateTime.DATETIME_FULL);
                                 },
                                 label: function(context) {
                                     let label = context.dataset.label || '';
                                     if (label) {
                                         label += ': ';
                                     }
-                                    if (context.parsed.y !== null) {
-                                        label += context.parsed.y.toFixed(2);
+                                    // Check if context.parsed.y is a valid number before formatting
+                                    if (typeof context.parsed.y === 'number' && !isNaN(context.parsed.y)) {
+                                        label += context.parsed.y.toFixed(2); // Format numerical values
+                                    } else {
+                                        label += 'N/A';
                                     }
                                     return label;
                                 }
@@ -654,23 +745,26 @@
                     },
                     scales: {
                         x: {
-                            type: 'time', // Use 'time' scale for better date/time handling
+                            type: 'time', 
                             time: {
                                 unit: 'hour',
+                                tooltipFormat: 'MMM d, yyyy h:mm:ss a', // Detailed tooltip
                                 displayFormats: {
-                                    hour: 'h:mm a'
+                                    hour: 'h:mm a', // Display hour and minute on axis
+                                    day: 'MMM d',   // Display day for longer ranges
                                 }
                             },
                             title: {
                                 display: true,
                                 text: 'Time',
-                                color: 'var(--muted-foreground)'
+                                color: 'var(--muted-foreground)',
+                                font: { size: 16 }
                             },
                             ticks: {
                                 color: 'var(--muted-foreground)'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.05)'
+                                color: 'rgba(255, 255, 255, 0.08)' // Brighter grid lines
                             }
                         },
                         y: {
@@ -678,14 +772,15 @@
                             position: 'left',
                             title: {
                                 display: true,
-                                text: 'Value',
-                                color: 'var(--muted-foreground)'
+                                text: yAxisLabel, // Dynamic Y-axis label
+                                color: 'var(--muted-foreground)',
+                                font: { size: 16 }
                             },
                             ticks: {
                                 color: 'var(--muted-foreground)'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.05)'
+                                color: 'rgba(255, 255, 255, 0.08)' // Brighter grid lines
                             }
                         }
                     }
@@ -699,75 +794,111 @@
             if (suggestionsListDiv) {
                 suggestionsListDiv.innerHTML = ''; // Clear previous suggestions
 
-                if (suggestions.length === 0 || (suggestions.length === 1 && suggestions[0].includes("No new suggestions"))) {
+                if (!suggestions || suggestions.length === 0 || (suggestions.length === 1 && suggestions[0].includes("No data to analyze"))) {
                     suggestionsListDiv.innerHTML = `
                         <div class="suggestion-item">
-                            <svg class="suggestion-icon lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9.2 10.2 3 3L22 3"/></svg>
+                            <svg class="suggestion-icon lucide lucide-check-circle" style="color: var(--accent);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9.2 10.2 3 3L22 3"/></svg>
                             <p class="suggestion-text">Everything looks normal. No specific suggestions at this time.</p>
                         </div>
                     `;
                 } else {
                     suggestions.forEach(s => {
                         let iconSvg = '';
-                        // Determine icon based on suggestion content
-                        if (s.includes("Anomaly") || s.includes("spike") || s.includes("critically low") || s.includes("very high")) {
-                            iconSvg = `<svg class="suggestion-icon lucide lucide-alert-triangle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
-                        } else if (s.includes("optimize usage") || s.includes("forecast looks normal")) {
-                             iconSvg = `<svg class="suggestion-icon lucide lucide-bar-chart"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`;
+                        let textColor = 'var(--foreground)'; // Default text color
+
+                        // Determine icon and text color based on suggestion content
+                        if (s.includes("Anomaly") || s.includes("spike") || s.includes("critically low") || s.includes("very high") || s.includes("🚨")) {
+                            iconSvg = `<svg class="suggestion-icon lucide lucide-alert-triangle" style="color: var(--destructive);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
+                            textColor = 'var(--destructive)';
+                        } else if (s.includes("Could not run") || s.includes("Not enough diverse data") || s.includes("⚠️")) {
+                            iconSvg = `<svg class="suggestion-icon lucide lucide-frown" style="color: var(--warning);"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>`;
+                            textColor = 'var(--warning)';
+                        }
+                        else if (s.includes("optimize usage") || s.includes("forecast looks normal") || s.includes("stable") || s.includes("✅") || s.includes("💡")) {
+                             iconSvg = `<svg class="suggestion-icon lucide lucide-bar-chart" style="color: var(--primary);"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`;
+                             textColor = 'var(--primary)'; // Changed to primary for positive suggestions
                         } else if (s.includes("low water") || s.includes("refilling")) {
-                            iconSvg = `<svg class="suggestion-icon lucide lucide-droplet-half"><path d="M12 2v20c-3.5-1.5-6-4-6-8 0-4.8 2.6-7.8 6-10z"/></svg>`;
+                            iconSvg = `<svg class="suggestion-icon lucide lucide-droplet-half" style="color: var(--destructive);"><path d="M12 2v20c-3.5-1.5-6-4-6-8 0-4.8 2.6-7.8 6-10z"/></svg>`;
+                            textColor = 'var(--destructive)';
                         } else if (s.includes("high water") || s.includes("overflow")) {
-                            iconSvg = `<svg class="suggestion-icon lucide lucide-droplet"><path d="M12 2.69V20a2 2 0 0 0 2 2c1.66 0 2-1.34 2-2 0-1.85-1.33-2.5-2-3.62L10 14a2 2 0 0 1-2-2V6.15c0-1.78 1.06-2.09 2-2.09 1.55 0 2 1.98 2 3.15Z"/></svg>`;
+                            iconSvg = `<svg class="suggestion-icon lucide lucide-droplet" style="color: var(--warning);"><path d="M12 2.69V20a2 2 0 0 0 2 2c1.66 0 2-1.34 2-2 0-1.85-1.33-2.5-2-3.62L10 14a2 2 0 0 1-2-2V6.15c0-1.78 1.06-2.09 2-2.09 1.55 0 2 1.98 2 3.15Z"/></svg>`;
+                            textColor = 'var(--warning)';
                         } else {
-                            iconSvg = `<svg class="suggestion-icon lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9.2 10.2 3 3L22 3"/></svg>`;
+                            iconSvg = `<svg class="suggestion-icon lucide lucide-info" style="color: var(--accent);"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`; // Default info icon
+                            textColor = 'var(--foreground)';
                         }
 
                         const suggestionItem = document.createElement('div');
                         suggestionItem.className = 'suggestion-item';
                         suggestionItem.innerHTML = `
                             ${iconSvg}
-                            <p class="suggestion-text">${s}</p>
+                            <p class="suggestion-text" style="color: ${textColor};">${s}</p>
                         `;
                         suggestionsListDiv.appendChild(suggestionItem);
                     });
                 }
             }
         }
-        
-        // Function to fetch and render historical data and suggestions
+
+        // Function to fetch and render historical data, predictions, anomalies, and suggestions
         async function fetchAndRenderAnalysis() {
+            // Show loading state for suggestions
+            const suggestionsListDiv = document.getElementById('suggestionsList');
+            if (suggestionsListDiv) {
+                suggestionsListDiv.innerHTML = `
+                    <div class="suggestion-item">
+                        <svg class="suggestion-icon lucide lucide-loader-2 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        <p class="suggestion-text">Loading analysis data and suggestions...</p>
+                    </div>
+                `;
+            }
+
             try {
-                // Fetch analysis data from the new API endpoint
-                const response = await fetch(`/api/v1/devices/${deviceId}/analysis/?duration=24h`); // Default to 24h
+                // *** THIS IS THE CRUCIAL CHANGE: Matching the backend URL structure ***
+                const apiUrl = `/api/v1/device/${deviceId}/analysis/?duration=24h`; 
+                const response = await fetch(apiUrl);
+
+                // --- DEBUGGING: Check network response ---
+                console.log(`Fetching analysis data from: ${apiUrl}`);
+                console.log('Response status:', response.status);
+                // --- END DEBUGGING ---
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
                 
+                // --- DEBUGGING: Log the full data object received from the API for analysis ---
+                console.log('Received analysis data:', data); 
+                // --- END DEBUGGING ---
+
+                // Render Chart if data points are available
                 if (data.data_points && data.data_points.length > 0) {
                     renderChart(data.data_points, data.predictions || [], data.anomalies || [], deviceType);
                 } else {
-                    // If no data points, clear chart and show no data message
+                    // If no data points, clear chart and show no data message on canvas
                     if (sensorChartInstance) {
                         sensorChartInstance.destroy();
                         sensorChartInstance = null;
                     }
-                    // Display message in chart area
                     const ctx = document.getElementById('sensorDataChart')?.getContext('2d');
                     if (ctx) {
                         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                        ctx.font = '18px Arial';
+                        ctx.font = '18px Inter, sans-serif'; 
                         ctx.fillStyle = 'var(--muted-foreground)';
                         ctx.textAlign = 'center';
-                        ctx.fillText('No sensor data available for charting.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                        ctx.fillText('No sensor data available for charting in this period.', ctx.canvas.width / 2, ctx.canvas.height / 2);
                     }
                 }
                 
-                renderSuggestions(data.suggestions || []); // Pass empty array if no suggestions
+                // Render Suggestions
+                renderSuggestions(data.suggestions || []); 
+
+                // The table is rendered by Django, so no JavaScript rendering for the table is needed here.
 
             } catch (error) {
                 console.error(`Error fetching analysis data for device ${deviceId}:`, error);
-                // Display error message to user
+                // Display error message to user in suggestions box and chart area
                 const suggestionsListDiv = document.getElementById('suggestionsList');
                 if (suggestionsListDiv) {
                     suggestionsListDiv.innerHTML = `
@@ -784,7 +915,7 @@
                 const ctx = document.getElementById('sensorDataChart')?.getContext('2d');
                     if (ctx) {
                         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                        ctx.font = '18px Arial';
+                        ctx.font = '18px Inter, sans-serif';
                         ctx.fillStyle = 'var(--destructive)';
                         ctx.textAlign = 'center';
                         ctx.fillText('Error loading chart data.', ctx.canvas.width / 2, ctx.canvas.height / 2);
@@ -792,7 +923,7 @@
             }
         }
 
-        // Initial fetch and render
+        // Initial fetch and render when the page loads
         fetchAndRenderAnalysis();
 
         // Optional: Periodically refresh analysis (be mindful of server load)
