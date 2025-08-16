@@ -700,12 +700,12 @@
                 suggestionsListDiv.innerHTML = ''; // Clear previous suggestions
 
                 if (suggestions.length === 0 || (suggestions.length === 1 && suggestions[0].includes("No new suggestions"))) {
-                    suggestionsListDiv.innerHTML = `
-                        <div class="suggestion-item">
+                    suggestionsListDiv.innerHTML = 
+                        `<div class="suggestion-item">
                             <svg class="suggestion-icon lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9.2 10.2 3 3L22 3"/></svg>
                             <p class="suggestion-text">Everything looks normal. No specific suggestions at this time.</p>
-                        </div>
-                    `;
+                        </div>`
+                    ;
                 } else {
                     suggestions.forEach(s => {
                         let iconSvg = '';
@@ -738,7 +738,7 @@
         async function fetchAndRenderAnalysis() {
             try {
                 // Fetch analysis data from the new API endpoint
-                const response = await fetch(`/api/v1/devices/${deviceId}/analysis/?duration=24h`); // Default to 24h
+                const response = await fetch(`/api/v1/device/${deviceId}/analysis/?duration=24h`); // Default to 24h
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
