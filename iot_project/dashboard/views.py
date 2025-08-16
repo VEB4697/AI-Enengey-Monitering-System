@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from core.models import Device
 from device_api.models import DeviceCommandQueue, SensorData
+from device_api.views import  DeviceAnalysisAPIView
 
 # REQUIRED IMPORT FOR APIView
 from rest_framework.views import APIView 

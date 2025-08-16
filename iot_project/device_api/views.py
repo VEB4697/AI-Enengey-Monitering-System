@@ -326,6 +326,11 @@ class DeviceAnalysisAPIView(APIView):
                     try:
                         prophet_df = df[['power']].reset_index().rename(columns={'timestamp': 'ds', 'power': 'y'})
                         
+                        # --- FIX FOR PROPHET TIMEZONE ERROR - Add this line after renaming to 'ds' ---
+                        if prophet_df['ds'].dt.tz is not None:
+                            prophet_df['ds'] = prophet_df['ds'].dt.tz_localize(None)
+                        # --- END FIX ---
+
                         m = Prophet(daily_seasonality=True, changepoint_prior_scale=0.05) 
                         m.fit(prophet_df)
 

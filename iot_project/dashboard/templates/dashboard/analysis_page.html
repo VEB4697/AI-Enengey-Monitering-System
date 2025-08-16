@@ -7,7 +7,7 @@
 <!-- Chart.js for dynamic charts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- REQUIRED for Chart.js time scale: https://www.chartjs.org/docs/latest/axes/timeseries.html#date-adapters -->
-<script src="https://cdn.jsdelivr.net/npm/luxon@3.x/build/global/luxon.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.x/build/global/luxon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.x/dist/chartjs-adapter-luxon.min.js"></script>
 
 <!-- Google Fonts and Lucide Icons for consistency -->
@@ -15,7 +15,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700&display=swap"
     rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 <style>
     /* Merged CSS from homepage.html for animations and background */
     * {
@@ -46,7 +46,8 @@
         --input: hsl(222, 47%, 12%);
         --destructive: hsl(0, 84%, 60%);
         /* Red for errors */
-        --warning: hsl(40, 95%, 55%); /* Orange for warnings */
+        --warning: hsl(40, 95%, 55%);
+        /* Orange for warnings */
 
         /* Gradients */
         --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -285,13 +286,15 @@
     .fade-in-up {
         animation-name: fadeInUp;
     }
+
     .theme-alert {
         background: var(--card);
         border: 1px solid var(--primary);
         color: var(--foreground);
         border-radius: 8px;
         padding: 1.5rem;
-        box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5); /* Add a glowing effect */
+        box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5);
+        /* Add a glowing effect */
         transition: box-shadow 0.3s ease-in-out;
     }
 
@@ -300,7 +303,8 @@
     }
 
     .theme-alert h4 {
-        color: var(--primary); /* Highlight the heading */
+        color: var(--primary);
+        /* Highlight the heading */
     }
 
     /* Specific styles for the Suggestions box */
@@ -311,12 +315,51 @@
         padding: 1.5rem;
         box-shadow: var(--shadow-glass);
         margin-top: 2rem;
+        /* Set a fixed height that aligns with the graph, e.g., graph height + header/footer padding */
+        height: 510px;
+        /* Adjust this value to match your graph's height + card-body padding */
+        display: flex;
+        /* Use flexbox for internal layout */
+        flex-direction: column;
+        /* Stack content vertically */
     }
 
     .suggestions-box h5 {
         font-family: 'Orbitron', sans-serif;
         color: var(--primary);
         margin-bottom: 1rem;
+        flex-shrink: 0;
+        /* Prevent title from shrinking */
+    }
+
+    /* Make the suggestions list itself scrollable */
+    #suggestionsList {
+        overflow-y: auto;
+        /* Enable vertical scrolling */
+        flex-grow: 1;
+        /* Allow it to take up available space */
+        padding-right: 10px;
+        /* Add some padding for the scrollbar */
+    }
+
+    /* Custom scrollbar for better aesthetics (optional) */
+    #suggestionsList::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #suggestionsList::-webkit-scrollbar-track {
+        background: var(--muted);
+        border-radius: 10px;
+    }
+
+    #suggestionsList::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+        border: 2px solid var(--muted);
+    }
+
+    #suggestionsList::-webkit-scrollbar-thumb:hover {
+        background: var(--accent);
     }
 
     .suggestion-item {
@@ -328,10 +371,12 @@
 
     .suggestion-icon {
         flex-shrink: 0;
-        color: var(--accent); /* Cyan for icons */
+        color: var(--accent);
+        /* Cyan for icons */
         width: 1.2rem;
         height: 1.2rem;
-        margin-top: 0.2rem; /* Align icon with text */
+        margin-top: 0.2rem;
+        /* Align icon with text */
     }
 
     .suggestion-text {
@@ -341,9 +386,9 @@
     }
 
     .suggestion-text strong {
-        color: var(--primary); /* Highlight key phrases */
+        color: var(--primary);
+        /* Highlight key phrases */
     }
-    /* Styles for the duration selector - REMOVED from the HTML content */
 </style>
 {% endblock %}
 
@@ -372,7 +417,15 @@
             <h5 class="card-title">Intelligent Suggestions</h5>
             <div id="suggestionsList">
                 <div class="suggestion-item">
-                    <svg class="suggestion-icon lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 3c0 1.8.7 3.3 1.5 4.5 1 .8 1.5 2.1 1.5 3.5"/><line x1="9" x2="11" y1="20" y2="20"/><line x1="12" x2="12" y1="17" y2="20"/><line x1="13" x2="15" y1="20" y2="20"/><path d="M12 20v2H8"/><path d="M16 20v2H12"/></svg>
+                    <svg class="suggestion-icon lucide lucide-lightbulb">
+                        <path
+                            d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 3c0 1.8.7 3.3 1.5 4.5 1 .8 1.5 2.1 1.5 3.5" />
+                        <line x1="9" x2="11" y1="20" y2="20" />
+                        <line x1="12" x2="12" y1="17" y2="20" />
+                        <line x1="13" x2="15" y1="20" y2="20" />
+                        <path d="M12 20v2H8" />
+                        <path d="M16 20v2H12" />
+                    </svg>
                     <p class="suggestion-text">Analyzing your recent **data** for insights...</p>
                 </div>
                 <!-- Suggestions will be dynamically added here by JavaScript -->
@@ -418,12 +471,14 @@
                                 <td>{{ data_entry.data.energy|floatformat:2|default:"N/A" }}</td>
                                 <td>{{ data_entry.data.frequency|floatformat:2|default:"N/A" }}</td>
                                 <td>{{ data_entry.data.power_factor|floatformat:2|default:"N/A" }}</td>
-                                <td><span class="badge {% if data_entry.data.relay_state %}bg-success{% else %}bg-danger{% endif %}">
-                                {{ data_entry.data.relay_state|yesno:"ON,OFF"|default:"N/A" }}</span></td>
+                                <td><span
+                                        class="badge {% if data_entry.data.relay_state %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ data_entry.data.relay_state|yesno:"ON,OFF"|default:"N/A" }}</span></td>
                                 {% elif device.device_type == 'water_level' %}
                                 <td>{{ data_entry.data.water_level|floatformat:2|default:"N/A" }}</td>
                                 {% else %}
-                                <td>{{ data_entry.data|default:"N/A" }}</td> {# Display raw dict if no specific fields #}
+                                <td>{{ data_entry.data|default:"N/A" }}</td> {# Display raw dict if no specific fields
+                                #}
                                 {% endif %}
                             </tr>
                             {% empty %}
@@ -531,7 +586,7 @@
                 });
                 datasets.push({
                     label: 'Power Factor',
-                    data: dataPoints.map(p => ({ x: p.timestamp, y: p.data.power_factor })), 
+                    data: dataPoints.map(p => ({ x: p.timestamp, y: p.data.power_factor })),
                     borderColor: 'rgb(153, 102, 255)', // Purple
                     backgroundColor: 'rgba(153, 102, 255, 0.2)',
                     tension: 0.2,
@@ -635,7 +690,7 @@
 
                 // Predictions (Water Level)
                 if (predictions.length > 0) {
-                     datasets.push({
+                    datasets.push({
                         label: 'Predicted Water Level (%)',
                         data: predictions.map(p => ({ x: p.timestamp, y: p.predicted_water_level })),
                         borderColor: 'rgb(123, 0, 255)', // Purple for predictions
@@ -646,7 +701,7 @@
                         pointRadius: 0,
                         yAxisID: 'y'
                     });
-                     // Prediction Bounds
+                    // Prediction Bounds
                     datasets.push({
                         label: 'Prediction Upper Bound',
                         data: predictions.map(p => ({ x: p.timestamp, y: p.upper_bound })),
@@ -673,7 +728,7 @@
             } else {
                 // If device type not specifically handled, provide a fallback message on canvas
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                ctx.font = '18px Inter, sans-serif'; 
+                ctx.font = '18px Inter, sans-serif';
                 ctx.fillStyle = 'var(--muted-foreground)';
                 ctx.textAlign = 'center';
                 ctx.fillText('Analysis not available for this device type.', ctx.canvas.width / 2, ctx.canvas.height / 2);
@@ -685,7 +740,7 @@
                 type: 'line',
                 data: {
                     // Chart.js `time` scale handles parsing ISO strings directly; no need for `toLocaleTimeString` here
-                    labels: uniqueSortedLabels, 
+                    labels: uniqueSortedLabels,
                     datasets: datasets
                 },
                 options: {
@@ -723,11 +778,11 @@
                             cornerRadius: 6,
                             padding: 10,
                             callbacks: {
-                                title: function(context) {
+                                title: function (context) {
                                     // Display full timestamp in tooltip title
                                     return Luxon.DateTime.fromISO(context[0].label).toLocaleString(Luxon.DateTime.DATETIME_FULL);
                                 },
-                                label: function(context) {
+                                label: function (context) {
                                     let label = context.dataset.label || '';
                                     if (label) {
                                         label += ': ';
@@ -745,7 +800,7 @@
                     },
                     scales: {
                         x: {
-                            type: 'time', 
+                            type: 'time',
                             time: {
                                 unit: 'hour',
                                 tooltipFormat: 'MMM d, yyyy h:mm:ss a', // Detailed tooltip
@@ -800,7 +855,7 @@
                             <svg class="suggestion-icon lucide lucide-check-circle" style="color: var(--accent);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9.2 10.2 3 3L22 3"/></svg>
                             <p class="suggestion-text">Everything looks normal. No specific suggestions at this time.</p>
                         </div>`
-                    ;
+                        ;
                 } else {
                     suggestions.forEach(s => {
                         let iconSvg = '';
@@ -815,8 +870,8 @@
                             textColor = 'var(--warning)';
                         }
                         else if (s.includes("optimize usage") || s.includes("forecast looks normal") || s.includes("stable") || s.includes("✅") || s.includes("💡")) {
-                             iconSvg = `<svg class="suggestion-icon lucide lucide-bar-chart" style="color: var(--primary);"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`;
-                             textColor = 'var(--primary)'; // Changed to primary for positive suggestions
+                            iconSvg = `<svg class="suggestion-icon lucide lucide-bar-chart" style="color: var(--primary);"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`;
+                            textColor = 'var(--primary)'; // Changed to primary for positive suggestions
                         } else if (s.includes("low water") || s.includes("refilling")) {
                             iconSvg = `<svg class="suggestion-icon lucide lucide-droplet-half" style="color: var(--destructive);"><path d="M12 2v20c-3.5-1.5-6-4-6-8 0-4.8 2.6-7.8 6-10z"/></svg>`;
                             textColor = 'var(--destructive)';
@@ -855,7 +910,7 @@
 
             try {
                 // *** THIS IS THE CRUCIAL CHANGE: Matching the backend URL structure ***
-                const apiUrl = `/api/v1/device/${deviceId}/analysis/?duration=24h`; 
+                const apiUrl = `/api/v1/device/${deviceId}/analysis/?duration=24h`;
                 const response = await fetch(apiUrl);
 
                 // --- DEBUGGING: Check network response ---
@@ -867,9 +922,9 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                
+
                 // --- DEBUGGING: Log the full data object received from the API for analysis ---
-                console.log('Received analysis data:', data); 
+                console.log('Received analysis data:', data);
                 // --- END DEBUGGING ---
 
                 // Render Chart if data points are available
@@ -884,15 +939,15 @@
                     const ctx = document.getElementById('sensorDataChart')?.getContext('2d');
                     if (ctx) {
                         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                        ctx.font = '18px Inter, sans-serif'; 
+                        ctx.font = '18px Inter, sans-serif';
                         ctx.fillStyle = 'var(--muted-foreground)';
                         ctx.textAlign = 'center';
                         ctx.fillText('No sensor data available for charting in this period.', ctx.canvas.width / 2, ctx.canvas.height / 2);
                     }
                 }
-                
+
                 // Render Suggestions
-                renderSuggestions(data.suggestions || []); 
+                renderSuggestions(data.suggestions || []);
 
                 // The table is rendered by Django, so no JavaScript rendering for the table is needed here.
 
@@ -913,13 +968,13 @@
                     sensorChartInstance = null;
                 }
                 const ctx = document.getElementById('sensorDataChart')?.getContext('2d');
-                    if (ctx) {
-                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                        ctx.font = '18px Inter, sans-serif';
-                        ctx.fillStyle = 'var(--destructive)';
-                        ctx.textAlign = 'center';
-                        ctx.fillText('Error loading chart data.', ctx.canvas.width / 2, ctx.canvas.height / 2);
-                    }
+                if (ctx) {
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    ctx.font = '18px Inter, sans-serif';
+                    ctx.fillStyle = 'var(--destructive)';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Error loading chart data.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                }
             }
         }
 
@@ -927,7 +982,7 @@
         fetchAndRenderAnalysis();
 
         // Optional: Periodically refresh analysis (be mindful of server load)
-        // setInterval(fetchAndRenderAnalysis, 60000); // Refresh every minute (60 seconds)
+        setInterval(fetchAndRenderAnalysis, 15000); // Refresh every minute (60 seconds)
     });
 </script>
 {% endblock %}
