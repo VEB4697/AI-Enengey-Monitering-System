@@ -10,7 +10,7 @@ SECRET_KEY = 'xt/:#uz6MUy:O44kTbzbXH.[Cz,#68JqSdFlw/V;Nb}98G@bx' # PASTE YOUR GE
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True # Keep this as True for now
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.116', 'smartiot11.pythonanywhere.com'] 
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.116', 'smartiot11.pythonanywhere.com', '.vercel.app'] # Add your domain or IP here
 
 INSTALLED_APPS = [
     'django.contrib.admin',
